@@ -26,14 +26,14 @@ void loop()
 
       case filter1:
       {
-        Serial.println("filter1 change");
+        //Serial.println("filter1 change");
         DACwriteChannelA(newCC.value);
         break;
       }
 
       case filter2:
       {
-        Serial.println("filter2 change");
+        //Serial.println("filter2 change");
         DACwriteChannelB(newCC.value);
         break;
       }

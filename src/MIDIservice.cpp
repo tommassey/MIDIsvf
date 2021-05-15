@@ -7,9 +7,6 @@ CCevent readMIDI()
   static uint16_t oldCutoff[totalFilters] = {0};
 
   static uint8_t filterValues[totalFiltValues];
-  static uint16_t sixteenBitNumber;
-  static uint16_t twelveBitNumber;
-  static bool gotBothBytes[totalFilters] = {false};
 
   if (usbMIDI.read())
   {             
@@ -17,76 +14,73 @@ CCevent readMIDI()
     {
       case usbMIDI.ControlChange:
       {
-         //digitalWrite(LED_BUILTIN, HIGH);
+        byte data1 = usbMIDI.getData1();
+        //Serial.print("data1 = ");
+        //Serial.print(data1);
 
-        byte gotData1 = usbMIDI.getData1();
-        switch (gotData1)
+        byte data2 = usbMIDI.getData2();
+        //Serial.print("      data2 = ");
+        //Serial.println(data2);
+
+        switch (data1)
         {
-          case Filter1CCmsb: filterValues[filt1MSB] = usbMIDI.getData2();
+          case Filter1CCmsb:
+          {
+            filterValues[filt1MSB] = data2;
+            break;
+          }
 
           case Filter1CClsb:
           {
-            filterValues[filt1LSB] = usbMIDI.getData2();
-            gotBothBytes[filter1] = true;
+            filterValues[filt1LSB] = data2;
+            uint16_t sixteenBitNumber = BitShiftCombine(filterValues[filt1MSB], filterValues[filt1LSB]);
+            uint16_t twelveBitNumber = sixteenBitNumber>>3;
+            if (twelveBitNumber != oldCutoff[filter1])
+            {
+              oldCutoff[filter1] = cutoff[filter1];
+              cutoff[filter1] = twelveBitNumber;
+
+              ccevent = {filter1, cutoff[filter1]};
+              //printCC(ccevent.whichCC, ccevent.value);
+              return ccevent;
+            }
           }
 
-          case Filter2CCmsb: filterValues[filt2MSB] = usbMIDI.getData2();
+          case Filter2CCmsb:
+          {
+            filterValues[filt2MSB] = data2;
+            break;
+          }
 
           case Filter2CClsb:
           {
-            filterValues[filt2LSB] = usbMIDI.getData2();
-            gotBothBytes[filter2] = true;
+            filterValues[filt2LSB] = data2;
+            uint16_t sixteenBitNumber = BitShiftCombine(filterValues[filt2MSB], filterValues[filt2LSB]);
+            uint16_t twelveBitNumber = sixteenBitNumber>>3;
+            if (twelveBitNumber != oldCutoff[filter2])
+            {
+              oldCutoff[filter2] = cutoff[filter2];
+              cutoff[filter2] = twelveBitNumber;
+
+              ccevent = {filter2, cutoff[filter2]};
+              //printCC(ccevent.whichCC, ccevent.value);
+              return ccevent;
+            }
           }
         }
       }
     }
   }
-
-  if (gotBothBytes[filter1])
-         {
-          sixteenBitNumber = BitShiftCombine(filterValues[filt1MSB], filterValues[filt1LSB]);
-          twelveBitNumber = sixteenBitNumber>>3;
-          if (twelveBitNumber != oldCutoff[filter1])
-          {
-            oldCutoff[filter1] = cutoff[filter1];
-            cutoff[filter1] = twelveBitNumber;
-            gotBothBytes[filter1] = false;
-            ccevent = {filter1, cutoff[filter1]};
-
-            Serial.print("cc event    channel ");
-            Serial.print(ccevent.whichCC);
-            Serial.print("    value ");
-            Serial.println(ccevent.value);
-
-            return ccevent;
-          }
-
-          
-        }
-
-    if (gotBothBytes[filter2])
-         {    
-          sixteenBitNumber = BitShiftCombine(filterValues[filt2MSB], filterValues[filt2LSB]);
-          twelveBitNumber = sixteenBitNumber>>3;
-          if (twelveBitNumber != oldCutoff[filter2])
-          {
-            oldCutoff[filter2] = cutoff[filter2];
-            cutoff[filter2] = twelveBitNumber;
-            gotBothBytes[filter2] = false;
-            ccevent = {filter2, cutoff[filter2]};
-
-            Serial.print("cc event    channel ");
-            Serial.print(ccevent.whichCC);
-            Serial.print("    value ");
-            Serial.println(ccevent.value);
-
-            return ccevent;
-          }
-        }
-
   return ccevent;
 }
 
+void printCC(int cc, int val)
+{
+  Serial.print("cc event    channel ");
+  Serial.print(cc);
+  Serial.print("    value ");
+  Serial.println(val);
+}
 
 
 

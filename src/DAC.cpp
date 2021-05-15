@@ -25,8 +25,8 @@ void initMCP4xxx()
 
 void DACwriteChannelA(uint16_t data)
 {
-             Serial.print("dacwrite  ");
-             Serial.println(data);
+             //Serial.print("dacwrite  ");
+             //Serial.println(data);
 
 
     SPI.beginTransaction(SPISettings(20000000, MSBFIRST, SPI_MODE0));

@@ -41,7 +41,9 @@ struct CCevent
 CCevent readMIDI();
 uint16_t getMIDIvalue();
 
-uint16_t BitShiftCombine( uint8_t x_high, uint8_t x_low);
+void printCC(int cc, int val);
+
+uint16_t BitShiftCombine(uint8_t x_high, uint8_t x_low);
 
 
 
