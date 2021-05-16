@@ -37,9 +37,9 @@ struct CCevent
 
 
 
-
-CCevent readMIDI();
-uint16_t getMIDIvalue();
+void checkMIDI(void);
+CCevent readMIDI(void);
+uint16_t getMIDIvalue(void);
 
 void printCC(int cc, int val);
 

@@ -3,48 +3,29 @@
 #include "MIDIservice.h"
 
 
+
 void setup()
 {
-  Serial.begin(9600);
-  initMCP4xxx();
+  delay(2000);
   setupStuff();
+
+  if (digitalRead(CONFIG_SWITCH_PIN) == LOW)
+  {
+    Serial.println("ConfigMode");
+    while (1)
+    {
+      MIDIconfigMode();
+    }
+  }
+
+  //else
+  initMCP4xxx();
 }
 
 
 void loop()
 {
-  CCevent newCC = readMIDI();
-
-
-  switch (newCC.whichCC)
-  {
-      case nofilter:
-      {
-        //Serial.println("no change");
-        break;
-      } 
-
-      case filter1:
-      {
-        //Serial.println("filter1 change");
-        DACwriteChannelA(newCC.value);
-        break;
-      }
-
-      case filter2:
-      {
-        //Serial.println("filter2 change");
-        DACwriteChannelB(newCC.value);
-        break;
-      }
-
-      default: Serial.println("default");
-      
-  }
-
-  //DACtest();
-  //delay(3);
-  
+  checkMIDI();
 }
 
 
