@@ -16,6 +16,16 @@ void MIDIconfigMode(void);
 void checkButtons(void);
 
 
+enum configModes
+{
+    CONFIG_MODE_init = 0,
+    CONFIG_MODE_filter1,
+    CONFIG_MODE_filter2,
+    CONFIG_MODE_complete,
+    CONFIG_MODE_total
+};
+
+
 
 
 #endif

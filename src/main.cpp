@@ -9,7 +9,7 @@ void setup()
   delay(2000);
   setupStuff();
 
-  if (digitalRead(CONFIG_SWITCH_PIN) == LOW)
+  if (digitalRead(CONFIG_SWITCH_PIN) == LOW)    //  if config switch is low during startup, enter config mode
   {
     Serial.println("ConfigMode");
     while (1)

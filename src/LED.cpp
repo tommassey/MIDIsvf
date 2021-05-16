@@ -2,41 +2,52 @@
 
 
 
-void LED::updateLED(void)
+void updateLED(LED* led)
 {
+
   uint32_t newTime = millis();
+  LEDblinkProfile* profile = &led->currentBlinkProfile;
 
-  switch (ledState)
+  if (profile->currentBlink < profile->numberBlinks) // if we've still go blinks to go
   {
-  case LOW:                             //  when the LED is off
-    {
-      if (newTime >= (oldTime + LEDtimeOff))  // if its time to turn back on
-      {
-        oldTime = newTime;
-        ledState = HIGH;
-        break;
-      }
-    }
-  
-  case HIGH:                             //  when the LED is on
-    {
-      if (newTime >= (oldTime + LEDtimeOn))  // if its time to turn off
-      {
-        oldTime = newTime;
-        ledState = LOW;
-        break;
-      }
+        switch (led->ledState)
+        {
+        case LOW:                             //  when the LED is off
+          {
+
+            if (newTime >= (led->currentBlinkProfile.TimeOff[profile->currentBlink] + led->oldTime))
+            //if (newTime >= (oldTime + LEDtimeOff))  // if its time to turn back on
+            {
+                profile->currentBlink++;
+              led->oldTime = newTime;
+              led->ledState = HIGH;
+              digitalWrite(CONFIG_LED_PIN, HIGH);
+              break;
+            }
+          }
+
+        case HIGH:                             //  when the LED is on
+          {
+            if (newTime >= (led->currentBlinkProfile.TimeOff[profile->currentBlink] + led->oldTime))  // if its time to turn off
+            {
+              led->oldTime = newTime;
+              led->ledState = LOW;
+              digitalWrite(CONFIG_LED_PIN, LOW);
+              break;
+            }
+          }
+
+        default:
+          break;
+        }
+
     }
 
-  default:
-    break;
-  }
+
   
-  digitalWrite(CONFIG_LED_PIN, ledState);
 }
 
-void LED::setLEDflashtime(uint32_t timeon, uint32_t timeoff)
+void LED::setBlinkProfile(LEDblinkProfile newProfile)
 {
-  LEDtimeOn = timeon;
-  LEDtimeOff = timeoff;
+    currentBlinkProfile = newProfile;
 }
