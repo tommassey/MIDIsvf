@@ -22,9 +22,10 @@ struct LEDblinkProfile
 // const LEDblinkProfile filter2Config = {     2,    100,   100,  100,   100,    50,    50      };
 // const LEDblinkProfile complete      = {     3,    50,    200,   50,   200,    50,   200      };
 
-const LEDblinkProfile f1config = {          1,  0,    {200,   0,   0,   0,},    {200,   0,   0,   0} };
-const LEDblinkProfile f2config = {          2,  0,    {100, 100,   0,   0,},    {100, 100,   0,   0} };
-const LEDblinkProfile saved    = {          3,  0,    { 50,  50,  50,   0,},    { 50,  50,  50, 900} };
+const LEDblinkProfile init     = {          2,  0,    {200,   0,   0,   0,},    {  0,   0,   0,   0} };
+const LEDblinkProfile f1config = {          2,  0,    {200,   0,   0,   0,},    {200, 500,   0,   0} };
+const LEDblinkProfile f2config = {          3,  0,    {100, 100,   0,   0,},    {100, 100, 500,   0} };
+const LEDblinkProfile saved    = {          4,  0,    { 50,  50,  50,   0,},    { 50,  50,  50, 900} };
 
 
 

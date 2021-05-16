@@ -51,6 +51,7 @@ void MIDIconfigMode()
   {
     case CONFIG_MODE_init:
     {
+      leddy->setBlinkProfile(init);
       break;
     }
     case CONFIG_MODE_filter1:
@@ -66,9 +67,13 @@ void MIDIconfigMode()
     }
     case CONFIG_MODE_complete:
     {
+      leddy->setBlinkProfile(init);
+      break;
+    }
+    case CONFIG_MODE_save:
+    {
       leddy->setBlinkProfile(saved);
       break;
-
     }
     
     default:
@@ -83,12 +88,30 @@ void MIDIconfigMode()
 
 void checkButtons(void)
 {
+  static long buttonholdstarttime = 0;
   button.update();
+  if (button.rose())
+  {
+    if ((buttonholdstarttime + buttonholdtimeforsave) <= millis())
+    {
+      currentConfigMode = CONFIG_MODE_save;
+      Serial.println("CONFIG SAVED");
+      buttonholdstarttime = 0;
+    }
+
+    else
+    {
+      buttonholdstarttime = 0;
+      currentConfigMode++;
+      if (currentConfigMode >= CONFIG_MODE_total) currentConfigMode = 0;
+      Serial.print("configmode = ");
+      Serial.println(currentConfigMode);
+    }
+    
+  }
+
   if (button.fell())
   {
-    currentConfigMode++;
-    if (currentConfigMode >= CONFIG_MODE_total) currentConfigMode = 0;
-    Serial.print("configmode = ");
-    Serial.println(currentConfigMode);
+    buttonholdstarttime = millis();
   }
 }

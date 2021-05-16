@@ -19,6 +19,7 @@ void updateLED(LED* led)
             //if (newTime >= (oldTime + LEDtimeOff))  // if its time to turn back on
             {
                 profile->currentBlink++;
+                if (profile->currentBlink > profile->numberBlinks) profile->currentBlink = 0;
               led->oldTime = newTime;
               led->ledState = HIGH;
               digitalWrite(CONFIG_LED_PIN, HIGH);
