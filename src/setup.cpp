@@ -1,9 +1,10 @@
 #include "setup.h"
 #include "pinDefines.h"
+#include "MIDIservice.h"
 
 Bounce button = Bounce();
 LED led;
-LED* leddy = &led;
+LED* configLED = &led;
 
 
 void setupStuff()
@@ -36,49 +37,48 @@ void initPins(void)
   if (digitalRead(CONFIG_SWITCH_PIN) == LOW)  //  only if we're in config mode
   {
     button.attach(INPUT_BUTTON_PIN, INPUT_PULLUP);
-    button.interval(25);
+    button.interval(25);  // debounce time
   }
 }
+
 
 byte currentConfigMode = CONFIG_MODE_init;
 
 void MIDIconfigMode()
 {
-  updateLED(leddy);
+  updateLED(configLED);
   checkButtons();
+
 
   switch (currentConfigMode)
   {
     case CONFIG_MODE_init:
     {
-      leddy->setBlinkProfile(init);
+      configLED->setBlinkProfile(init);
       break;
     }
     case CONFIG_MODE_filter1:
     {
-     leddy->setBlinkProfile(f1config);
+     configLED->setBlinkProfile(f1config);
 
       break;
     }
     case CONFIG_MODE_filter2:
     {
-      leddy->setBlinkProfile(f2config);
-      break;
-    }
-    case CONFIG_MODE_complete:
-    {
-      leddy->setBlinkProfile(init);
+      configLED->setBlinkProfile(f2config);
       break;
     }
     case CONFIG_MODE_save:
     {
-      leddy->setBlinkProfile(saved);
+      configLED->setBlinkProfile(saved);
       break;
     }
     
     default:
       break;
   }
+
+  readMIDIforConfig();
 
 
 }
@@ -88,29 +88,29 @@ void MIDIconfigMode()
 
 void checkButtons(void)
 {
-  static long buttonholdstarttime = 0;
+  static uint32_t buttonholdstarttime = 0;
   button.update();
   if (button.rose())
   {
-    if ((buttonholdstarttime + buttonholdtimeforsave) <= millis())
+    if ((buttonholdstarttime + buttonholdtimeforsave) <= millis())   //  if button's been held long enough, save changes
     {
       currentConfigMode = CONFIG_MODE_save;
       Serial.println("CONFIG SAVED");
       buttonholdstarttime = 0;
     }
 
-    else
+    else                                                             //  if buttons not been held, cycle menu
     {
       buttonholdstarttime = 0;
       currentConfigMode++;
-      if (currentConfigMode >= CONFIG_MODE_total) currentConfigMode = 0;
+      if (currentConfigMode >= CONFIG_MODE_total) currentConfigMode = CONFIG_MODE_filter1;
       Serial.print("configmode = ");
       Serial.println(currentConfigMode);
     }
     
   }
 
-  if (button.fell())
+  if (button.fell())    //  start counting when button is held
   {
     buttonholdstarttime = millis();
   }

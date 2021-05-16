@@ -14,9 +14,9 @@
 
 enum filters
 {
-    nofilter = 0,
-    filter1,
-    filter2,
+    noFilter = 0,
+    Filter1,
+    Filter2,
     totalFilters
 };
 
@@ -31,21 +31,53 @@ enum filterBytes
 
 struct CCevent
 {
-    byte whichCC = nofilter;
+    byte whichFilter = noFilter;
     uint16_t value = 0;
 };
 
+enum CCresolution
+{
+    sevenBit = 0,
+    fourteenBit
+};
+
+struct MIDIconfigValue
+{
+    byte channel = 1;               //  MIDI channel
+    byte CCforMSB = 0;                 //  CC# 7bit
+    byte CCforLSB = 0;                 // 2nd CC# for 14bit MIDI
+    bool resolution = sevenBit;
+    byte incomingValueMSB = 0;  // incoming MIDI CC value
+    byte incomingValueLSB = 0;  // incoming MIDI CC value
+    uint16_t currentValue = 0;
+    uint16_t minValue = 0;       // lowest value so far
+    uint16_t maxValue = 127;     // highest value so far
+    bool initialised7bit = false;
+    bool initialised14bit = false;
+
+
+};
+
+enum ConfigStateMachine
+{
+
+};
 
 
 void checkMIDI(void);
 CCevent readMIDI(void);
 uint16_t getMIDIvalue(void);
 
+
+
 void printCC(int cc, int val);
 
-uint16_t BitShiftCombine(uint8_t x_high, uint8_t x_low);
+uint16_t bitShiftCombine(uint8_t x_high, uint8_t x_low);
+uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);
 
 
+void readMIDIforConfig(void);
+void newCCswitch(byte cc, byte val);
 
 
 
