@@ -26,6 +26,7 @@ const LEDblinkProfile init     = {          2,  0,    {200,   0,   0,   0,},    
 const LEDblinkProfile f1config = {          2,  0,    {200,   0,   0,   0,},    {200, 500,   0,   0} };
 const LEDblinkProfile f2config = {          3,  0,    {100, 100,   0,   0,},    {100, 100, 500,   0} };
 const LEDblinkProfile saved    = {          4,  0,    { 50,  50,  50,   0,},    { 50,  50,  50, 900} };
+const LEDblinkProfile reset    = {          4,  0,    { 20,  20,  20,   0,},    { 20,  20,  20, 900} };
 
 
 

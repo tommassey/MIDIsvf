@@ -21,14 +21,14 @@ void initMIDIconfig(LED* led, Bounce* btn)
 void buttonService(Bounce* btn)
 {
 
-    switch (checkButton(btn))
+    switch (checkButton(_btn))
     {
         case noPress:
         {
             break;
         }
         case shortPress:
-        {
+        {   
             currentConfigMode++;
             if (currentConfigMode >= CONFIG_MODE_total) currentConfigMode = CONFIG_MODE_filter1;
             Serial.print("configmode = ");
@@ -37,9 +37,17 @@ void buttonService(Bounce* btn)
         }
         case longPress:
         {
-            currentConfigMode = CONFIG_MODE_save;
-            Serial.println("CONFIG SAVED");
-            break;
+            if (currentConfigMode == CONFIG_MODE_save)
+            {
+                currentConfigMode = CONFIG_MODE_reset;
+                break;
+            }
+            else
+            {
+                currentConfigMode = CONFIG_MODE_save;
+                Serial.println("CONFIG SAVED");
+                break;
+            }
         }
 
     }
@@ -58,7 +66,7 @@ void MIDIconfigMode()
 
   switch (currentConfigMode)
   {
-    case CONFIG_MODE_init:
+    case CONFIG_MODE_start:
     {
         _led->setBlinkProfile(init);
         break;
@@ -72,6 +80,7 @@ void MIDIconfigMode()
     case CONFIG_MODE_filter2:
     {
         currentConfigValue = &filter2;
+        
         _led->setBlinkProfile(f2config);
         break;
     }
@@ -79,6 +88,18 @@ void MIDIconfigMode()
     {
       _led->setBlinkProfile(saved);
       break;
+    }
+    case CONFIG_MODE_reset:
+    {
+        Serial.println("init filter values");
+        filter1.initialised7bit  = false;
+        filter1.initialised14bit = false;
+        filter2.initialised7bit  = false;
+        filter2.initialised14bit = false;
+        _led->setBlinkProfile(reset);
+        currentConfigMode = CONFIG_MODE_filter1;
+        delay(200);
+        break;
     }
     
     default:

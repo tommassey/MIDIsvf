@@ -39,11 +39,12 @@ struct MIDIconfigValue
 
 enum configModes
 {
-    CONFIG_MODE_init = 0,
+    CONFIG_MODE_start = 0,
     CONFIG_MODE_filter1,
     CONFIG_MODE_filter2,
     CONFIG_MODE_total,
-    CONFIG_MODE_save = 10
+    CONFIG_MODE_save = 10,
+    CONFIG_MODE_reset
 };
 
 
@@ -57,7 +58,7 @@ void readMIDIforConfig(MIDIconfigValue* configToChange);
 bool newCCswitch(byte cc, byte val, MIDIconfigValue* filter);
 
 
-static byte currentConfigMode = CONFIG_MODE_init;
+static byte currentConfigMode = CONFIG_MODE_start;
 
 void initMIDIconfig(LED* led, Bounce* btn);
 void MIDIconfigMode();
