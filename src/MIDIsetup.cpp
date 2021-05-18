@@ -3,7 +3,6 @@
 LED* _led;
 Bounce* _btn;
 
-
 byte currentMIDIconfigState = 0;
 byte midiConfigValues[totalFiltValues] = {"\0"};
 static MIDIconfigValue filter1;
@@ -11,8 +10,7 @@ static MIDIconfigValue filter2;
 static MIDIconfigValue* currentConfigValue;
 
 int readyForBounding = 0;     //  counts up to boundNow, then starts bounding recieved CC values.   To stop chatter at startup
-const int boundNow = 10;
-
+const int boundNow = 5;
 
 
 void initMIDIconfig(LED* led, Bounce* btn)
@@ -20,6 +18,64 @@ void initMIDIconfig(LED* led, Bounce* btn)
     _led = led;
     _btn = btn;
 }
+
+
+void MIDIconfigMode()
+{
+  updateLED(_led);
+  buttonService(_btn);
+
+  switch (currentConfigMode)
+  {
+    case CONFIG_MODE_start:
+    {
+        _led->setBlinkProfile(init);
+        break;
+    }
+    case CONFIG_MODE_filter1:
+    {
+        currentConfigValue = &filter1;
+        //resetMIDIconfigValueToDefaults(&filter1);
+        _led->setBlinkProfile(f1config);
+        break;
+    }
+    case CONFIG_MODE_filter2:
+    {
+        currentConfigValue = &filter2;
+        //resetMIDIconfigValueToDefaults(&filter2);
+        
+        _led->setBlinkProfile(f2config);
+        break;
+    }
+    case CONFIG_MODE_save:
+    {
+      _led->setBlinkProfile(saved);
+      break;
+    }
+    case CONFIG_MODE_reset:
+    {
+        Serial.println("init filter values");
+        filter1.initialised7bit  = false;
+        filter1.initialised14bit = false;
+        filter2.initialised7bit  = false;
+        filter2.initialised14bit = false;
+        resetMIDIconfigValueToDefaults(&filter1);
+        resetMIDIconfigValueToDefaults(&filter2);
+        _led->setBlinkProfile(reset);
+        currentConfigMode = CONFIG_MODE_filter1;
+        delay(200);
+        break;
+    }
+    
+    default:
+      break;
+  }
+  
+  readMIDIforConfig(currentConfigValue);
+}
+
+
+
 
 
 void buttonService(Bounce* btn)
@@ -32,6 +88,9 @@ void buttonService(Bounce* btn)
         }
         case shortPress:
         {   
+            if (currentConfigMode == CONFIG_MODE_save) break;
+            
+            
             currentConfigMode++;
             _led->currentBlink = 0;
             readyForBounding = 0;
@@ -58,112 +117,43 @@ void buttonService(Bounce* btn)
                 break;
             }
         }
-
     }
-     
-
 }
-
-
-void MIDIconfigMode()
-{
-  updateLED(_led);
-  buttonService(_btn);
-
-
-  switch (currentConfigMode)
-  {
-    case CONFIG_MODE_start:
-    {
-        _led->setBlinkProfile(init);
-        break;
-    }
-    case CONFIG_MODE_filter1:
-    {
-        currentConfigValue = &filter1;
-        _led->setBlinkProfile(f1config);
-        break;
-    }
-    case CONFIG_MODE_filter2:
-    {
-        currentConfigValue = &filter2;
-        
-        _led->setBlinkProfile(f2config);
-        break;
-    }
-    case CONFIG_MODE_save:
-    {
-      _led->setBlinkProfile(saved);
-      break;
-    }
-    case CONFIG_MODE_reset:
-    {
-        Serial.println("init filter values");
-        filter1.initialised7bit  = false;
-        filter1.initialised14bit = false;
-        filter2.initialised7bit  = false;
-        filter2.initialised14bit = false;
-        _led->setBlinkProfile(reset);
-        currentConfigMode = CONFIG_MODE_filter1;
-        delay(200);
-        break;
-    }
-    
-    default:
-      break;
-  }
-
-  readMIDIforConfig(currentConfigValue);
-
-
-}
-
-
-
-
 
 
 void readMIDIforConfig(MIDIconfigValue* configToChange)
 {
-  
-
   if (usbMIDI.read())
   {
     switch (usbMIDI.getType())
+    {
+      case usbMIDI.ControlChange:
       {
-        case usbMIDI.ControlChange:
+        byte newCC    = usbMIDI.getData1();
+        byte newValue = usbMIDI.getData2();
+        byte channel  = usbMIDI.getChannel();
+
+        // Serial.print("Got CC.  Channel = ");
+        // Serial.print(channel);
+        // Serial.print("  CC# = ");
+        // Serial.print(newCC);
+        // Serial.print("  value = ");
+        // Serial.println(newValue);
+
+        if (newCCswitch(newCC, newValue, configToChange))
         {
-          byte newCC    = usbMIDI.getData1();
-          byte newValue = usbMIDI.getData2();
-          byte channel  = usbMIDI.getChannel();
-
-          Serial.print("Got CC.  Channel = ");
-          Serial.print(channel);
-          Serial.print("  CC# = ");
-          Serial.print(newCC);
-          Serial.print("  value = ");
-          Serial.println(newValue);
-
-          Serial.print("readMIDIforConfig  low = ");
-          Serial.println(configToChange->minValue);
-
-          if (newCCswitch(newCC, newValue, configToChange))
-          {
-            inputValueBounding(configToChange);
-          }
+          inputValueBounding(configToChange);
         }
       }
+    }
   }
 }  // end of function 
 
 
 
 
-bool newCCswitch(byte cc, byte val, MIDIconfigValue* filter)
+bool newCCswitch(byte cc, byte val, MIDIconfigValue* filter)  // return true if value needs changing
 {
-  Serial.print("newCCswtich  low = ");
-  Serial.println(filter->minValue);
-
   cc = CCfilter(cc);   // filter out invalid CC numbers
  
   //=========================================================================================== 7bit mode  
@@ -264,7 +254,6 @@ void inputValueBounding(MIDIconfigValue* configToChange)
     Serial.print("  low = ");
     Serial.println(configToChange->minValue);
   }
-
 }
 
 
@@ -320,4 +309,21 @@ byte CCfilter(byte cc)   // filters out excluded CC numbers, returns CC if valid
     }
   }
   return cc;
+}
+
+
+void resetMIDIconfigValueToDefaults(MIDIconfigValue* value)
+{
+  value->channel = 1;               //  MIDI channel
+  value->CCforMSB = 0;                 //  CC# 7bit
+  value->CCforLSB = 0;                 // 2nd CC# for 14bit MIDI
+  value->resolution = sevenBit;
+  value->incomingValueMSB = 0;  // incoming MIDI CC value
+  value->incomingValueLSB = 0;  // incoming MIDI CC value
+  value->currentValue = 0;
+  value->minValue = 33000;       // lowest value so far
+  value->maxValue = 1;     // highest value so far
+  value->initialised7bit = false;
+  value->initialised14bit = false;
+
 }

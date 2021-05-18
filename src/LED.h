@@ -13,7 +13,6 @@ struct LEDblinkProfile
 
     uint16_t TimeOn[MAX_LED_BLINKS]  = {50};    // millis
     uint16_t TimeOff[MAX_LED_BLINKS] = {50};    // millis
-
 };
 
 const LEDblinkProfile init     = {          4,  0,    {500,   0,   0,   0,},    {500, 500, 500, 500} };
@@ -21,8 +20,6 @@ const LEDblinkProfile f1config = {          1,  0,    {200,   0,   0,   0,},    
 const LEDblinkProfile f2config = {          2,  0,    {100, 100,   0,   0,},    {100, 100, 500, 500} };
 const LEDblinkProfile saved    = {          4,  0,    { 50,  50,  50,   0,},    { 50,  50,  50, 900} };
 const LEDblinkProfile reset    = {          4,  0,    { 20,  20,  20,   0,},    { 20,  20,  20, 900} };
-
-
 
 
 class LED
@@ -35,23 +32,10 @@ class LED
     LEDblinkProfile currentBlinkProfile;
     uint16_t currentBlink = 0;
 
-
-    public:
-    //void updateLED(LED* led);
     void setBlinkProfile(LEDblinkProfile);
-
-    
-
-
 };
 
 void updateLED(LED* led);
-
-
-
-
-
-
 
 
 

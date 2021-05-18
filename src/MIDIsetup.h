@@ -59,13 +59,16 @@ bool newCCswitch(byte cc, byte val, MIDIconfigValue* filter);
 void inputValueBounding(MIDIconfigValue * configToChange);
 byte CCfilter(byte cc);
 
-static byte currentConfigMode = CONFIG_MODE_start;
+static byte currentConfigMode = CONFIG_MODE_start; 
 
 void initMIDIconfig(LED* led, Bounce* btn);
 void MIDIconfigMode();
 
 void menuService(Bounce* btn);
+void buttonService(Bounce* btn);
 
+
+void resetMIDIconfigValueToDefaults(MIDIconfigValue* value);
 
 
 
