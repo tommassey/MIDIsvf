@@ -30,6 +30,7 @@ void buttonService(Bounce* btn)
         case shortPress:
         {   
             currentConfigMode++;
+            _led->currentBlink = 0;
             if (currentConfigMode >= CONFIG_MODE_total) currentConfigMode = CONFIG_MODE_filter1;
             Serial.print("configmode = ");
             Serial.println(currentConfigMode);
@@ -39,11 +40,13 @@ void buttonService(Bounce* btn)
         {
             if (currentConfigMode == CONFIG_MODE_save)
             {
+                _led->currentBlink = 0;
                 currentConfigMode = CONFIG_MODE_reset;
                 break;
             }
             else
             {
+                _led->currentBlink = 0;
                 currentConfigMode = CONFIG_MODE_save;
                 Serial.println("CONFIG SAVED");
                 break;

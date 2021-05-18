@@ -11,15 +11,15 @@ Bounce* configBtn = &button;
 
 void setup()
 {
-  setupStuff();
   initPins();
+  setupStuff();
 
   if (digitalRead(CONFIG_SWITCH_PIN) == LOW)  //  only if we're in config mode
   {
     buttonInit(configBtn, INPUT_BUTTON_PIN, INPUT_PULLUP, 25);
   }
 
-  delay(5000);    //  wait to allow serial monitor to catch up
+  delay(1000);    //  wait to allow serial monitor to catch up
 
 
   if (digitalRead(CONFIG_SWITCH_PIN) == LOW)    //  if config switch is low during startup, enter config mode
