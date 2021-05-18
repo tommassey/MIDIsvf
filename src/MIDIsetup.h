@@ -28,8 +28,8 @@ struct MIDIconfigValue
     byte incomingValueMSB = 0;  // incoming MIDI CC value
     byte incomingValueLSB = 0;  // incoming MIDI CC value
     uint16_t currentValue = 0;
-    uint16_t minValue = 0;       // lowest value so far
-    uint16_t maxValue = 127;     // highest value so far
+    uint16_t minValue = 33000;       // lowest value so far
+    uint16_t maxValue = 1;     // highest value so far
     bool initialised7bit = false;
     bool initialised14bit = false;
 
@@ -56,7 +56,8 @@ uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);
 
 void readMIDIforConfig(MIDIconfigValue* configToChange);
 bool newCCswitch(byte cc, byte val, MIDIconfigValue* filter);
-
+void inputValueBounding(MIDIconfigValue * configToChange);
+byte CCfilter(byte cc);
 
 static byte currentConfigMode = CONFIG_MODE_start;
 
