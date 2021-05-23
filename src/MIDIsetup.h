@@ -20,7 +20,7 @@
 
 
 
-struct MIDIconfigValue
+struct MIDIconfigProfile
 {
     byte channel = 1;               //  MIDI channel
     byte CCforMSB = 0;                 //  CC# 7bit
@@ -55,9 +55,9 @@ void printCC(int cc, int val);
 uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);
 
 
-void readMIDIforConfig(MIDIconfigValue* configToChange);
-bool newCCswitch(byte cc, byte val, MIDIconfigValue* filter);
-void inputValueBounding(MIDIconfigValue * configToChange);
+void readMIDIforConfig(MIDIconfigProfile* configToChange);
+bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter);
+void inputValueBounding(MIDIconfigProfile * configToChange);
 byte CCfilter(byte cc);
 
 static byte currentConfigMode = CONFIG_MODE_start; 
@@ -69,10 +69,10 @@ void menuUpdate();
 bool buttonService(Bounce* btn);
 
 
-void resetMIDIconfigValueToDefaults(MIDIconfigValue* value);
+void resetMIDIconfigValueToDefaults(MIDIconfigProfile* value);
 
-void restoreSettings(MIDIconfigValue* f1, MIDIconfigValue* f2);  // called to restore both filters' current MIDI config values from EEPROM
-void saveSettings(MIDIconfigValue* f1, MIDIconfigValue* f2);  // called to save both filters' current MIDI config values to EEPROM
+void restoreSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to restore both filters' current MIDI config values from EEPROM
+void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to save both filters' current MIDI config values to EEPROM
 
 void testSave();
 

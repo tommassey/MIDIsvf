@@ -15,7 +15,7 @@ void setupStuff(void);
 void initPins();
 
 
-
+bool checkForSavedMIDIdata(MIDIconfigProfile* filter1, MIDIconfigProfile* filter2);
 
 
 

@@ -5,15 +5,15 @@ Bounce* _btn;
 
 byte currentMIDIconfigState = 0;
 byte midiConfigValues[totalFiltValues] = {"\0"};
-static MIDIconfigValue filter1;
-static MIDIconfigValue filter2;
-static MIDIconfigValue* currentConfigValue;
+static MIDIconfigProfile filter1;
+static MIDIconfigProfile filter2;
+static MIDIconfigProfile* currentConfigValue;
 
 int readyForBounding = 0;     //  counts up to boundNow, then starts bounding recieved CC values.   To stop chatter at startup
 const int boundNow = 5;
 
 
-void initMIDIconfig(LED* led, Bounce* btn)
+void initMIDIconfig(LED* led, Bounce* btn, MIDIconfigProfile* f1, MIDIconfigProfile* f2)
 {
     _led = led;
     _btn = btn;
@@ -81,6 +81,7 @@ bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
             }
         }
     }
+  return 0;
 }
 
 
@@ -135,7 +136,7 @@ void menuUpdate()
 }
 
 
-void readMIDIforConfig(MIDIconfigValue* configToChange)
+void readMIDIforConfig(MIDIconfigProfile* configToChange)
 {
   if (usbMIDI.read())
   {
@@ -166,7 +167,7 @@ void readMIDIforConfig(MIDIconfigValue* configToChange)
 
 
 
-bool newCCswitch(byte cc, byte val, MIDIconfigValue* filter)  // return true if value needs changing
+bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter)  // return true if value needs changing
 {
   cc = CCfilter(cc);   // filter out invalid CC numbers
  
@@ -254,7 +255,7 @@ uint16_t bitShiftCombine16( byte x_high, byte x_low)
 }
 
 
-void inputValueBounding(MIDIconfigValue* configToChange)
+void inputValueBounding(MIDIconfigProfile* configToChange)
 {
   if (readyForBounding > boundNow)
   {
@@ -326,7 +327,7 @@ byte CCfilter(byte cc)   // filters out excluded CC numbers, returns CC if valid
 }
 
 
-void resetMIDIconfigValueToDefaults(MIDIconfigValue* value)
+void resetMIDIconfigValueToDefaults(MIDIconfigProfile* value)
 {
   value->channel = 1;               //  MIDI channel
   value->CCforMSB = 0;                 //  CC# 7bit
@@ -345,7 +346,7 @@ void resetMIDIconfigValueToDefaults(MIDIconfigValue* value)
 
 
 
-void saveSettings(MIDIconfigValue* f1, MIDIconfigValue* f2)  // called to save both filters' current MIDI config values to EEPROM
+void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to save both filters' current MIDI config values to EEPROM
 {
   //===========================================  filter 1 save
   EEPROM.write(channel1, f1->channel);
@@ -404,13 +405,13 @@ void saveSettings(MIDIconfigValue* f1, MIDIconfigValue* f2)  // called to save b
   delay(1000);
   Serial.println("1 ...");
   delay(500);
-  
+
   SCB_AIRCR = 0x05FA0004;  // hardware reset
 
 }
 
 
-void restoreSettings(MIDIconfigValue* f1, MIDIconfigValue* f2)  // called to restore both filters' current MIDI config values from EEPROM
+void restoreSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to restore both filters' current MIDI config values from EEPROM
 {
   //===========================================  filter 1 restore
   f1->channel = EEPROM.read(channel1);

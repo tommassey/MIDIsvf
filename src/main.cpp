@@ -9,6 +9,8 @@ LED* configLED = &led;
 Bounce button = Bounce();
 Bounce* configBtn = &button;
 
+//MIDIconfigProfile filter1;
+//MIDIconfigProfile filter2;
 
 void test()
 {
@@ -45,6 +47,7 @@ void setup()
 
   //else
   initMCP4xxx();
+  checkForSavedMIDIdata();
 }
 
 

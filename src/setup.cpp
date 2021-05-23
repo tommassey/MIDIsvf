@@ -32,4 +32,12 @@ void initPins(void)
 }
 
 
-
+//  checks for saved MIDI config. returns true and updates values if data exists, returns false if no data present
+bool checkForSavedMIDIdata(MIDIconfigProfile* filter1, MIDIconfigProfile* filter2)
+{
+  if (EEPROM.read(savedDataExists))
+  {
+    restoreSettings(filter1, filter2);
+    Serial.println("Saved MIDI config restored from EEPROM");
+  }
+}
