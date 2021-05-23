@@ -11,6 +11,8 @@
 
 enum ROMlocation
 {
+    savedDataExists = 0,   //  set high if there's data to be read otherwise it will revert to default MIDI settings
+
     channel1       = 1,
     resolution1    = 2,
     CCmsb1         = 3,
@@ -33,12 +35,13 @@ enum ROMlocation
     
 
 
-void EEPROMwriteuint16(uint16_t input, ROMlocation location);
+void EEPROMwriteuint16(ROMlocation location, uint16_t input);
 uint16_t EEPROMreaduint16(ROMlocation location);
 
 void testEEPROMread16(ROMlocation loc);
 
 void testEEPROM(void);
+
 
 
 

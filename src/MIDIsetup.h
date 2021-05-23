@@ -6,6 +6,7 @@
 #include "pinDefines.h"
 #include "LED.h"
 #include "button.h"
+#include "EEPROMservice.h"
 
 #define Filter1CCmsb 31
 #define Filter1CClsb 63
@@ -64,11 +65,16 @@ static byte currentConfigMode = CONFIG_MODE_start;
 void initMIDIconfig(LED* led, Bounce* btn);
 void MIDIconfigMode();
 
-void menuService(Bounce* btn);
-void buttonService(Bounce* btn);
+void menuUpdate();
+bool buttonService(Bounce* btn);
 
 
 void resetMIDIconfigValueToDefaults(MIDIconfigValue* value);
+
+void restoreSettings(MIDIconfigValue* f1, MIDIconfigValue* f2);  // called to restore both filters' current MIDI config values from EEPROM
+void saveSettings(MIDIconfigValue* f1, MIDIconfigValue* f2);  // called to save both filters' current MIDI config values to EEPROM
+
+void testSave();
 
 
 

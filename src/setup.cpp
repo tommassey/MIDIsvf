@@ -6,7 +6,9 @@
 
 void setupStuff()
 {
-  //Serial.begin(115200);
+
+
+  
   usbMIDI.begin();
 
   digitalWrite(LED_BUILTIN, HIGH);
@@ -28,3 +30,6 @@ void initPins(void)
   
   pinMode(CONFIG_SWITCH_PIN, INPUT_PULLUP); 
 }
+
+
+

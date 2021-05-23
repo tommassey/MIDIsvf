@@ -38,8 +38,8 @@ void setup()
     initMIDIconfig(configLED, configBtn);
     while (1)
     {
-      //MIDIconfigMode();
-      testEEPROM();
+      MIDIconfigMode();
+      //testSave();
     }
   }
 

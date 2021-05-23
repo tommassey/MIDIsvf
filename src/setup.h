@@ -2,6 +2,7 @@
 #define SETUP_H
 
 #include <Arduino.h>
+#include <avr/wdt.h>
 #include "DAC.h"
 #include "LED.h"
 #include "pinDefines.h"
@@ -12,6 +13,8 @@
 
 void setupStuff(void);
 void initPins();
+
+
 
 
 
