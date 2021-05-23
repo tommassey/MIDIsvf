@@ -7,18 +7,11 @@
 #include "pinDefines.h"
 #include "MIDIservice.h"
 #include "button.h"
-
+#include "EEPROMservice.h"
 
 
 void setupStuff(void);
 void initPins();
-
-
-
-//void menuService(Bounce* btn);
-
-
-
 
 
 

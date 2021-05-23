@@ -9,26 +9,36 @@
 
 //Address can range from 0 to the EEPROM size minus 1. 128bytes max Teensy LC
 
-typedef ROMlocation;
+enum ROMlocation
+{
+    channel1       = 1,
+    resolution1    = 2,
+    CCmsb1         = 3,
+    CClsb1         = 4,
+    valMin1        = 5,
+    //
+    valMax1        = 7,
+    //
+    channel2       = 9,
+    resolution2    = 10,
+    CCmsb2         = 11,
+    CClsb2         = 12,
+    valMin2        = 13,
+    //
+    valMax2        = 15
+    //
+};
 
 
-    ROMlocation channel1       = 1;
-    ROMlocation resolution1    = 2;
-    ROMlocation CCmsb1         = 3;
-    ROMlocation CClsb1         = 4;
-    ROMlocation valMin1        = 5;
-    //
-    ROMlocation valMax1        = 7;
-    //
-    ROMlocation channel2       = 9;
-    ROMlocation resolution2    = 10;
-    ROMlocation CCmsb2         = 11;
-    ROMlocation CClsb2         = 12;
-    ROMlocation valMin2        = 13;
-    //
-    ROMlocation valMax2        = 15;
-    //
+    
 
+
+void EEPROMwriteuint16(uint16_t input, ROMlocation location);
+uint16_t EEPROMreaduint16(ROMlocation location);
+
+void testEEPROMread16(ROMlocation loc);
+
+void testEEPROM(void);
 
 
 

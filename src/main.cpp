@@ -9,10 +9,20 @@ LED* configLED = &led;
 Bounce button = Bounce();
 Bounce* configBtn = &button;
 
+
+void test()
+{
+  
+}
+
+
+
 void setup()
 {
+  Serial.begin(9600);
   initPins();
   setupStuff();
+  
 
   if (digitalRead(CONFIG_SWITCH_PIN) == LOW)  //  only if we're in config mode
   {
@@ -28,7 +38,8 @@ void setup()
     initMIDIconfig(configLED, configBtn);
     while (1)
     {
-      MIDIconfigMode();
+      //MIDIconfigMode();
+      testEEPROM();
     }
   }
 
