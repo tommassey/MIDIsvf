@@ -9,45 +9,68 @@ LED* configLED = &led;
 Bounce button = Bounce();
 Bounce* configBtn = &button;
 
-//MIDIconfigProfile filter1;
-//MIDIconfigProfile filter2;
+MIDIconfigProfile mainfilter1;
+MIDIconfigProfile mainfilter2;
 
-void test()
+
+void printMIDIprofiles()
 {
-  
-}
+  Serial.println("== Filter 1 ===========");
+  Serial.print("CH: ");
+  Serial.print(mainfilter1.channel);
+  Serial.print("   RES: ");
+  Serial.print(mainfilter1.resolution);
+  Serial.print("   CC: ");
+  Serial.print(mainfilter1.CCforMSB);
+  Serial.print("   MIN: ");
+  Serial.print(mainfilter1.minValue);
+  Serial.print("   MAX: ");
+  Serial.println(mainfilter1.maxValue);
 
+  Serial.println("== Filter 2 ===========");
+  Serial.print("CH: ");
+  Serial.print(mainfilter2.channel);
+  Serial.print("   RES: ");
+  Serial.print(mainfilter2.resolution);
+  Serial.print("   CC: ");
+  Serial.print(mainfilter2.CCforMSB);
+  Serial.print("   MIN: ");
+  Serial.print(mainfilter2.minValue);
+  Serial.print("   MAX: ");
+  Serial.println(mainfilter2.maxValue);
+}
 
 
 void setup()
 {
   Serial.begin(9600);
-  initPins();
+  initPins(configBtn);
   setupStuff();
   
 
-  if (digitalRead(CONFIG_SWITCH_PIN) == LOW)  //  only if we're in config mode
-  {
-    buttonInit(configBtn, INPUT_BUTTON_PIN, INPUT_PULLUP, 25);
-  }
+  
 
-  delay(1000);    //  wait to allow serial monitor to catch up
+  
 
 
-  if (digitalRead(CONFIG_SWITCH_PIN) == LOW)    //  if config switch is low during startup, enter config mode
+  if (digitalRead(INPUT_BUTTON_PIN) == LOW)    //  if config switch is low during startup, enter config mode
+  //if (digitalRead(CONFIG_SWITCH_PIN) == LOW)    //  if config switch is low during startup, enter config mode
   {
     Serial.println("ConfigMode");
-    initMIDIconfig(configLED, configBtn);
+    initMIDIconfig(configLED, configBtn); //, &filter1, &filter2);
+    //delay(5000);    //  wait to allow serial monitor to catch up
     while (1)
     {
       MIDIconfigMode();
-      //testSave();
     }
   }
 
   //else
   initMCP4xxx();
   checkForSavedMIDIdata();
+  mainfilter1 = getFilterConfig(Filter1);
+  mainfilter2 = getFilterConfig(Filter2);
+  printMIDIprofiles();
 }
 
 

@@ -3,27 +3,30 @@
 LED* _led;
 Bounce* _btn;
 
+MIDIconfigProfile filter1;
+MIDIconfigProfile filter2;
+
 byte currentMIDIconfigState = 0;
 byte midiConfigValues[totalFiltValues] = {"\0"};
-static MIDIconfigProfile filter1;
-static MIDIconfigProfile filter2;
-static MIDIconfigProfile* currentConfigValue;
+//MIDIconfigProfile* _filter1;
+//MIDIconfigProfile* _filter2;
+MIDIconfigProfile* currentConfigProfile = &filter1;
 
 int readyForBounding = 0;     //  counts up to boundNow, then starts bounding recieved CC values.   To stop chatter at startup
 const int boundNow = 5;
 
+int readyToReadMIDI = 0;
+const int readyNow = 7;
 
-void initMIDIconfig(LED* led, Bounce* btn, MIDIconfigProfile* f1, MIDIconfigProfile* f2)
+
+void initMIDIconfig(LED* led, Bounce* btn) //, MIDIconfigProfile* f1, MIDIconfigProfile* f2)
 {
     _led = led;
     _btn = btn;
+    //_filter1 = f1;
+    //_filter2 = f2;
 }
 
-
-void testSave()
-{
-  saveSettings(&filter1, &filter2);
-}
 
 void MIDIconfigMode()
 {
@@ -34,16 +37,23 @@ void MIDIconfigMode()
     menuUpdate();
   }
 
-  readMIDIforConfig(currentConfigValue);
+
+  readMIDIforConfig(currentConfigProfile);
 }
 
 
 
+byte currentConfigMode = CONFIG_MODE_start; 
 
 
 bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
 {
-    switch (checkButton(_btn))
+    
+    uint8_t pressed = checkButton(_btn);
+
+    if (pressed) Serial.println("button pressed");
+
+    switch (pressed)
     {
         case noPress:
         {
@@ -51,6 +61,12 @@ bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
         }
         case shortPress:
         {   
+          if (currentConfigMode == CONFIG_MODE_start)
+            {
+              Serial.println("short press");
+
+              currentConfigMode = CONFIG_MODE_filter1;
+            }
             if (currentConfigMode == CONFIG_MODE_save) break;
             
             
@@ -64,19 +80,26 @@ bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
         }
         case longPress:
         {
-            if (currentConfigMode == CONFIG_MODE_save)
+            if (currentConfigMode == CONFIG_MODE_start)
             {
-                _led->currentBlink = 0;
-                readyForBounding = 0;
-                currentConfigMode = CONFIG_MODE_reset;
-                return 1;
+              Serial.println("long press");
+              return 0;
             }
-            else
+
+            if (currentConfigMode == CONFIG_MODE_filter1 || CONFIG_MODE_filter2)
             {
                 _led->currentBlink = 0;
                 readyForBounding = 0;
                 currentConfigMode = CONFIG_MODE_save;
                 Serial.println("CONFIG SAVED");
+                return 1;
+            }
+
+            if (currentConfigMode == CONFIG_MODE_save)
+            {
+                _led->currentBlink = 0;
+                readyForBounding = 0;
+                currentConfigMode = CONFIG_MODE_reset;
                 return 1;
             }
         }
@@ -87,6 +110,8 @@ bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
 
 void menuUpdate()
 {
+  Serial.println("menu update");
+  
   switch (currentConfigMode)
   {
     case CONFIG_MODE_start:
@@ -96,16 +121,15 @@ void menuUpdate()
     }
     case CONFIG_MODE_filter1:
     {
-        currentConfigValue = &filter1;
-        //resetMIDIconfigValueToDefaults(&filter1);
+        currentConfigProfile = &filter1;
+        initMIDIprofileInMenu(&filter1);
         _led->setBlinkProfile(f1config);
         break;
     }
     case CONFIG_MODE_filter2:
     {
-        currentConfigValue = &filter2;
-        //resetMIDIconfigValueToDefaults(&filter2);
-        
+        currentConfigProfile = &filter2;
+        initMIDIprofileInMenu(&filter2);
         _led->setBlinkProfile(f2config);
         break;
     }
@@ -122,8 +146,8 @@ void menuUpdate()
         filter1.initialised14bit = false;
         filter2.initialised7bit  = false;
         filter2.initialised14bit = false;
-        resetMIDIconfigValueToDefaults(&filter1);
-        resetMIDIconfigValueToDefaults(&filter2);
+        initMIDIprofileInMenu(&filter1);
+        initMIDIprofileInMenu(&filter2);
         _led->setBlinkProfile(reset);
         currentConfigMode = CONFIG_MODE_filter1;
         delay(200);
@@ -140,24 +164,29 @@ void readMIDIforConfig(MIDIconfigProfile* configToChange)
 {
   if (usbMIDI.read())
   {
-    switch (usbMIDI.getType())
+    readyToReadMIDI++;
+
+    if (readyToReadMIDI > readyNow)
     {
-      case usbMIDI.ControlChange:
+      switch (usbMIDI.getType())
       {
-        byte newCC    = usbMIDI.getData1();
-        byte newValue = usbMIDI.getData2();
-        byte channel  = usbMIDI.getChannel();
-
-        // Serial.print("Got CC.  Channel = ");
-        // Serial.print(channel);
-        // Serial.print("  CC# = ");
-        // Serial.print(newCC);
-        // Serial.print("  value = ");
-        // Serial.println(newValue);
-
-        if (newCCswitch(newCC, newValue, configToChange))
+        case usbMIDI.ControlChange:
         {
-          inputValueBounding(configToChange);
+          byte newCC    = usbMIDI.getData1();
+          byte newValue = usbMIDI.getData2();
+          byte channel  = usbMIDI.getChannel();
+
+          Serial.print("Got CC.  Channel = ");
+          Serial.print(channel);
+          Serial.print("  CC# = ");
+          Serial.print(newCC);
+          Serial.print("  value = ");
+          Serial.println(newValue);
+
+          if (newCCswitch(newCC, newValue, configToChange))
+          {
+            inputValueBounding(configToChange);
+          }
         }
       }
     }
@@ -169,7 +198,10 @@ void readMIDIforConfig(MIDIconfigProfile* configToChange)
 
 bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter)  // return true if value needs changing
 {
+
+  Serial.println("prefilter");
   cc = CCfilter(cc);   // filter out invalid CC numbers
+  Serial.println("postfilter");
  
   //=========================================================================================== 7bit mode  
   if (!filter->initialised7bit)  // if it's the first time, set incoming CC# to Filter1CCMSB
@@ -194,7 +226,7 @@ bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter)  // return true i
     readyForBounding++;
     return 1;
   }
-  //=========================================================================================== 14bit mode  
+  // //=========================================================================================== 14bit mode  
 
   else if (filter->initialised7bit && filter->initialised14bit &&(cc == filter->CCforMSB))   //  if we're in 14bit CCmsb, update value
   {
@@ -327,7 +359,7 @@ byte CCfilter(byte cc)   // filters out excluded CC numbers, returns CC if valid
 }
 
 
-void resetMIDIconfigValueToDefaults(MIDIconfigProfile* value)
+void initMIDIprofileInMenu(MIDIconfigProfile* value)
 {
   value->channel = 1;               //  MIDI channel
   value->CCforMSB = 0;                 //  CC# 7bit
@@ -343,30 +375,27 @@ void resetMIDIconfigValueToDefaults(MIDIconfigProfile* value)
 
 }
 
-
-
-
 void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to save both filters' current MIDI config values to EEPROM
 {
   //===========================================  filter 1 save
-  EEPROM.write(channel1, f1->channel);
-  EEPROM.write(resolution1, f1->resolution);
+  EEPROM.write(channel1, filter1.channel);
+  EEPROM.write(resolution1, filter1.resolution);
 
-  if (f1->resolution == sevenBit)
+  if (filter1.resolution == sevenBit)
   {
-    EEPROM.write(CCmsb1, f1->CCforMSB);
+    EEPROM.write(CCmsb1, filter1.CCforMSB);
 
-    EEPROM.write(valMin1, f1->minValue);
-    EEPROM.write(valMax1, f1->maxValue);
+    EEPROM.write(valMin1, filter1.minValue);
+    EEPROM.write(valMax1, filter1.maxValue);
   }
 
-  else if (f1->resolution == fourteenBit)
+  else if (filter1.resolution == fourteenBit)
   {
-    EEPROM.write(CCmsb1, f1->CCforMSB);
-    EEPROM.write(CClsb1, f1->CCforLSB);
+    EEPROM.write(CCmsb1, filter1.CCforMSB);
+    EEPROM.write(CClsb1, filter1.CCforLSB);
 
-    EEPROMwriteuint16(valMin1, f1->minValue);
-    EEPROMwriteuint16(valMax1, f1->maxValue);
+    EEPROMwriteuint16(valMin1, filter1.minValue);
+    EEPROMwriteuint16(valMax1, filter1.maxValue);
   }
 
   Serial.println("Filter1 MIDI config saved");
@@ -374,27 +403,30 @@ void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to sa
 
 
   //===========================================  filter 2 save
-  EEPROM.write(channel2, f2->channel);
-  EEPROM.write(resolution2, f2->resolution);
+  EEPROM.write(channel2, filter2.channel);
+  EEPROM.write(resolution2, filter2.resolution);
 
-  if (f2->resolution == sevenBit)
+  if (filter2.resolution == sevenBit)
   {
-    EEPROM.write(CCmsb2, f2->CCforMSB);
+    EEPROM.write(CCmsb2, filter2.CCforMSB);
 
-    EEPROM.write(valMin2, f2->minValue);
-    EEPROM.write(valMax2, f2->maxValue);
+    EEPROM.write(valMin2, filter2.minValue);
+    EEPROM.write(valMax2, filter2.maxValue);
   }
 
-  else if (f2->resolution == fourteenBit)
+  else if (filter2.resolution == fourteenBit)
   {
-    EEPROM.write(CCmsb2, f2->CCforMSB);
-    EEPROM.write(CClsb2, f2->CCforLSB);
+    EEPROM.write(CCmsb2, filter2.CCforMSB);
+    EEPROM.write(CClsb2, filter2.CCforLSB);
 
-    EEPROMwriteuint16(valMin2, f2->minValue);
-    EEPROMwriteuint16(valMax2, f2->maxValue);
+    EEPROMwriteuint16(valMin2, filter2.minValue);
+    EEPROMwriteuint16(valMax2, filter2.maxValue);
   }
 
   Serial.println("Filter2 MIDI config saved");
+
+  EEPROM.write(savedDataExists, 1);
+
   Serial.println("MIDI config data save complete");
   delay(1000);
   Serial.println("Restart in ...");
@@ -409,7 +441,6 @@ void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to sa
   SCB_AIRCR = 0x05FA0004;  // hardware reset
 
 }
-
 
 void restoreSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to restore both filters' current MIDI config values from EEPROM
 {
@@ -460,4 +491,94 @@ void restoreSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to
 
   Serial.println("Filter2 MIDI config restored");
   Serial.println("MIDI config data restore complete");
+}
+
+void useDefaultMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
+{
+    f1->channel = 1;                   //  MIDI channel
+    f1->CCforMSB = 10;                 //  CC# 7bit
+    f1->CCforLSB = 0;                  // 2nd CC# for 14bit MIDI
+    f1->resolution = sevenBit;
+    f1->incomingValueMSB = 0;  // incoming MIDI CC value
+    f1->incomingValueLSB = 0;  // incoming MIDI CC value
+    f1->currentValue = 0;
+    f1->minValue = 0;
+    f1->maxValue = 127;
+    f1->initialised7bit = false;
+    f1->initialised14bit = false;
+
+    f2->channel = 1;                   //  MIDI channel
+    f2->CCforMSB = 11;                 //  CC# 7bit
+    f2->CCforLSB = 0;                  // 2nd CC# for 14bit MIDI
+    f2->resolution = sevenBit;
+    f2->incomingValueMSB = 0;  // incoming MIDI CC value
+    f2->incomingValueLSB = 0;  // incoming MIDI CC value
+    f2->currentValue = 0;
+    f2->minValue = 0;
+    f2->maxValue = 127;
+    f2->initialised7bit = false;
+    f2->initialised14bit = false;
+}
+
+
+
+bool checkForSavedMIDIdata()
+{
+  if (EEPROM.read(savedDataExists))
+  {
+    restoreSettings(&filter1, &filter2);
+    Serial.println("Saved MIDI config restored from EEPROM");
+  }
+  else
+  {
+    useDefaultMIDIprofiles(&filter1, &filter2);
+    Serial.println("No saved MIDI config found, using default values");
+  }
+}
+
+// void printMIDIprofiles()
+// {
+//   Serial.println("== Filter 1 ===========");
+//   Serial.print("CH: ");
+//   Serial.print(filter1.channel);
+//   Serial.print("   RES: ");
+//   Serial.print(filter1.resolution);
+//   Serial.print("   CC: ");
+//   Serial.print(filter1.CCforMSB);
+//   Serial.print("   MIN: ");
+//   Serial.print(filter1.minValue);
+//   Serial.print("   MAX: ");
+//   Serial.println(filter1.maxValue);
+
+//   Serial.println("== Filter 2 ===========");
+//   Serial.print("CH: ");
+//   Serial.print(filter2.channel);
+//   Serial.print("   RES: ");
+//   Serial.print(filter2.resolution);
+//   Serial.print("   CC: ");
+//   Serial.print(filter2.CCforMSB);
+//   Serial.print("   MIN: ");
+//   Serial.print(filter2.minValue);
+//   Serial.print("   MAX: ");
+//   Serial.println(filter2.maxValue);
+// }
+
+MIDIconfigProfile getFilterConfig(uint8_t whichFilter)
+{
+  switch (whichFilter)
+  {
+  case Filter1:
+    {
+      return filter1;
+    }
+  
+  case Filter2:
+    {
+      return filter2;
+    }
+  
+  
+  default:
+    break;
+  }
 }

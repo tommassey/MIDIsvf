@@ -20,7 +20,7 @@ void setupStuff()
   digitalWrite(LED_BUILTIN, LOW);
 }
 
-void initPins(void)
+void initPins(Bounce* btn)
 {
   pinMode(CONFIG_LED_PIN, OUTPUT);
   digitalWrite(CONFIG_LED_PIN, LOW);
@@ -28,16 +28,16 @@ void initPins(void)
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   
-  pinMode(CONFIG_SWITCH_PIN, INPUT_PULLUP); 
+  
+  pinMode(CONFIG_SWITCH_PIN, INPUT_PULLUP);
+  digitalWrite(CONFIG_SWITCH_PIN, HIGH);
+
+  if (digitalRead(INPUT_BUTTON_PIN) == LOW)  //  only if we're in config mode
+  //if (digitalRead(CONFIG_SWITCH_PIN) == LOW)  //  only if we're in config mode
+  {
+    buttonInit(btn, INPUT_BUTTON_PIN, INPUT_PULLUP, 25);
+  }
 }
 
 
 //  checks for saved MIDI config. returns true and updates values if data exists, returns false if no data present
-bool checkForSavedMIDIdata(MIDIconfigProfile* filter1, MIDIconfigProfile* filter2)
-{
-  if (EEPROM.read(savedDataExists))
-  {
-    restoreSettings(filter1, filter2);
-    Serial.println("Saved MIDI config restored from EEPROM");
-  }
-}

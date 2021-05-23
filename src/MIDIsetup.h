@@ -45,6 +45,7 @@ enum configModes
     CONFIG_MODE_filter2,
     CONFIG_MODE_total,
     CONFIG_MODE_save = 10,
+    CONFIG_MODE_countdown,
     CONFIG_MODE_reset
 };
 
@@ -60,21 +61,27 @@ bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter);
 void inputValueBounding(MIDIconfigProfile * configToChange);
 byte CCfilter(byte cc);
 
-static byte currentConfigMode = CONFIG_MODE_start; 
 
-void initMIDIconfig(LED* led, Bounce* btn);
+void initMIDIconfig(LED* led, Bounce* btn); //, MIDIconfigProfile* f1, MIDIconfigProfile* f2);
 void MIDIconfigMode();
 
 void menuUpdate();
 bool buttonService(Bounce* btn);
 
 
-void resetMIDIconfigValueToDefaults(MIDIconfigProfile* value);
+void initMIDIprofileInMenu(MIDIconfigProfile* value);
 
 void restoreSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to restore both filters' current MIDI config values from EEPROM
 void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to save both filters' current MIDI config values to EEPROM
 
+void useDefaultMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);
+
 void testSave();
+
+MIDIconfigProfile getFilterConfig(uint8_t whichFilter);
+
+bool checkForSavedMIDIdata();
+
 
 
 

@@ -12,10 +12,10 @@
 
 
 void setupStuff(void);
-void initPins();
+void initPins(Bounce* btn);
 
 
-bool checkForSavedMIDIdata(MIDIconfigProfile* filter1, MIDIconfigProfile* filter2);
+bool checkForSavedMIDIdata();
 
 
 
