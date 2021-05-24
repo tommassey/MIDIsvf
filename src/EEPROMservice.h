@@ -27,8 +27,10 @@ enum ROMlocation
     CClsb2         = 12,
     valMin2        = 13,
     //
-    valMax2        = 15
+    valMax2        = 15,
     //
+
+    resetFlag      = 20
 };
 
 

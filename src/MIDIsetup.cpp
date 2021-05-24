@@ -418,19 +418,12 @@ void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to sa
   Serial.println("Filter2 MIDI config saved");
 
   EEPROM.write(savedDataExists, 1);
-
+  
   Serial.println("MIDI config data save complete");
-  delay(1000);
-  Serial.println("Restart in ...");
-  delay(1000);
-  Serial.println("3 ...");
-  delay(1000);
-  Serial.println("2 ...");
-  delay(1000);
-  Serial.println("1 ...");
-  delay(500);
-
-  SCB_AIRCR = 0x05FA0004;  // hardware reset
+  
+  resetAndWait();
+  
+  //SCB_AIRCR = 0x05FA0004;  // hardware reset
 
 }
 
@@ -547,5 +540,44 @@ MIDIconfigProfile getFilterConfig(uint8_t whichFilter)
   
   default:
     break;
+  }
+}
+
+
+void resetAndWait(void)
+{
+  EEPROM.write(resetFlag, HIGH);  // set flag high so we need to reset 
+  usbMIDI.end();
+
+  delay(50);
+  SCB_AIRCR = 0x05FA0004;  // hardware reset
+}
+
+void doWeWait(void)
+{
+  if (EEPROM.read(resetFlag) == HIGH)
+  {
+    EEPROM.write(resetFlag, LOW);
+
+  Serial.println("Restart in ...");
+  delay(1000);
+  Serial.println("8 ...");
+  delay(1000);
+  Serial.println("7 ...");
+  delay(1000);
+  Serial.println("6 ...");
+  delay(1000);
+  Serial.println("5 ...");
+  delay(1000);
+  Serial.println("4 ...");
+  delay(1000);
+  Serial.println("3 ...");
+  delay(1000);
+  Serial.println("2 ...");
+  delay(1000);
+  Serial.println("1 ...");
+  delay(1000);
+
+  SCB_AIRCR = 0x05FA0004;  // hardware reset
   }
 }

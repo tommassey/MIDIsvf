@@ -33,6 +33,7 @@ struct MIDIconfigProfile
     uint16_t maxValue = 1;     // highest value so far
     bool initialised7bit = false;
     bool initialised14bit = false;
+    float scaledIncrement = 0;
 
 
 };
@@ -79,6 +80,10 @@ void useDefaultMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  //  
 MIDIconfigProfile getFilterConfig(uint8_t whichFilter);  //  returns filter config data to main loop
 
 void checkForSavedMIDIdata();
+
+
+void resetAndWait();
+void doWeWait(void);
 
 
 

@@ -4,6 +4,7 @@
 
 #include "Arduino.h"
 #include "SPI.h"
+#include "pinDefines.h"
 
 #define SPI_MOSI_PIN        11
 #define SPI_SCK_PIN         14

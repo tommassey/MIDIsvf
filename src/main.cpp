@@ -43,6 +43,9 @@ void printMIDIprofiles()
 
 void setup()
 {
+
+  doWeWait();
+
   Serial.begin(9600);
   initPins(configBtn);
   setupStuff();
@@ -71,6 +74,7 @@ void setup()
   mainfilter1 = getFilterConfig(Filter1);
   mainfilter2 = getFilterConfig(Filter2);
   setMIDIprofiles(&mainfilter1, &mainfilter2);
+
 }
 
 

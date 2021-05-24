@@ -39,6 +39,8 @@ bool newCCswitch(byte cc, byte val);
 
 void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);
 
+void initScaling(void);
+uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter);
 
 
 
