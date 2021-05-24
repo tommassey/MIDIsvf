@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "DAC.h"
 #include "pinDefines.h"
+#include "MIDIsetup.h"
 
 
 
@@ -35,6 +36,9 @@ uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);
 
 
 bool newCCswitch(byte cc, byte val);
+
+void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);
+
 
 
 

@@ -15,8 +15,6 @@ void setupStuff(void);
 void initPins(Bounce* btn);
 
 
-bool checkForSavedMIDIdata();
-
 
 
 #endif

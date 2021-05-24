@@ -53,34 +53,32 @@ enum configModes
 
 void printCC(int cc, int val);
 
-uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);
+uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);  // combines two bytes to make a uint16
 
 
-void readMIDIforConfig(MIDIconfigProfile* configToChange);
-bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter);
-void inputValueBounding(MIDIconfigProfile * configToChange);
-byte CCfilter(byte cc);
+void readMIDIforConfig(MIDIconfigProfile* configToChange);       // gets MIDI data into right places
+bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter);  // chooses correct CC values, does 14bit ness
+void inputValueBounding(MIDIconfigProfile * configToChange);     // stores min & max input values 
+byte CCfilter(byte cc);                                          //  filters out invalid CCs
 
 
-void initMIDIconfig(LED* led, Bounce* btn); //, MIDIconfigProfile* f1, MIDIconfigProfile* f2);
-void MIDIconfigMode();
+void initMIDIconfig(LED* led, Bounce* btn); //
+void MIDIconfigModeLoop();  // loop that runs when in config mode
 
 void menuUpdate();
 bool buttonService(Bounce* btn);
 
 
-void initMIDIprofileInMenu(MIDIconfigProfile* value);
+void initMIDIprofileInMenu(MIDIconfigProfile* value); // called when returning to already set filter
 
 void restoreSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to restore both filters' current MIDI config values from EEPROM
 void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to save both filters' current MIDI config values to EEPROM
 
-void useDefaultMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);
+void useDefaultMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  //  sets default values if no EEPROM data is detected
 
-void testSave();
+MIDIconfigProfile getFilterConfig(uint8_t whichFilter);  //  returns filter config data to main loop
 
-MIDIconfigProfile getFilterConfig(uint8_t whichFilter);
-
-bool checkForSavedMIDIdata();
+void checkForSavedMIDIdata();
 
 
 

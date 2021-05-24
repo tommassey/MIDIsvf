@@ -61,7 +61,7 @@ void setup()
     //delay(5000);    //  wait to allow serial monitor to catch up
     while (1)
     {
-      MIDIconfigMode();
+      MIDIconfigModeLoop();
     }
   }
 
@@ -70,7 +70,7 @@ void setup()
   checkForSavedMIDIdata();
   mainfilter1 = getFilterConfig(Filter1);
   mainfilter2 = getFilterConfig(Filter2);
-  printMIDIprofiles();
+  setMIDIprofiles(&mainfilter1, &mainfilter2);
 }
 
 

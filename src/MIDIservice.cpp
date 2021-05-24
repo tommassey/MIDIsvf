@@ -1,5 +1,8 @@
 #include "MIDIservice.h"
 
+MIDIconfigProfile _filter1;
+MIDIconfigProfile _filter2;
+
 
 void checkMIDI()
 {
@@ -132,4 +135,37 @@ uint16_t bitShiftCombine( uint8_t x_high, uint8_t x_low)
   combined = combined<<8;         //shift x_high over to leftmost 8 bits
   combined |= x_low;              //logical OR keeps x_high intact in combined and fills in rightmost 8 bits
   return combined;
+}
+
+
+void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
+{
+  _filter1 = *f1;
+  _filter2 = *f2;
+
+  Serial.println("== Filter 1 ===========");
+  Serial.print("CH: ");
+  Serial.print(_filter1.channel);
+  Serial.print("   RES: ");
+  Serial.print(_filter1.resolution);
+  Serial.print("   CC: ");
+  Serial.print(_filter1.CCforMSB);
+  Serial.print("   MIN: ");
+  Serial.print(_filter1.minValue);
+  Serial.print("   MAX: ");
+  Serial.println(_filter1.maxValue);
+
+  Serial.println("== Filter 2 ===========");
+  Serial.print("CH: ");
+  Serial.print(_filter2.channel);
+  Serial.print("   RES: ");
+  Serial.print(_filter2.resolution);
+  Serial.print("   CC: ");
+  Serial.print(_filter2.CCforMSB);
+  Serial.print("   MIN: ");
+  Serial.print(_filter2.minValue);
+  Serial.print("   MAX: ");
+  Serial.println(_filter2.maxValue);
+
+
 }
