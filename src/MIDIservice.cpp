@@ -198,48 +198,47 @@ void initScaling()
 {
   if(_filter1.resolution == fourteenBit)
   { 
-    uint16_t window = _filter1.maxValue - _filter1.minValue;
-    Serial.print("filter1 14bit window = ");
-    Serial.println(window);
-    bitf1 = ((float)4079 / (float)window);
+    float window = _filter1.maxValue - _filter1.minValue;
+    _filter1.scaledIncrement = ((float)twelvebit / window);
   }
   else if (_filter1.resolution == sevenBit)
   {
-      _filter1.scaledIncrement = 127 / (_filter1.maxValue - _filter1.minValue);
+    float window = _filter1.maxValue - _filter1.minValue;
+    _filter1.scaledIncrement = ((float)127 / window);
   }
-  Serial.print("min filter1 = ");
-  Serial.println(_filter1.minValue);
-  Serial.print("max filter1 = ");
-  Serial.println(_filter1.maxValue);
-  Serial.print("scaled increment filter1 = ");
-  Serial.println(bitf1);
+
+  // Serial.print("min filter1 = ");
+  // Serial.println(_filter1.minValue);
+  // Serial.print("max filter1 = ");
+  // Serial.println(_filter1.maxValue);
+  // Serial.print("scaled increment filter1 = ");
+  // Serial.println(_filter1.scaledIncrement);
 
 
   if(_filter2.resolution == fourteenBit)
   {
-
-      _filter2.scaledIncrement = 32639 / (_filter2.maxValue - _filter2.minValue);
+    float window = _filter2.maxValue - _filter2.minValue;
+    _filter2.scaledIncrement = ((float)twelvebit / window);
   }
   else if (_filter2.resolution == sevenBit)
   {
-      _filter2.scaledIncrement = 127 / (_filter2.maxValue - _filter2.minValue);
-  }
+    float window = _filter2.maxValue - _filter2.minValue;
+    _filter2.scaledIncrement = ((float)127 / window);  }
 
-  Serial.print("scaled increment filter2 = ");
-  Serial.println(_filter2.scaledIncrement);
+  // Serial.print("scaled increment filter2 = ");
+  // Serial.println(_filter2.scaledIncrement);
 }
 
 uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
 {
-  if (data < filter->minValue) data = filter->minValue;
+  if (data < filter->minValue) data = filter->minValue;  // clamping
   if (data > filter->maxValue) data = filter->maxValue;
-  
+
   Serial.print("scaled increment  = ");
-  Serial.println(bitf1);
-  //  say value 60 in
-  //  60 - 20 = 40
-  data = data - filter->minValue;
-  data = data * bitf1;
+  Serial.println(filter->scaledIncrement);
+ 
+  data = data - filter->minValue;  // minus offset
+  data = data * filter->scaledIncrement;  // multiply to final value
 
   
 
