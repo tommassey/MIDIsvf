@@ -28,7 +28,7 @@ void checkMIDI()
         uint16_t val = scaleForDAC(newCC.value, &_filter1);
         Serial.print("  scaled value = ");
         Serial.println(val);
-        DACwriteChannelA(newCC.value);
+        DACwriteChannelA(val);
         break;
       }
 
@@ -39,7 +39,7 @@ void checkMIDI()
         uint16_t val = scaleForDAC(newCC.value, &_filter2);
         Serial.print("  scaled value = ");
         Serial.println(val);
-        DACwriteChannelB(newCC.value);
+        DACwriteChannelB(val);
         break;
       }
 

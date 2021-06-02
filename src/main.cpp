@@ -80,6 +80,7 @@ void setup()
 
 void loop()
 {
+  //DACrawSpeedTest();
   checkMIDI();
 }
 
