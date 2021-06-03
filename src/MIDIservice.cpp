@@ -63,7 +63,6 @@ CCevent readMIDI()
   static uint16_t oldCutoff[totalFilters] = {0};
   static uint8_t filterValues[totalFiltValues];
 
-
   if (usbMIDI.read())
   {             
     if (usbMIDI.getType() == usbMIDI.ControlChange)
@@ -138,14 +137,6 @@ CCevent readMIDI()
 }
 
 
-void printCC(int cc, int val)
-{
-  Serial.print("cc event    channel ");
-  Serial.print(cc);
-  Serial.print("    value ");
-  Serial.println(val);
-}
-
 
 uint16_t bitShiftCombine( uint8_t x_high, uint8_t x_low)
 {
@@ -154,6 +145,42 @@ uint16_t bitShiftCombine( uint8_t x_high, uint8_t x_low)
   combined = combined<<8;         //shift x_high over to leftmost 8 bits
   combined |= x_low;              //logical OR keeps x_high intact in combined and fills in rightmost 8 bits
   return combined;
+}
+
+
+void initScaling()
+{
+  float window = _filter1.maxValue - _filter1.minValue;
+  _filter1.scaledIncrement = ((float)twelvebit / window);
+
+  window = _filter2.maxValue - _filter2.minValue;
+  _filter2.scaledIncrement = ((float)twelvebit / window);
+}
+
+
+uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
+{
+  if (data < filter->minValue) data = filter->minValue;  // clamping
+  if (data > filter->maxValue) data = filter->maxValue;
+
+  Serial.print("scaled increment  = ");
+  Serial.println(filter->scaledIncrement);
+ 
+  data = data - filter->minValue;  // minus offset
+  data = data * filter->scaledIncrement;  // multiply to final value
+  //if (data > 4095) data = 4095;  // don't need this, clamped in next function
+
+  return data;
+}
+
+
+
+void printCC(int cc, int val)
+{
+  Serial.print("cc event    channel ");
+  Serial.print(cc);
+  Serial.print("    value ");
+  Serial.println(val);
 }
 
 
@@ -185,32 +212,4 @@ void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
   Serial.print(_filter2.minValue);
   Serial.print("   MAX: ");
   Serial.println(_filter2.maxValue);
-}
-
-
-// min 20  max 90  so  70 total  58.5mV per point
-
-
-void initScaling()
-{
-    float window = _filter1.maxValue - _filter1.minValue;
-    _filter1.scaledIncrement = ((float)twelvebit / window);
-
-    window = _filter2.maxValue - _filter2.minValue;
-    _filter2.scaledIncrement = ((float)twelvebit / window);
-}
-
-uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
-{
-  if (data < filter->minValue) data = filter->minValue;  // clamping
-  if (data > filter->maxValue) data = filter->maxValue;
-
-  Serial.print("scaled increment  = ");
-  Serial.println(filter->scaledIncrement);
- 
-  data = data - filter->minValue;  // minus offset
-  data = data * filter->scaledIncrement;  // multiply to final value
-  //if (data > 4095) data = 4095;  // don't need this, clamped in next function
-
-  return data;
 }
