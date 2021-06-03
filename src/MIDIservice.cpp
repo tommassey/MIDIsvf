@@ -68,138 +68,69 @@ CCevent readMIDI()
   {             
     if (usbMIDI.getType() == usbMIDI.ControlChange)
     {
-      if (usbMIDI.getChannel() == (_filter1.channel || _filter2.channel))
+      byte newChannel = usbMIDI.getChannel();
+
+      if (newChannel == _filter1.channel || _filter2.channel)
       {
         byte data1 = usbMIDI.getData1();
         byte data2 = usbMIDI.getData2();
-        //Serial.print("      data2 = ");
-        //Serial.println(data2);
 
-        if (data1 == _filter1.CCforMSB)   //  ================================   FILTER 1 MSB
+
+        if ((data1 == _filter1.CCforMSB) && (newChannel == _filter1.channel))   //  ================================   FILTER 1 MSB
         {
-          filterValues[filt1MSB] = data2; 
+          filterValues[filt1MSB] = data2;
+
+          if (_filter1.resolution == sevenBit)
+          {
+            ccevent = {Filter1, data2};
+            printCC(ccevent.whichFilter, ccevent.value);
+            return ccevent;
+          }
         }
 
-        if (data1 == _filter1.CCforLSB)   //  ================================   FILTER 1 LSB
+        if ((data1 == _filter1.CCforLSB) && (newChannel == _filter1.channel))   //  ================================   FILTER 1 LSB
         {
           filterValues[filt1LSB] = data2;
           uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt1MSB], filterValues[filt1LSB]);
-          uint16_t twelveBitNumber = sixteenBitNumber>>3;
           
-          //if (twelveBitNumber > _filter1.maxValue) twelveBitNumber = _filter1.maxValue;  // clamping
-          //if (twelveBitNumber < _filter1.minValue) twelveBitNumber = _filter1.minValue;
-
           if (sixteenBitNumber != oldCutoff[Filter1])
           {
             oldCutoff[Filter1] = cutoff[Filter1];
             cutoff[Filter1] = sixteenBitNumber;
+
             ccevent = {Filter1, cutoff[Filter1]};
             printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
         }
 
-        if (data1 == _filter2.CCforMSB)   //  ================================   FILTER 2 MSB
-          {
-            filterValues[filt2MSB] = data2; 
-          }
-
-          if (data1 == _filter2.CCforMSB)  // ==================================   FILTER 2 LSB
-          {
-            filterValues[filt2LSB] = data2;
-            uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt2MSB], filterValues[filt2LSB]);
-            uint16_t twelveBitNumber = sixteenBitNumber>>3;
-            
-            //if (twelveBitNumber > _filter2.maxValue) twelveBitNumber = _filter2.maxValue;
-            //if (twelveBitNumber < _filter2.minValue) twelveBitNumber = _filter2.minValue;
-
-            if (sixteenBitNumber != oldCutoff[Filter2])
-            {
-              oldCutoff[Filter2] = cutoff[Filter2];
-              cutoff[Filter2] = sixteenBitNumber;
-
-              ccevent = {Filter2, cutoff[Filter2]};
-              printCC(ccevent.whichFilter, ccevent.value);
-              return ccevent;
-            }
-          }
-      }
-    }
-  }
-  return ccevent;
-}
-
-
-CCevent OldreadMIDI()
-{
-  CCevent ccevent = {0,0};
-  static uint16_t cutoff[totalFilters] = {0};
-  static uint16_t oldCutoff[totalFilters] = {0};
-  static uint8_t filterValues[totalFiltValues];
-
-
-  if (usbMIDI.read())
-  {             
-    switch (usbMIDI.getType())
-    {
-      case usbMIDI.ControlChange:
-      {
-        byte data1 = usbMIDI.getData1();
-        //Serial.print("data1 = ");
-        //Serial.print(data1);
-
-        byte data2 = usbMIDI.getData2();
-        //Serial.print("      data2 = ");
-        //Serial.println(data2);
-
-        if (data1 == _filter1.CCforMSB)   //  ================================   FILTER 1 MSB
+        if ((data1 == _filter2.CCforMSB) && (newChannel == _filter2.channel))   //  ================================   FILTER 2 MSB
         {
-          filterValues[filt1MSB] = data2; 
-        }
+          filterValues[filt2MSB] = data2;
 
-        if (data1 == _filter1.CCforLSB)   //  ================================   FILTER 1 LSB
-        {
-          filterValues[filt1LSB] = data2;
-          uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt1MSB], filterValues[filt1LSB]);
-          uint16_t twelveBitNumber = sixteenBitNumber>>3;
-          
-          //if (twelveBitNumber > _filter1.maxValue) twelveBitNumber = _filter1.maxValue;  // clamping
-          //if (twelveBitNumber < _filter1.minValue) twelveBitNumber = _filter1.minValue;
-
-          if (sixteenBitNumber != oldCutoff[Filter1])
+          if (_filter2.resolution == sevenBit)
           {
-            oldCutoff[Filter1] = cutoff[Filter1];
-            cutoff[Filter1] = sixteenBitNumber;
-            ccevent = {Filter1, cutoff[Filter1]};
+            ccevent = {Filter2, data2};
             printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
         }
 
-        if (data1 == _filter2.CCforMSB)   //  ================================   FILTER 2 MSB
+        if ((data1 == _filter2.CCforMSB) && (newChannel == _filter2.channel))  // ==================================   FILTER 2 LSB
+        {
+          filterValues[filt2LSB] = data2;
+          uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt2MSB], filterValues[filt2LSB]);
+        
+          if (sixteenBitNumber != oldCutoff[Filter2])
           {
-            filterValues[filt2MSB] = data2; 
+            oldCutoff[Filter2] = cutoff[Filter2];
+            cutoff[Filter2] = sixteenBitNumber;
+
+            ccevent = {Filter2, cutoff[Filter2]};
+            printCC(ccevent.whichFilter, ccevent.value);
+            return ccevent;
           }
-
-          if (data1 == _filter2.CCforMSB)  // ==================================   FILTER 2 LSB
-          {
-            filterValues[filt2LSB] = data2;
-            uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt2MSB], filterValues[filt2LSB]);
-            uint16_t twelveBitNumber = sixteenBitNumber>>3;
-            
-            //if (twelveBitNumber > _filter2.maxValue) twelveBitNumber = _filter2.maxValue;
-            //if (twelveBitNumber < _filter2.minValue) twelveBitNumber = _filter2.minValue;
-
-            if (sixteenBitNumber != oldCutoff[Filter2])
-            {
-              oldCutoff[Filter2] = cutoff[Filter2];
-              cutoff[Filter2] = sixteenBitNumber;
-
-              ccevent = {Filter2, cutoff[Filter2]};
-              printCC(ccevent.whichFilter, ccevent.value);
-              return ccevent;
-            }
-          }
+        }
       }
     }
   }
