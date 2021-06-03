@@ -22,22 +22,22 @@ void checkMIDI()
 
       case Filter1:
       {
-        // Serial.print("filter1 input = ");
-        // Serial.println(newCC.value);
+        Serial.print("filter1 input = ");
+        Serial.println(newCC.value);
         uint16_t val = scaleForDAC(newCC.value, &_filter1);
-        // Serial.print("  scaled value = ");
-        // Serial.println(val);
+        Serial.print("  scaled value = ");
+        Serial.println(val);
         DACwriteChannelA(val);
         break;
       }
 
       case Filter2:
       {
-        // Serial.print("filter2 input = ");
-        // Serial.println(newCC.value);
+        Serial.print("filter2 input = ");
+        Serial.println(newCC.value);
         uint16_t val = scaleForDAC(newCC.value, &_filter2);
-        // Serial.print("  scaled value = ");
-        // Serial.println(val);
+        Serial.print("  scaled value = ");
+        Serial.println(val);
         DACwriteChannelB(val);
         break;
       }
@@ -193,26 +193,11 @@ void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
 
 void initScaling()
 {
-  if(_filter1.resolution == fourteenBit)
-  { 
     float window = _filter1.maxValue - _filter1.minValue;
     _filter1.scaledIncrement = ((float)twelvebit / window);
-  }
-  else if (_filter1.resolution == sevenBit)
-  {
-    float window = _filter1.maxValue - _filter1.minValue;
-    _filter1.scaledIncrement = ((float)127 / window);
-  }
 
-  if(_filter2.resolution == fourteenBit)
-  {
-    float window = _filter2.maxValue - _filter2.minValue;
+    window = _filter2.maxValue - _filter2.minValue;
     _filter2.scaledIncrement = ((float)twelvebit / window);
-  }
-  else if (_filter2.resolution == sevenBit)
-  {
-    float window = _filter2.maxValue - _filter2.minValue;
-    _filter2.scaledIncrement = ((float)127 / window);  }
 }
 
 uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
