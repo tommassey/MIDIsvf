@@ -175,13 +175,13 @@ void readMIDIforConfig(MIDIconfigProfile* configToChange)
           byte channel  = usbMIDI.getChannel();
 
           Serial.print("Got CC.  Channel = ");
-          Serial.print(channel);
+          Serial.print(newChannel);
           Serial.print("  CC# = ");
           Serial.print(newCC);
           Serial.print("  value = ");
           Serial.println(newValue);
 
-          if (newCCswitch(newCC, newValue, configToChange))
+          if (newCCswitch(newCC, newValue, newChannel, configToChange))
           {
             inputValueBounding(configToChange);
           }
@@ -192,7 +192,7 @@ void readMIDIforConfig(MIDIconfigProfile* configToChange)
 }  // end of function 
 
 
-bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter)  // return true if value needs changing
+bool newCCswitch(byte cc, byte val, byte channel, MIDIconfigProfile* filter)  // return true if value needs changing
 {
   cc = CCfilter(cc);   // filter out invalid CC numbers
 
@@ -209,23 +209,41 @@ bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter)  // return true i
     Serial.print("  value = ");
     Serial.println(filter->incomingValueMSB);
 
-    return 1;
+    return true;
   }
+
+  else if (filter->initialised7bit && !filter->initialised14bit && (cc == (filter->CCforMSB - 32)) && (channel == filter->channel))
+  {                                                                                //  if we accidentally went to 7bit when it's actually 14bit
+      Serial.println("backwards");
+      filter->CCforLSB = filter->CCforMSB;
+      filter->CCforMSB = cc;
+
+      filter->incomingValueLSB = filter->incomingValueMSB;
+      filter->incomingValueMSB = val;
+      filter->currentValue = bitShiftCombine16(filter->incomingValueMSB, filter->incomingValueLSB);
+      filter->initialised14bit = true;
+      filter->resolution = fourteenBit;
+      return true;
+  }
+  
   else if (filter->initialised7bit && !filter->initialised14bit && (cc == filter->CCforMSB))   //  if we're in 7bit mode and we got the right CC#, update value
   {
     Serial.println("we're in 7bit mode and we got the right CC#, update value");
     filter->incomingValueMSB = val;
     filter->currentValue = val;
     readyForBounding++;
-    return 1;
+    return true;
   }
+
+  
   // //=========================================================================================== 14bit mode  
 
   else if (filter->initialised7bit && filter->initialised14bit &&(cc == filter->CCforMSB))   //  if we're in 14bit CCmsb, update value
   {
     Serial.println("we're in 14bit mode and we got the right CC#, update value");
     filter->incomingValueMSB = val;
-    return 0; // wait til get LSB before returnning 1
+
+    return false; // wait til get LSB before returnning 1
   }
 
   else if (cc == (filter->CCforMSB + 32))  // check if we're reciving 14bit MIDI
@@ -248,7 +266,7 @@ bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter)  // return true i
       Serial.print("  value = ");
       Serial.println(filter->currentValue);
       
-      return 1;
+      return true;
     }
   
     else if (filter->resolution == fourteenBit) // if we're init'd for 14bit and the CC# is the right one for the 14bit's LSB
@@ -261,12 +279,12 @@ bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter)  // return true i
       Serial.print("  value = ");
       Serial.println(filter->currentValue);
 
-      return 1;
+      return true;
     }   
   
   }  // end 14b
 
-  return 0;
+  return false;
 }
 
 

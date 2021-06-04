@@ -17,9 +17,6 @@
 #define twelvebit 4095
 
 
-
-
-
 struct MIDIconfigProfile
 {
     byte channel = 1;               //  MIDI channel
@@ -34,8 +31,6 @@ struct MIDIconfigProfile
     bool initialised7bit = false;
     bool initialised14bit = false;
     float scaledIncrement = 0;
-
-
 };
 
 
@@ -58,7 +53,7 @@ uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);  // combines two byte
 
 
 void readMIDIforConfig(MIDIconfigProfile* configToChange);       // gets MIDI data into right places
-bool newCCswitch(byte cc, byte val, MIDIconfigProfile* filter);  // chooses correct CC values, does 14bit ness
+bool newCCswitch(byte cc, byte val, byte newChannel, MIDIconfigProfile* filter);  // chooses correct CC values, does 14bit ness
 void inputValueBounding(MIDIconfigProfile * configToChange);     // stores min & max input values 
 byte CCfilter(byte cc);                                          //  filters out invalid CCs
 
