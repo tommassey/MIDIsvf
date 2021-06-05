@@ -6,6 +6,8 @@
 #define CONFIG_LED_PIN 5
 #define INPUT_BUTTON_PIN 6
 
+#define LFO_RATE_POT_PIN 23
+
 
 
 #define Filter1CCmsb 31

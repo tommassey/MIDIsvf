@@ -25,11 +25,8 @@ void initPins(Bounce* btn)
   pinMode(CONFIG_SWITCH_PIN, INPUT_PULLUP);
   digitalWrite(CONFIG_SWITCH_PIN, HIGH);
 
-  if (digitalRead(INPUT_BUTTON_PIN) == LOW)  //  only if we're in config mode
-  //if (digitalRead(CONFIG_SWITCH_PIN) == LOW)  //  only if we're in config mode
-  {
-    buttonInit(btn, INPUT_BUTTON_PIN, INPUT_PULLUP, 25);
-  }
+  if (digitalRead(INPUT_BUTTON_PIN) == LOW) buttonInit(btn, INPUT_BUTTON_PIN, INPUT_PULLUP, 25);   //  only if we're in config mode
+    
 }
 
 

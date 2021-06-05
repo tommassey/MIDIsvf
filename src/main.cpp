@@ -2,9 +2,18 @@
 #include "setup.h"
 //#include "MIDIservice.h"
 #include "MIDIsetup.h"
+#include "TeensyTimerTool.h"
+#include "LFO.h"
+
+using namespace TeensyTimerTool;
 
 LED led;
 Bounce button = Bounce();
+
+
+
+PeriodicTimer LFOtimer(TCK);
+PeriodicTimer potTimer(TCK);
 
 MIDIconfigProfile mainfilter1;
 MIDIconfigProfile mainfilter2;
@@ -47,6 +56,7 @@ void setup()
   Serial.begin(9600);
   initPins(&button);
   setupStuff();
+
   
 
   
@@ -74,6 +84,13 @@ void setup()
   mainfilter2 = getFilterConfig(Filter2);
   setMIDIprofiles(&mainfilter1, &mainfilter2);
 
+  LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
+  potTimer.begin(getRatePotValue, 10_Hz);
+
+  //initSineTable();
+  initNMLtable();
+
+
 }
 
 
@@ -81,6 +98,8 @@ void loop()
 {
   //DACrawSpeedTest();
   checkMIDI(&led);
+  updateLFO();
+  //getRatePotValue();
 }
 
 

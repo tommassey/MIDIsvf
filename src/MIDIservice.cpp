@@ -41,7 +41,7 @@ void checkMIDI(LED* led)
         uint16_t val = scaleForDAC(newCC.value, &_filter2);
         Serial.print("  scaled value = ");
         Serial.println(val);
-        DACwriteChannelB(val);
+        //DACwriteChannelB(val);
         digitalWrite(CONFIG_LED_PIN, LOW);
         break;
       }
