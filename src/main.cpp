@@ -4,13 +4,12 @@
 #include "MIDIsetup.h"
 
 LED led;
-LED* configLED = &led;
-
 Bounce button = Bounce();
-Bounce* configBtn = &button;
 
 MIDIconfigProfile mainfilter1;
 MIDIconfigProfile mainfilter2;
+
+bool configMode = false;   //  when true, we go into config
 
 
 void printMIDIprofiles()
@@ -44,10 +43,9 @@ void printMIDIprofiles()
 void setup()
 {
 
-  doWeWait();
 
   Serial.begin(9600);
-  initPins(configBtn);
+  initPins(&button);
   setupStuff();
   
 
@@ -56,13 +54,14 @@ void setup()
   
 
 
-  if (digitalRead(INPUT_BUTTON_PIN) == LOW)    //  if config switch is low during startup, enter config mode
-  //if (digitalRead(CONFIG_SWITCH_PIN) == LOW)    //  if config switch is low during startup, enter config mode
+  if (digitalRead(INPUT_BUTTON_PIN) == LOW)    //  if button is low during startup, enter config mode
   {
+    configMode = true;
     Serial.println("ConfigMode");
-    initMIDIconfig(configLED, configBtn); //, &filter1, &filter2);
-    //delay(5000);    //  wait to allow serial monitor to catch up
-    while (1)
+
+    initMIDIconfig(&configMode, &led, &button);
+
+    while (configMode)
     {
       MIDIconfigModeLoop();
     }
@@ -81,7 +80,7 @@ void setup()
 void loop()
 {
   //DACrawSpeedTest();
-  checkMIDI();
+  checkMIDI(&led);
 }
 
 

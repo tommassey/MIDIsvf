@@ -2,8 +2,7 @@
 
 LED* _led;
 Bounce* _btn;
-
-
+bool* ptr_configMode;
 
 byte currentMIDIconfigState = 0;
 byte midiConfigValues[totalFiltValues] = {"\0"};
@@ -15,38 +14,30 @@ MIDIconfigProfile* currentConfigProfile = &filter1;
 int readyForBounding = 0;     //  counts up to boundNow, then starts bounding recieved CC values.   To stop chatter at startup
 const int boundNow = 5;
 
-int readyToReadMIDI = 0;
+int readyToReadMIDI = 0;      //  to reduce chatter at startup
 const int readyNow = 7;
 
 
-void initMIDIconfig(LED* led, Bounce* btn) //, MIDIconfigProfile* f1, MIDIconfigProfile* f2)
+void initMIDIconfig(bool* stayInConfigMode, LED* led, Bounce* btn)
 {
     _led = led;
     _btn = btn;
-    //_filter1 = f1;
-    //_filter2 = f2;
+    ptr_configMode = stayInConfigMode;
 }
 
 
-void MIDIconfigModeLoop()
+void MIDIconfigModeLoop(void)
 {
   updateLED(_led);
-
-  if (buttonService(_btn) == 1)
-  {
-    menuUpdate();
-  }
-
+  if (buttonService(_btn) == 1) menuUpdate();
   readMIDIforConfig(currentConfigProfile);
 }
 
 
 byte currentConfigMode = CONFIG_MODE_start; 
 
-
 bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
 {
-    
     uint8_t pressed = checkButton(_btn);
 
     if (pressed) Serial.println("button pressed");
@@ -57,6 +48,7 @@ bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
         {
             return 0;
         }
+
         case shortPress:
         {   
           if (currentConfigMode == CONFIG_MODE_start)
@@ -66,8 +58,7 @@ bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
               currentConfigMode = CONFIG_MODE_filter1;
             }
             if (currentConfigMode == CONFIG_MODE_save) break;
-            
-            
+             
             currentConfigMode++;
             _led->currentBlink = 0;
             readyForBounding = 0;
@@ -76,6 +67,7 @@ bool buttonService(Bounce* btn)  // returns 1 if we need to refresh menu
             Serial.println(currentConfigMode);
             return 1;
         }
+
         case longPress:
         {
             if (currentConfigMode == CONFIG_MODE_start)
@@ -148,7 +140,6 @@ void menuUpdate()
         initMIDIprofileInMenu(&filter2);
         _led->setBlinkProfile(reset);
         currentConfigMode = CONFIG_MODE_filter1;
-        delay(200);
         break;
     }
     
@@ -172,7 +163,7 @@ void readMIDIforConfig(MIDIconfigProfile* configToChange)
         {
           byte newCC    = usbMIDI.getData1();
           byte newValue = usbMIDI.getData2();
-          byte channel  = usbMIDI.getChannel();
+          byte newChannel  = usbMIDI.getChannel();
 
           Serial.print("Got CC.  Channel = ");
           Serial.print(newChannel);
@@ -214,7 +205,7 @@ bool newCCswitch(byte cc, byte val, byte channel, MIDIconfigProfile* filter)  //
 
   else if (filter->initialised7bit && !filter->initialised14bit && (cc == (filter->CCforMSB - 32)) && (channel == filter->channel))
   {                                                                                //  if we accidentally went to 7bit when it's actually 14bit
-      Serial.println("backwards");
+      Serial.println("backwards");                                                 //  -32 because 14bit mode uses 2 CCs offset by 32
       filter->CCforLSB = filter->CCforMSB;
       filter->CCforMSB = cc;
 
@@ -235,7 +226,7 @@ bool newCCswitch(byte cc, byte val, byte channel, MIDIconfigProfile* filter)  //
     return true;
   }
 
-  
+
   // //=========================================================================================== 14bit mode  
 
   else if (filter->initialised7bit && filter->initialised14bit &&(cc == filter->CCforMSB))   //  if we're in 14bit CCmsb, update value
@@ -381,7 +372,6 @@ void initMIDIprofileInMenu(MIDIconfigProfile* value)
   value->maxValue = 1;     // highest value so far
   value->initialised7bit = false;
   value->initialised14bit = false;
-
 }
 
 
@@ -439,10 +429,9 @@ void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2)  // called to sa
   
   Serial.println("MIDI config data save complete");
   
-  resetAndWait();
-  
-  //SCB_AIRCR = 0x05FA0004;  // hardware reset
 
+  *ptr_configMode = false;  //  save complete, exit config mode
+  
 }
 
 
@@ -562,40 +551,3 @@ MIDIconfigProfile getFilterConfig(uint8_t whichFilter)
 }
 
 
-void resetAndWait(void)
-{
-  EEPROM.write(resetFlag, HIGH);  // set flag high so we need to reset 
-  usbMIDI.end();
-
-  delay(50);
-  SCB_AIRCR = 0x05FA0004;  // hardware reset
-}
-
-void doWeWait(void)
-{
-  if (EEPROM.read(resetFlag) == HIGH)
-  {
-    EEPROM.write(resetFlag, LOW);
-
-  Serial.println("Restart in ...");
-  delay(1000);
-  Serial.println("8 ...");
-  delay(1000);
-  Serial.println("7 ...");
-  delay(1000);
-  Serial.println("6 ...");
-  delay(1000);
-  Serial.println("5 ...");
-  delay(1000);
-  Serial.println("4 ...");
-  delay(1000);
-  Serial.println("3 ...");
-  delay(1000);
-  Serial.println("2 ...");
-  delay(1000);
-  Serial.println("1 ...");
-  delay(1000);
-
-  SCB_AIRCR = 0x05FA0004;  // hardware reset
-  }
-}

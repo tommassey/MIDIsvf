@@ -23,7 +23,7 @@ struct CCevent
 
 
 
-void checkMIDI(void);
+void checkMIDI(LED* led);
 CCevent readMIDI(void);
 uint16_t getMIDIvalue(void);
 

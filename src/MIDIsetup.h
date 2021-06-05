@@ -58,7 +58,7 @@ void inputValueBounding(MIDIconfigProfile * configToChange);     // stores min &
 byte CCfilter(byte cc);                                          //  filters out invalid CCs
 
 
-void initMIDIconfig(LED* led, Bounce* btn); //
+void initMIDIconfig(bool* stayInConfigMode, LED* led, Bounce* btn); //
 void MIDIconfigModeLoop();  // loop that runs when in config mode
 
 void menuUpdate();
@@ -76,9 +76,6 @@ MIDIconfigProfile getFilterConfig(uint8_t whichFilter);  //  returns filter conf
 
 void checkForSavedMIDIdata();
 
-
-void resetAndWait();
-void doWeWait(void);
 
 
 

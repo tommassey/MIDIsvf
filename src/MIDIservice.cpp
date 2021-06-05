@@ -8,7 +8,7 @@ bool scaling_init = false;
 float bitf1 = 0;
 
 
-void checkMIDI()
+void checkMIDI(LED* led)
 {
   CCevent newCC = readMIDI();
 
@@ -22,23 +22,27 @@ void checkMIDI()
 
       case Filter1:
       {
+        digitalWrite(CONFIG_LED_PIN, HIGH);
         Serial.print("filter1 input = ");
         Serial.println(newCC.value);
         uint16_t val = scaleForDAC(newCC.value, &_filter1);
         Serial.print("  scaled value = ");
         Serial.println(val);
         DACwriteChannelA(val);
+        digitalWrite(CONFIG_LED_PIN, LOW);
         break;
       }
 
       case Filter2:
       {
+        digitalWrite(CONFIG_LED_PIN, HIGH);
         Serial.print("filter2 input = ");
         Serial.println(newCC.value);
         uint16_t val = scaleForDAC(newCC.value, &_filter2);
         Serial.print("  scaled value = ");
         Serial.println(val);
         DACwriteChannelB(val);
+        digitalWrite(CONFIG_LED_PIN, LOW);
         break;
       }
 

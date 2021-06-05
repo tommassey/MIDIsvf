@@ -1,14 +1,7 @@
 #include "setup.h"
 
-
-
-
-
 void setupStuff()
 {
-
-
-  
   usbMIDI.begin();
 
   digitalWrite(LED_BUILTIN, HIGH);
