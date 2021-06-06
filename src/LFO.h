@@ -12,6 +12,11 @@ void initSineTable(void);
 void initNMLtable();
 void initLFOpointer(int16_t* value);
 
+void setLFOrate(float rate);
+void setLFOamount(float amount);
+
+
+
 
 enum waveForms
 {

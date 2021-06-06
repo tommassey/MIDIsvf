@@ -4,17 +4,27 @@
 #include "MIDIsetup.h"
 #include "TeensyTimerTool.h"
 #include "LFO.h"
-#include "inputs/potSmoothing.h"
+#include "inputs/inputs.h"
 
 using namespace TeensyTimerTool;
 
 LED led;
 Bounce button = Bounce();
 
-bool potchangeflag = false;
-uint16_t potval = 0;
+// bool LFOrateChange = false;
+// float LFOrate = 0;
 
-pot potty(22, &potval, &potchangeflag);
+// pot LFOratePot(23, &LFOrate, &LFOrateChange);
+
+
+// bool LFOamtAchange = false;
+// float LFOamtA = 0;
+
+// pot LFOamtAPot(22, &LFOamtA, &LFOamtAchange);
+
+
+
+
 
 PeriodicTimer LFOtimer(TCK);
 PeriodicTimer potTimer(TCK);
@@ -70,9 +80,10 @@ void isrWriteToDAC(void)
   DACwriteBothChannels(DAC1finalOutput, DAC2finalOutput);   
 }
 
-void readpots(void)
+void readpotsISR(void)
 {
-  potty.read();
+  LFOratePot.timeToRead();
+  LFOamtAPot.timeToRead();
 }
 
 
@@ -106,8 +117,7 @@ void setup()
   setMIDIprofiles(&mainfilter1, &mainfilter2);
 
   LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
-  potTimer.begin(getRatePotValue, 10_Hz);
-  potTimer2.begin(readpots, 100_Hz);
+  potTimer2.begin(readpotsISR, 100_Hz);
 
   initSineTable();
   initNMLtable();
@@ -122,13 +132,29 @@ void setup()
 void loop()
 {
 
-  if (potchangeflag) potty.update();
+  LFOratePot.update();
+  LFOamtAPot.update();
+
+  if (LFOrateChange) 
+  {
+    setLFOrate(LFOrate);
+    LFOrateChange = false;
+  }
+
+  if (LFOamtAchange) 
+  {
+    setLFOamount(LFOamtA);
+    LFOrateChange = false;
+  }
   //DACrawSpeedTest();
   byte MIDIchange = checkMIDI();
 
 
 
-  DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * output1LFOamt);
+
+
+
+  DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * LFOamtA);
   if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
   if (DAC1finalOutput < 0) DAC1finalOutput = 0;
   
@@ -169,7 +195,7 @@ void loop()
 
     updateLFO();
   
-  //getRatePotValue();
+  
 }
 
 

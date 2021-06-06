@@ -1,5 +1,5 @@
 #include "LFO.h"
-#include "pinDefines.h"
+//#include "pinDefines.h"
 
 #define NUM_AVRGES 4
 #define chatterWindow 3
@@ -16,8 +16,9 @@ uint16_t NMLcurrentStep = 0;
 const int16_t LFOmax = 4095;
 
 int16_t LFOval = 0;
+float LFOamp = 0.0;    // +/- 1.0
 uint16_t rates[NUM_AVRGES] = {0};
-uint16_t LFOrate = 0;
+uint16_t _LFOrate = 0;
 uint64_t prevLFOtime = 0;
 
 int16_t* LFOpointer;
@@ -26,57 +27,22 @@ uint8_t currentWaveForm = nonMusicLFO;
 static bool triangleGoingUp = true;
 
 
-
-
-uint16_t getRatePotValue(void)  // polls pot, returns true if changed LFOrate variable
+void setLFOrate(float rate)
 {
-    uint16_t newVal = analogRead(LFO_RATE_POT_PIN);
-
-    if ((newVal > (LFOrate + chatterWindow)) || ((newVal < (LFOrate - chatterWindow))))
-    {   
-        Serial.print("newVal = ");
-        Serial.print(newVal);
-
-        for (uint8_t i = 0; i < (NUM_AVRGES-1); i++)
-        {
-           rates[i] = rates[i+1];  
-           Serial.print("  rate ");
-           Serial.print(i);
-           Serial.print("  val = ");
-           Serial.print(rates[i]);
-        }
-        
-        rates[NUM_AVRGES-1] = newVal;
-
-        uint16_t sum = 0;
-
-        for (int i = 0; i < NUM_AVRGES; i++)
-        {
-          sum += rates[i];
-        }
-
-        Serial.print("  sum = ");
-        Serial.print(sum);
-        
-        uint16_t average = sum / NUM_AVRGES;
-
-        Serial.print("avrg = ");
-        Serial.println(average);
-
-        LFOrate = average;
-        
-        return true;
-    }
-    
-    return false;
+    if (rate > 1.0) rate = 1.0;
+    if (rate < 0.0) rate = 0.0;
+    _LFOrate = (rate * 4095) + 1;
 }
 
-
+void setLFOamount(float amount)
+{
+    LFOamp = amount;
+}
 
 
 void updateLFO(void)
 {
-    if (micros() > (prevLFOtime + LFOrate))
+    if (micros() > (prevLFOtime + _LFOrate))
     {   
         *LFOpointer = LFOval - 2048;
 
