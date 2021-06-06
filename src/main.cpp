@@ -18,7 +18,19 @@ PeriodicTimer potTimer(TCK);
 MIDIconfigProfile mainfilter1;
 MIDIconfigProfile mainfilter2;
 
-bool configMode = false;   //  when true, we go into config
+bool configMode = false;   //  when true, we go into config mode
+
+uint16_t output1CCamt = 0;  //  +4095
+uint16_t output2CCamt = 0;
+
+float output1LFOamt = 0.5;  //  +/-512
+float output2LFOamt = 2;
+
+int16_t LFOvalue = 0;   //  +/- 2048
+
+float DAC1finalOutput = 0; // 4095 max
+float DAC2finalOutput = 0;
+
 
 
 void printMIDIprofiles()
@@ -48,6 +60,12 @@ void printMIDIprofiles()
   Serial.println(mainfilter2.maxValue);
 }
 
+void isrWriteToDAC(void)
+{
+  DACwriteBothChannels(DAC1finalOutput, DAC2finalOutput);   
+}
+
+
 
 void setup()
 {
@@ -58,12 +76,6 @@ void setup()
   setupStuff();
 
   
-
-  
-
-  
-
-
   if (digitalRead(INPUT_BUTTON_PIN) == LOW)    //  if button is low during startup, enter config mode
   {
     configMode = true;
@@ -87,8 +99,11 @@ void setup()
   LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
   potTimer.begin(getRatePotValue, 10_Hz);
 
-  //initSineTable();
+  initSineTable();
   initNMLtable();
+
+  initFilterPointers(&output1CCamt, &output2CCamt);
+  initLFOpointer(&LFOvalue);
 
 
 }
@@ -97,8 +112,51 @@ void setup()
 void loop()
 {
   //DACrawSpeedTest();
-  checkMIDI(&led);
-  updateLFO();
+  byte MIDIchange = checkMIDI();
+
+
+
+  DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * output1LFOamt);
+  if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
+  if (DAC1finalOutput < 0) DAC1finalOutput = 0;
+  
+  DAC2finalOutput = (float)output2CCamt + ((float)LFOvalue * output2LFOamt);
+  if (DAC2finalOutput > 4095) DAC2finalOutput = 4095;
+  if (DAC2finalOutput < 0) DAC2finalOutput = 0;
+  
+
+  // if (MIDIchange == Filter1)
+  // {
+  //   DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * output1LFOamt);
+  //   if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
+  //   if (DAC1finalOutput < 0) DAC1finalOutput = 0;
+  // }
+  // else if (MIDIchange == Filter2)
+  // {
+  //   DAC2finalOutput = output2CCamt * output2LFOamt;
+  //   if (DAC2finalOutput > 4095) DAC2finalOutput = 4095;
+  //   if (DAC2finalOutput < 0) DAC2finalOutput = 0;
+  // }
+  // else
+  // {
+  //   DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * output1LFOamt);
+  //   if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
+  //   if (DAC1finalOutput < 0) DAC1finalOutput = 0;
+
+  // }
+  
+  
+
+
+  // if ((output1LFOamt || output2LFOamt) != 0)
+  // {
+
+  // }
+
+
+
+    updateLFO();
+  
   //getRatePotValue();
 }
 

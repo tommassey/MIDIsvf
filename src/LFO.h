@@ -6,11 +6,12 @@
 
 
 uint16_t getRatePotValue(void);
-void isrWriteToDAC(void);
 void updateLFO(void);
 
 void initSineTable(void);
 void initNMLtable();
+void initLFOpointer(int16_t* value);
+
 
 enum waveForms
 {

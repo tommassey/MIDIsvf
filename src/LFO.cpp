@@ -13,22 +13,18 @@ uint16_t sineCurrentStep = 0;
 uint16_t NMLtable[NMLsteps];
 uint16_t NMLcurrentStep = 0;
 
-const uint16_t LFOmax = 4095;
+const int16_t LFOmax = 4095;
 
-uint16_t LFOval = 0;
+int16_t LFOval = 0;
 uint16_t rates[NUM_AVRGES] = {0};
 uint16_t LFOrate = 0;
 uint64_t prevLFOtime = 0;
+
+int16_t* LFOpointer;
+
 uint8_t currentWaveForm = nonMusicLFO;
 static bool triangleGoingUp = true;
 
-
-void isrWriteToDAC(void)
-{
-    //Serial.print("dac write = ");
-    //Serial.println(LFOval);
-    DACwriteChannelB(LFOval);
-}
 
 
 
@@ -81,7 +77,9 @@ uint16_t getRatePotValue(void)  // polls pot, returns true if changed LFOrate va
 void updateLFO(void)
 {
     if (micros() > (prevLFOtime + LFOrate))
-    {
+    {   
+        *LFOpointer = LFOval - 2048;
+
         switch (currentWaveForm)
         {
             case sine:
@@ -89,7 +87,8 @@ void updateLFO(void)
                 LFOval = sineTable[sineCurrentStep];
                 sineCurrentStep++;
                 if (sineCurrentStep > (sinSteps-1)) sineCurrentStep = 0;
-                prevLFOtime = micros();                
+                prevLFOtime = micros();
+                if(prevLFOtime > 4294967294) prevLFOtime = 0;
                 break;
             }
 
@@ -99,6 +98,7 @@ void updateLFO(void)
                 {
                     LFOval++;
                     prevLFOtime = micros();
+                    if(prevLFOtime > 4294967294) prevLFOtime = 0;
 
                     if (LFOval > LFOmax)
                     {   
@@ -111,6 +111,7 @@ void updateLFO(void)
                 {
                     LFOval--;
                     prevLFOtime = micros();
+                    if(prevLFOtime > 4294967294) prevLFOtime = 0;
 
                     if (LFOval < 1)
                     {
@@ -128,6 +129,7 @@ void updateLFO(void)
           LFOval++;
           if(LFOval > LFOmax) LFOval = 0;
           prevLFOtime = micros();
+          if(prevLFOtime > 4294967294) prevLFOtime = 0;
           break;
         }
 
@@ -137,7 +139,8 @@ void updateLFO(void)
             LFOval = NMLtable[NMLcurrentStep];
             NMLcurrentStep++;
             if (NMLcurrentStep > (NMLsteps-1)) NMLcurrentStep = 0;
-            prevLFOtime = micros();                
+            prevLFOtime = micros();
+            if(prevLFOtime > 4294967294) prevLFOtime = 0;               
             break;
 
         }
@@ -155,12 +158,12 @@ void updateLFO(void)
 
 }
 
-// void initSineTable(){
-//   for (int i = 0; i < sinSteps; i++){
-//     sineTable[i] = 2048+2048*sin(i*(2*3.14)/sinSteps);
-//     Serial.println(sineTable[i]);
-//   }
-// }
+void initSineTable(){
+  for (int i = 0; i < sinSteps; i++){
+    sineTable[i] = 2048+2048*sin(i*(2*3.14)/sinSteps);
+    Serial.println(sineTable[i]);
+  }
+}
 
 void initNMLtable()
 {
@@ -253,6 +256,10 @@ void initNMLtable()
     }
 }
 
+void initLFOpointer(int16_t* value)
+{
+    LFOpointer = value;
+}
 
 
 

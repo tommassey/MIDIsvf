@@ -19,11 +19,12 @@ struct CCevent
 };
 
 
+void initFilterPointers(uint16_t* f1, uint16_t* f2);
 
 
 
 
-void checkMIDI(LED* led);
+byte checkMIDI(void);  // returns 0, 1 or 2 depending on which one changed
 CCevent readMIDI(void);
 uint16_t getMIDIvalue(void);
 

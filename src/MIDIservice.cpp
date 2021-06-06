@@ -3,21 +3,29 @@
 static MIDIconfigProfile _filter1;
 static MIDIconfigProfile _filter2;
 
+uint16_t* filter1Val;
+uint16_t* filter2Val;
+
 bool scaling_init = false;
 
 float bitf1 = 0;
 
 
-void checkMIDI(LED* led)
+byte checkMIDI(void)
 {
-  CCevent newCC = readMIDI();
+  if(!scaling_init)
+  {
+    initScaling();
+    scaling_init = true;
+  }
 
+  CCevent newCC = readMIDI();
 
   switch (newCC.whichFilter)
   {
       case noFilter:
       {
-        break;
+        return newCC.whichFilter;
       } 
 
       case Filter1:
@@ -28,9 +36,10 @@ void checkMIDI(LED* led)
         uint16_t val = scaleForDAC(newCC.value, &_filter1);
         Serial.print("  scaled value = ");
         Serial.println(val);
-        DACwriteChannelA(val);
+        *filter1Val = val;
+        //DACwriteChannelA(val);
         digitalWrite(CONFIG_LED_PIN, LOW);
-        break;
+        return newCC.whichFilter;
       }
 
       case Filter2:
@@ -41,20 +50,22 @@ void checkMIDI(LED* led)
         uint16_t val = scaleForDAC(newCC.value, &_filter2);
         Serial.print("  scaled value = ");
         Serial.println(val);
+        *filter2Val = val;
         //DACwriteChannelB(val);
         digitalWrite(CONFIG_LED_PIN, LOW);
-        break;
+        return newCC.whichFilter;
       }
 
       //default: //Serial.println("default");
       
   }
 
-  if(!scaling_init)
-  {
-    initScaling();
-    scaling_init = true;
-  }
+  // if(!scaling_init)
+  // {
+  //   initScaling();
+  //   scaling_init = true;
+  // }
+  return false;
   
 }
 
@@ -216,4 +227,11 @@ void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
   Serial.print(_filter2.minValue);
   Serial.print("   MAX: ");
   Serial.println(_filter2.maxValue);
+}
+
+void initFilterPointers(uint16_t* f1, uint16_t* f2)
+{
+  filter1Val = f1;
+  filter2Val = f2;
+
 }
