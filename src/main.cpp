@@ -3,27 +3,13 @@
 //#include "MIDIservice.h"
 #include "MIDIsetup.h"
 #include "TeensyTimerTool.h"
-#include "LFO.h"
+#include "LFO/LFO.h"
 #include "inputs/inputs.h"
 
 using namespace TeensyTimerTool;
 
 LED led;
 Bounce button = Bounce();
-
-// bool LFOrateChange = false;
-// float LFOrate = 0;
-
-// pot LFOratePot(23, &LFOrate, &LFOrateChange);
-
-
-// bool LFOamtAchange = false;
-// float LFOamtA = 0;
-
-// pot LFOamtAPot(22, &LFOamtA, &LFOamtAchange);
-
-
-
 
 
 PeriodicTimer LFOtimer(TCK);
@@ -38,14 +24,17 @@ bool configMode = false;   //  when true, we go into config mode
 uint16_t output1CCamt = 0;  //  +4095
 uint16_t output2CCamt = 0;
 
-float output1LFOamt = 0.5;  //  +/-512
-float output2LFOamt = 2;
+//float output1LFOamt = 0.5;  //  +/-512
+//float output2LFOamt = 2;
 
 int16_t LFOvalue = 0;   //  +/- 2048
 
 float DAC1finalOutput = 0; // 4095 max
 float DAC2finalOutput = 0;
 
+
+
+LFO lfo(&LFOvalue);
 
 
 void printMIDIprofiles()
@@ -80,11 +69,6 @@ void isrWriteToDAC(void)
   DACwriteBothChannels(DAC1finalOutput, DAC2finalOutput);   
 }
 
-void readpotsISR(void)
-{
-  LFOratePot.timeToRead();
-  LFOamtAPot.timeToRead();
-}
 
 
 void setup()
@@ -119,12 +103,10 @@ void setup()
   LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
   potTimer2.begin(readpotsISR, 100_Hz);
 
-  initSineTable();
-  initNMLtable();
+  lfo.initWaveForms();
 
   initFilterPointers(&output1CCamt, &output2CCamt);
-  initLFOpointer(&LFOvalue);
-
+ 
 
 }
 
@@ -132,20 +114,9 @@ void setup()
 void loop()
 {
 
-  LFOratePot.update();
-  LFOamtAPot.update();
+  checkPots(&lfo);
+  lfo.update();
 
-  if (LFOrateChange) 
-  {
-    setLFOrate(LFOrate);
-    LFOrateChange = false;
-  }
-
-  if (LFOamtAchange) 
-  {
-    setLFOamount(LFOamtA);
-    LFOrateChange = false;
-  }
   //DACrawSpeedTest();
   byte MIDIchange = checkMIDI();
 
@@ -158,42 +129,14 @@ void loop()
   if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
   if (DAC1finalOutput < 0) DAC1finalOutput = 0;
   
-  DAC2finalOutput = (float)output2CCamt + ((float)LFOvalue * output2LFOamt);
+  DAC2finalOutput = (float)output2CCamt + ((float)LFOvalue * LFOamtA);
   if (DAC2finalOutput > 4095) DAC2finalOutput = 4095;
   if (DAC2finalOutput < 0) DAC2finalOutput = 0;
   
 
-  // if (MIDIchange == Filter1)
-  // {
-  //   DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * output1LFOamt);
-  //   if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
-  //   if (DAC1finalOutput < 0) DAC1finalOutput = 0;
-  // }
-  // else if (MIDIchange == Filter2)
-  // {
-  //   DAC2finalOutput = output2CCamt * output2LFOamt;
-  //   if (DAC2finalOutput > 4095) DAC2finalOutput = 4095;
-  //   if (DAC2finalOutput < 0) DAC2finalOutput = 0;
-  // }
-  // else
-  // {
-  //   DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * output1LFOamt);
-  //   if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
-  //   if (DAC1finalOutput < 0) DAC1finalOutput = 0;
-
-  // }
-  
-  
 
 
-  // if ((output1LFOamt || output2LFOamt) != 0)
-  // {
-
-  // }
-
-
-
-    updateLFO();
+    
   
   
 }

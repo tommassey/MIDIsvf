@@ -1,8 +1,6 @@
-#include "LFO.h"
-//#include "pinDefines.h"
+#include "LFO/LFO.h"
 
-#define NUM_AVRGES 4
-#define chatterWindow 3
+#include "LFO/waveforms.h"
 
 #define sinSteps 4095
 #define NMLsteps 640
@@ -13,38 +11,34 @@ uint16_t sineCurrentStep = 0;
 uint16_t NMLtable[NMLsteps];
 uint16_t NMLcurrentStep = 0;
 
-const int16_t LFOmax = 4095;
-
-int16_t LFOval = 0;
-float LFOamp = 0.0;    // +/- 1.0
-uint16_t rates[NUM_AVRGES] = {0};
-uint16_t _LFOrate = 0;
-uint64_t prevLFOtime = 0;
-
-int16_t* LFOpointer;
-
-uint8_t currentWaveForm = nonMusicLFO;
-static bool triangleGoingUp = true;
 
 
-void setLFOrate(float rate)
+LFO::LFO(int16_t* value)
+{
+    externalLFOval = value;
+}
+
+void LFO::setRate(float rate)
 {
     if (rate > 1.0) rate = 1.0;
     if (rate < 0.0) rate = 0.0;
-    _LFOrate = (rate * 4095) + 1;
+    LFOrate = (rate * 4095) + 1;
 }
 
-void setLFOamount(float amount)
+void LFO::setAmount(float amount)
 {
+    if (amount > 1.0) amount = 1.0;
+    if (amount < 0.0) amount = 0.0;
     LFOamp = amount;
 }
 
 
-void updateLFO(void)
+void LFO::update(void)
 {
-    if (micros() > (prevLFOtime + _LFOrate))
+    //if (micros() > (prevLFOtime + _LFOrate))
+    if ((micros() - prevLFOtime) > LFOrate)
     {   
-        *LFOpointer = LFOval - 2048;
+        *externalLFOval = LFOval - 2048;
 
         switch (currentWaveForm)
         {
@@ -54,7 +48,7 @@ void updateLFO(void)
                 sineCurrentStep++;
                 if (sineCurrentStep > (sinSteps-1)) sineCurrentStep = 0;
                 prevLFOtime = micros();
-                if(prevLFOtime > 4294967294) prevLFOtime = 0;
+                //if(prevLFOtime > 4294967294) prevLFOtime = 0;
                 break;
             }
 
@@ -64,7 +58,7 @@ void updateLFO(void)
                 {
                     LFOval++;
                     prevLFOtime = micros();
-                    if(prevLFOtime > 4294967294) prevLFOtime = 0;
+                    //if(prevLFOtime > 4294967294) prevLFOtime = 0;
 
                     if (LFOval > LFOmax)
                     {   
@@ -77,7 +71,7 @@ void updateLFO(void)
                 {
                     LFOval--;
                     prevLFOtime = micros();
-                    if(prevLFOtime > 4294967294) prevLFOtime = 0;
+                    //if(prevLFOtime > 4294967294) prevLFOtime = 0;
 
                     if (LFOval < 1)
                     {
@@ -95,7 +89,7 @@ void updateLFO(void)
           LFOval++;
           if(LFOval > LFOmax) LFOval = 0;
           prevLFOtime = micros();
-          if(prevLFOtime > 4294967294) prevLFOtime = 0;
+          //if(prevLFOtime > 4294967294) prevLFOtime = 0;
           break;
         }
 
@@ -106,7 +100,7 @@ void updateLFO(void)
             NMLcurrentStep++;
             if (NMLcurrentStep > (NMLsteps-1)) NMLcurrentStep = 0;
             prevLFOtime = micros();
-            if(prevLFOtime > 4294967294) prevLFOtime = 0;               
+            //if(prevLFOtime > 4294967294) prevLFOtime = 0;               
             break;
 
         }
@@ -124,14 +118,24 @@ void updateLFO(void)
 
 }
 
-void initSineTable(){
+
+void LFO::initWaveForms(void)
+{
+    initSineTable();
+    initNMLtable();
+    waveForms_Init = true;
+}
+
+
+void LFO::initSineTable()
+{
   for (int i = 0; i < sinSteps; i++){
     sineTable[i] = 2048+2048*sin(i*(2*3.14)/sinSteps);
     Serial.println(sineTable[i]);
   }
 }
 
-void initNMLtable()
+void LFO::initNMLtable()
 {
     // zero
     for (uint8_t i = 0; i < 80; i++)
@@ -221,21 +225,3 @@ void initNMLtable()
         Serial.println(NMLtable[i]);
     }
 }
-
-void initLFOpointer(int16_t* value)
-{
-    LFOpointer = value;
-}
-
-
-
-
-//        _____     ____      ____        ____      ____
-//        |    \   |    |    |    \      /    |    |    |
-//        |     \  |    |    |     \    /     |    |    |
-//        |      \ |    |    |      \  /      |    |    |
-//        |       \|    |    |       \/       |    |    |
-//        |             |    |                |    |    |
-//        |             |    |                |    |    |________
-//        |             |    |                |    |            |
-//________|             |____|                |____|            |________

@@ -18,4 +18,29 @@ pot LFOamtAPot(22, &LFOamtA, &LFOamtAchange);
 
 
 
+void checkPots(LFO* lfo)
+{
+  LFOratePot.update();
+  LFOamtAPot.update();
+
+  if (LFOrateChange) 
+  {
+    lfo->setRate(LFOrate);
+    LFOrateChange = false;
+  }
+
+  if (LFOamtAchange) 
+  {
+    lfo->setAmount(LFOamtA);
+    LFOrateChange = false;
+  }
+}
+
+
+void readpotsISR(void)
+{
+  LFOratePot.timeToRead();
+  LFOamtAPot.timeToRead();
+}
+
 #endif
