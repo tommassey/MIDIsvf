@@ -9,7 +9,7 @@
 using namespace TeensyTimerTool;
 
 LED led;
-Bounce button = Bounce();
+
 
 
 PeriodicTimer LFOtimer(TCK);
@@ -23,9 +23,6 @@ bool configMode = false;   //  when true, we go into config mode
 
 uint16_t output1CCamt = 0;  //  +4095
 uint16_t output2CCamt = 0;
-
-//float output1LFOamt = 0.5;  //  +/-512
-//float output2LFOamt = 2;
 
 int16_t LFOvalue = 0;   //  +/- 2048
 
@@ -119,6 +116,8 @@ void loop()
 
   //DACrawSpeedTest();
   byte MIDIchange = checkMIDI();
+
+
 
 
 

@@ -5,6 +5,8 @@
 #include "pot.h"
 
 
+Bounce button = Bounce();
+
 bool LFOrateChange = false;
 float LFOrate = 0;
 

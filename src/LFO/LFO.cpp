@@ -1,6 +1,5 @@
 #include "LFO/LFO.h"
 
-#include "LFO/waveforms.h"
 
 #define sinSteps 4095
 #define NMLsteps 640
@@ -32,6 +31,11 @@ void LFO::setAmount(float amount)
     LFOamp = amount;
 }
 
+void LFO::setShape(waveform wave)
+{
+    currentWaveForm = wave;
+}
+
 
 void LFO::update(void)
 {
@@ -39,6 +43,7 @@ void LFO::update(void)
     if ((micros() - prevLFOtime) > LFOrate)
     {   
         *externalLFOval = LFOval - 2048;
+        analogWrite(5, (LFOval /16));
 
         switch (currentWaveForm)
         {

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+typedef byte waveform;
 
 enum waveForms
 {
@@ -14,6 +15,7 @@ enum waveForms
     square,
     nonMusicLFO
 };
+
 
 
 class LFO
@@ -28,7 +30,7 @@ private:
 
     int16_t* externalLFOval;
 
-    uint8_t currentWaveForm = nonMusicLFO;
+    waveform currentWaveForm = rampUp;
     bool triangleGoingUp = true;
     
     bool waveForms_Init = false;
@@ -42,18 +44,9 @@ public:
     void setRate(float rate);
     void setAmount(float amount);
     void update(void);
+    void setShape(waveform wave);
 };
 
-
-
-//uint16_t getRatePotValue(void);
-void updateLFO(void);
-
-
-//void initLFOpointer(int16_t* value);
-
-void setLFOrate(float rate);
-void setLFOamount(float amount);
 
 
 
