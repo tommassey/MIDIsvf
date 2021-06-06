@@ -4,16 +4,21 @@
 #include "MIDIsetup.h"
 #include "TeensyTimerTool.h"
 #include "LFO.h"
+#include "inputs/potSmoothing.h"
 
 using namespace TeensyTimerTool;
 
 LED led;
 Bounce button = Bounce();
 
+bool potchangeflag = false;
+uint16_t potval = 0;
 
+pot potty(22, &potval, &potchangeflag);
 
 PeriodicTimer LFOtimer(TCK);
 PeriodicTimer potTimer(TCK);
+PeriodicTimer potTimer2(TCK);
 
 MIDIconfigProfile mainfilter1;
 MIDIconfigProfile mainfilter2;
@@ -65,6 +70,10 @@ void isrWriteToDAC(void)
   DACwriteBothChannels(DAC1finalOutput, DAC2finalOutput);   
 }
 
+void readpots(void)
+{
+  potty.read();
+}
 
 
 void setup()
@@ -98,6 +107,7 @@ void setup()
 
   LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
   potTimer.begin(getRatePotValue, 10_Hz);
+  potTimer2.begin(readpots, 100_Hz);
 
   initSineTable();
   initNMLtable();
@@ -111,6 +121,8 @@ void setup()
 
 void loop()
 {
+
+  if (potchangeflag) potty.update();
   //DACrawSpeedTest();
   byte MIDIchange = checkMIDI();
 
