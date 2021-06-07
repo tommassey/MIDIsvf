@@ -14,7 +14,7 @@ LED led;
 
 PeriodicTimer LFOtimer(TCK);
 PeriodicTimer potTimer(TCK);
-PeriodicTimer potTimer2(TCK);
+PeriodicTimer smoothTimer(TCK);
 
 MIDIconfigProfile mainfilter1;
 MIDIconfigProfile mainfilter2;
@@ -32,6 +32,13 @@ float DAC2finalOutput = 0;
 
 
 LFO lfo(&LFOvalue);
+
+bool smoothFlag = false;
+
+void smoothISR(void)
+{
+  smoothFlag = true;
+}
 
 
 void printMIDIprofiles()
@@ -98,7 +105,8 @@ void setup()
   setMIDIprofiles(&mainfilter1, &mainfilter2);
 
   LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
-  potTimer2.begin(readpotsISR, 100_Hz);
+  potTimer.begin(readpotsISR, 100_Hz);
+  smoothTimer.begin(smoothISR, 8.2_kHz);
 
   lfo.initWaveForms();
 
@@ -113,6 +121,7 @@ void loop()
 
   checkPots(&lfo);
   lfo.update();
+  //smoothCCs(&smoothFlag, &output1CCamt, &output2CCamt);
 
   //DACrawSpeedTest();
   byte MIDIchange = checkMIDI();

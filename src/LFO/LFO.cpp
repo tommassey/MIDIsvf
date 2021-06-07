@@ -19,9 +19,16 @@ LFO::LFO(int16_t* value)
 
 void LFO::setRate(float rate)
 {
-    if (rate > 1.0) rate = 1.0;
-    if (rate < 0.0) rate = 0.0;
-    LFOrate = (rate * 4095) + 1;
+    //float r = ((rate / (pow(rate, rate) + 1)) * 2);
+    float r = (1 / 1 - (powf(rate + 1, rate))) * -1;
+    Serial.print(" pow = ");
+    Serial.println(r);
+    if (r > 1.0) r = 1.0;
+    if (r < 0.0) r = 0.0;
+    
+    //double exp = pow()
+    LFOrate = (r * 4095) + 1;
+    
 }
 
 void LFO::setAmount(float amount)
@@ -122,6 +129,29 @@ void LFO::update(void)
     
 
 }
+
+// uint16_t LFO::smooth(uint16_t value)
+// {
+//     total = total - smoothingValue[smoothIndex];      // subtract the last reading ready for the next read
+//     smoothingValue[smoothIndex] = value;    // read from the sensor
+//     total = total + smoothingValue[smoothIndex];      // add the reading to the total
+//     smoothIndex++;                // advance to the next position in the array
+//     if (smoothIndex >= numberVals) smoothIndex = 0;
+//     uint32_t newAverage = total / numberVals;
+        
+//     // if ((newAverage > average + chatterWindow) || (newAverage < average - chatterWindow))
+//     // {       
+//     //     //*externalValue = deadZoneScale(newAverage);  // update final float value
+//     //     average = newAverage;
+//     //     Serial.print("pot value = ");
+//     //     Serial.println(*externalValue);
+//     //     //*changeFlag = true;
+//     // }
+   
+//     return newAverage;
+    
+
+// }
 
 
 void LFO::initWaveForms(void)

@@ -30,12 +30,17 @@ private:
 
     int16_t* externalLFOval;
 
-    waveform currentWaveForm = rampUp;
+    waveform currentWaveForm = sine;
     bool triangleGoingUp = true;
+
     
+
     bool waveForms_Init = false;
+    
+    
     void initSineTable(void);
     void initNMLtable(void);
+
 
 public:
     LFO(int16_t* value);

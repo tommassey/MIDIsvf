@@ -8,7 +8,18 @@ uint16_t* filter2Val;
 
 bool scaling_init = false;
 
-float bitf1 = 0;
+
+static const byte numberVals = 8;
+    uint16_t smoothingValue[totalFilters][numberVals] = {0};
+    uint8_t smoothIndex[totalFilters] = {0};
+    uint8_t chatterWindow = 1;
+    uint32_t total[totalFilters] = {0};
+    uint16_t average[totalFilters] = {0};
+
+
+float ema_a = 0.3;
+float ema_ema = 0;
+float ema = 0;
 
 
 byte checkMIDI(void)
@@ -31,12 +42,13 @@ byte checkMIDI(void)
       case Filter1:
       {
         digitalWrite(CONFIG_LED_PIN, HIGH);
-        Serial.print("filter1 input = ");
-        Serial.println(newCC.value);
+        //Serial.print("filter1 input = ");
+        //Serial.println(newCC.value);
         uint16_t val = scaleForDAC(newCC.value, &_filter1);
-        Serial.print("  scaled value = ");
-        Serial.println(val);
-        *filter1Val = val;
+        
+        //Serial.print("  scaled value = ");
+        //Serial.println(val);
+        *filter1Val = val; //getDEMA(val); //smooth(val, Filter1);
         //DACwriteChannelA(val);
         digitalWrite(CONFIG_LED_PIN, LOW);
         return newCC.whichFilter;
@@ -45,12 +57,12 @@ byte checkMIDI(void)
       case Filter2:
       {
         digitalWrite(CONFIG_LED_PIN, HIGH);
-        Serial.print("filter2 input = ");
-        Serial.println(newCC.value);
+        //Serial.print("filter2 input = ");
+        //Serial.println(newCC.value);
         uint16_t val = scaleForDAC(newCC.value, &_filter2);
-        Serial.print("  scaled value = ");
-        Serial.println(val);
-        *filter2Val = val;
+        //Serial.print("  scaled value = ");
+        //Serial.println(val);
+        *filter2Val = val;//smooth(val, Filter2);
         //DACwriteChannelB(val);
         digitalWrite(CONFIG_LED_PIN, LOW);
         return newCC.whichFilter;
@@ -60,13 +72,7 @@ byte checkMIDI(void)
       
   }
 
-  // if(!scaling_init)
-  // {
-  //   initScaling();
-  //   scaling_init = true;
-  // }
   return false;
-  
 }
 
 
@@ -97,7 +103,7 @@ CCevent readMIDI()
           if (_filter1.resolution == sevenBit)
           {
             ccevent = {Filter1, data2};
-            printCC(ccevent.whichFilter, ccevent.value);
+            //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
         }
@@ -113,7 +119,7 @@ CCevent readMIDI()
             cutoff[Filter1] = sixteenBitNumber;
 
             ccevent = {Filter1, cutoff[Filter1]};
-            printCC(ccevent.whichFilter, ccevent.value);
+            //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
         }
@@ -125,7 +131,7 @@ CCevent readMIDI()
           if (_filter2.resolution == sevenBit)
           {
             ccevent = {Filter2, data2};
-            printCC(ccevent.whichFilter, ccevent.value);
+            //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
         }
@@ -141,7 +147,7 @@ CCevent readMIDI()
             cutoff[Filter2] = sixteenBitNumber;
 
             ccevent = {Filter2, cutoff[Filter2]};
-            printCC(ccevent.whichFilter, ccevent.value);
+            //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
         }
@@ -178,8 +184,8 @@ uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
   if (data < filter->minValue) data = filter->minValue;  // clamping
   if (data > filter->maxValue) data = filter->maxValue;
 
-  Serial.print("scaled increment  = ");
-  Serial.println(filter->scaledIncrement);
+  //Serial.print("scaled increment  = ");
+  //Serial.println(filter->scaledIncrement);
  
   data = data - filter->minValue;  // minus offset
   data = data * filter->scaledIncrement;  // multiply to final value
@@ -188,6 +194,65 @@ uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
   return data;
 }
 
+uint16_t smooth(uint16_t value, uint16_t filter)
+{
+    total[filter] = total[filter] - smoothingValue[filter][smoothIndex[filter]];      // subtract the last reading ready for the next read
+    smoothingValue[filter][smoothIndex[filter]] = value;    // read from the sensor
+    total[filter] = total[filter] + smoothingValue[filter][smoothIndex[filter]];      // add the reading to the total
+    smoothIndex[filter]++;                // advance to the next position in the array
+    if (smoothIndex[filter] >= numberVals) smoothIndex[filter] = 0;
+    uint32_t newAverage = total[filter] / numberVals;
+        
+    // if ((newAverage > average + chatterWindow) || (newAverage < average - chatterWindow))
+    // {       
+    //     //*externalValue = deadZoneScale(newAverage);  // update final float value
+    //     average = newAverage;
+    //     Serial.print("pot value = ");
+    //     Serial.println(*externalValue);
+    //     //*changeFlag = true;
+    // }
+   
+    return newAverage;
+    
+
+}
+
+
+
+uint16_t getDEMA(float newVal)
+{
+  ema = EMA_function(ema_a, newVal, ema);
+  ema_ema = EMA_function(ema_a, ema, ema_ema);
+   
+  int16_t DEMA = 2*ema - ema_ema;
+  Serial.println(DEMA);
+  if (DEMA < 0) DEMA = 0;
+  if (DEMA > 4095) DEMA = 4095;
+  return DEMA;
+}
+
+float EMA_function(float alpha, int latest, int stored)
+{
+  return round(alpha*latest) + round((1-alpha)*stored);
+}
+
+
+void smoothCCs(bool* flag, uint16_t* val1, uint16_t* val2)
+{
+  if (*flag)
+  {
+    uint16_t v1 = *val1;
+    //uint16_t v2 = *val2;
+
+    //*val1 = (getDEMA(v1));
+    //*val1 = EMA_function(ema_a, v1, ema);
+    //noInterrupts();
+    *val1 = smooth(v1, Filter1);
+    //interrupts();
+    *flag = false;    
+  }
+  
+}
 
 
 void printCC(int cc, int val)

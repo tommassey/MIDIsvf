@@ -45,5 +45,12 @@ uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter);
 
 
 
+    
+    uint16_t smooth(uint16_t value, uint16_t filter);
+    void smoothCCs(bool* flag, uint16_t* val1, uint16_t* val2);
+
+float EMA_function(float alpha, int latest, int stored);
+uint16_t getDEMA(float newVal);
+
 
 #endif
