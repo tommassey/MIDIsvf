@@ -53,7 +53,7 @@ private:
     //static Smoother smoother[parameterTotal];
     //void smoothValues(void);
 
-    uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile filter);  // used before final write
+    
 
 
     //void printConfigData();        // prints config data to serial monitor

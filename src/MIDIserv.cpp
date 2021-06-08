@@ -11,8 +11,6 @@ enum Bytes
 MIDIservice::MIDIservice()
 {
   usbMIDI.begin();
-  //timeToSmooth = ptr_smthFlag;
-  Serial.println("constructor");
 }
 
 
@@ -20,8 +18,6 @@ void MIDIservice::initParameter(output name, MIDIconfigProfile conf, uint16_t* p
 {
     config[name] = conf;
     externVal[name] = p_value;
-    Serial.print("init param ");
-    Serial.println((int)name);
 }
 
 
@@ -31,8 +27,8 @@ void MIDIservice::initScaling()
   {
    float window = config[i].maxValue - config[i].minValue;
   config[i].scaledIncrement = ((float)twelvebit / window); 
-  Serial.print("init scaling ");
-  Serial.println(i);
+  //Serial.print("init scaling ");
+  //Serial.println(i);
   }
 }
 
@@ -51,11 +47,6 @@ void MIDIservice::check(void)
 
   else
   {
-    Serial.print("event = ");
-    Serial.print(newEvent.name);
-    Serial.print("  external val");
-    Serial.println(newEvent.value);
-
     *externVal[newEvent.name] = newEvent.value;
     return;
   }
@@ -67,11 +58,9 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
 {
   MIDIevent ccevent = {noParameter,0};
 
-  //Serial.println("check buff");
-
   if (usbMIDI.read())
   {
-    Serial.println("midi rcv");
+    ///Serial.println("midi rcv");
 
     if (usbMIDI.getType() == usbMIDI.ControlChange)
     {
