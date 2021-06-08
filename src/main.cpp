@@ -2,9 +2,13 @@
 #include "setup.h"
 //#include "MIDIservice.h"
 #include "MIDIsetup.h"
+#include "MIDIserv.h"
 #include "TeensyTimerTool.h"
 #include "LFO/LFO.h"
 #include "inputs/inputs.h"
+#include "smooth.h"
+#include "DACservice.h"
+#include "DACdriver.h"
 
 using namespace TeensyTimerTool;
 
@@ -19,7 +23,20 @@ PeriodicTimer smoothTimer(TCK);
 MIDIconfigProfile mainfilter1;
 MIDIconfigProfile mainfilter2;
 
+MIDIconfigProfile config[parameterTotal];
+
+MIDIservice midi;
+
+
+
 bool configMode = false;   //  when true, we go into config mode
+
+Smoother smoother[parameterTotal];
+bool smoothFlag = false;
+uint16_t valueToBeSmoothed[parameterTotal] = {0};
+uint16_t value[parameterTotal] = {0};                   //  14bit values
+
+
 
 uint16_t output1CCamt = 0;  //  +4095
 uint16_t output2CCamt = 0;
@@ -33,12 +50,39 @@ uint16_t DAC2finalOutput = 0;
 
 LFO lfo(&LFOvalue);
 
-bool smoothFlag = false;
 
 void smoothISR(void)
 {
   smoothFlag = true;
 }
+
+void smoothValues(void)
+{
+  
+  if (smoothFlag)
+  {
+    //Serial.println("time to smooth");
+    Serial.print("vals to smooth  0 = ");
+    Serial.print(valueToBeSmoothed[noParameter]);
+    Serial.print("   F1 = ");
+    Serial.print(valueToBeSmoothed[parameterFilter1]);
+    Serial.print("   F2 = ");
+    Serial.println(valueToBeSmoothed[parameterFilter2]);
+
+    for (byte i = parameterFilter1; i < parameterTotal; i++)
+    {
+      uint16_t val = smoother[i].smooth(valueToBeSmoothed[i]);  //  add new val to smoothing array
+      Serial.print("val in = ");
+      Serial.println(val);
+      value[i] = scaleForDAC(val, config[i]);              //  scale new average and write to external pointer location
+    }
+    Serial.print("done smoothing = ");
+    Serial.println(value[parameterFilter1]);
+    smoothFlag = false;
+
+  }
+}
+
 
 
 void printMIDIprofiles()
@@ -99,17 +143,24 @@ void setup()
   //else
   initMCP4xxx();
   checkForSavedMIDIdata();
-  mainfilter1 = getFilterConfig(Filter1);
-  mainfilter2 = getFilterConfig(Filter2);
-  setMIDIprofiles(&mainfilter1, &mainfilter2);
+  config[parameterFilter1] = getFilterConfig(parameterFilter1);
+  config[parameterFilter2] = getFilterConfig(parameterFilter2);
+  //mainfilter2 = getFilterConfig(parameterFilter2);
+  //setMIDIprofiles(&mainfilter1, &mainfilter2);
+
+  midi.initParameter(noParameter, config[noParameter], &valueToBeSmoothed[noParameter]);
+  midi.initParameter(parameterFilter1, config[parameterFilter1], &valueToBeSmoothed[parameterFilter1]);
+  midi.initParameter(parameterFilter2, config[parameterFilter2], &valueToBeSmoothed[parameterFilter2]);
+
+  midi.printConfigData();
 
   LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
   potTimer.begin(readpotsISR, 100_Hz);
-  smoothTimer.begin(smoothISR, 1000_Hz);
+  smoothTimer.begin(smoothISR, 10_Hz);
 
   lfo.initWaveForms();
 
-  initFilterPointers(&output1CCamt, &output2CCamt);
+  //initFilterPointers(&output1CCamt, &output2CCamt);
  
 
 }
@@ -120,10 +171,13 @@ void loop()
 
   checkPots(&lfo);
   lfo.update();
-  smoothCCs(&smoothFlag, &output2CCamt, &output2CCamt);
+  //smoothCCs(&smoothFlag, &output2CCamt, &output2CCamt);
 
   //DACrawSpeedTest();
-  byte MIDIchange = checkMIDI();
+  //byte MIDIchange = checkMIDI();
+  midi.check();
+  smoothValues();
+
 
 
 

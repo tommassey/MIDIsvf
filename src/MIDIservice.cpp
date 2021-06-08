@@ -1,273 +1,273 @@
-#include "MIDIservice.h"
+// #include "MIDIservice.h"
 
-static MIDIconfigProfile _filter1;
-static MIDIconfigProfile _filter2;
+// static MIDIconfigProfile _filter1;
+// static MIDIconfigProfile _filter2;
 
-uint16_t* filterVal[totalFilters];
-
-
-bool scaling_init = false;
+// uint16_t* filterVal[totalFilters];
 
 
-static const byte numberVals = 8;
-uint16_t currentValue[totalFilters] = {0};
-    uint16_t smoothingValue[totalFilters][numberVals] = {0};
-    uint8_t smoothIndex[totalFilters] = {0};
-    uint8_t chatterWindow = 1;
-    uint32_t total[totalFilters] = {0};
-    uint16_t average[totalFilters] = {0};
+// bool scaling_init = false;
+
+
+// static const byte numberVals = 8;
+// uint16_t currentValue[totalFilters] = {0};
+//     uint16_t smoothingValue[totalFilters][numberVals] = {0};
+//     uint8_t smoothIndex[totalFilters] = {0};
+//     uint8_t chatterWindow = 1;
+//     uint32_t total[totalFilters] = {0};
+//     uint16_t average[totalFilters] = {0};
 
 
 
 
-byte checkMIDI(void)
-{
-  if(!scaling_init)
-  {
-    initScaling();
-    scaling_init = true;
-  }
+// byte checkMIDI(void)
+// {
+//   if(!scaling_init)
+//   {
+//     initScaling();
+//     scaling_init = true;
+//   }
 
-  CCevent newCC = readMIDI();
+//   CCevent newCC = readMIDI();
 
-  switch (newCC.whichFilter)
-  {
-      case noFilter:
-      {
-        return newCC.whichFilter;
-      } 
+//   switch (newCC.whichFilter)
+//   {
+//       case noFilter:
+//       {
+//         return newCC.whichFilter;
+//       } 
 
-      case Filter1:
-      {
-        digitalWrite(CONFIG_LED_PIN, HIGH);
-        currentValue[Filter1] = newCC.value;
-        digitalWrite(CONFIG_LED_PIN, LOW);
-        return newCC.whichFilter;
-      }
+//       case Filter1:
+//       {
+//         digitalWrite(CONFIG_LED_PIN, HIGH);
+//         currentValue[Filter1] = newCC.value;
+//         digitalWrite(CONFIG_LED_PIN, LOW);
+//         return newCC.whichFilter;
+//       }
 
-      case Filter2:
-      {
-        digitalWrite(CONFIG_LED_PIN, HIGH);
-        //Serial.print("filter2 input = ");
-        //Serial.println(newCC.value);
-        uint16_t val = scaleForDAC(newCC.value, &_filter2);
-        //Serial.print("  scaled value = ");
-        //Serial.println(val);
-        *filterVal[Filter2] = val;//smooth(val, Filter2);
-        //DACwriteChannelB(val);
-        digitalWrite(CONFIG_LED_PIN, LOW);
-        return newCC.whichFilter;
-      }
+//       case Filter2:
+//       {
+//         digitalWrite(CONFIG_LED_PIN, HIGH);
+//         //Serial.print("filter2 input = ");
+//         //Serial.println(newCC.value);
+//         uint16_t val = scaleForDAC(newCC.value, &_filter2);
+//         //Serial.print("  scaled value = ");
+//         //Serial.println(val);
+//         *filterVal[Filter2] = val;//smooth(val, Filter2);
+//         //DACwriteChannelB(val);
+//         digitalWrite(CONFIG_LED_PIN, LOW);
+//         return newCC.whichFilter;
+//       }
 
-      //default: //Serial.println("default");
+//       //default: //Serial.println("default");
       
-  }
+//   }
 
-  return false;
-}
-
-
-
-CCevent readMIDI()
-{
-  CCevent ccevent = {0,0};
-  static uint16_t cutoff[totalFilters] = {0};
-  static uint16_t oldCutoff[totalFilters] = {0};
-  static uint8_t filterValues[totalFiltValues];
-
-  if (usbMIDI.read())
-  {             
-    if (usbMIDI.getType() == usbMIDI.ControlChange)
-    {
-      byte newChannel = usbMIDI.getChannel();
-
-      if (newChannel == _filter1.channel || _filter2.channel)
-      {
-        byte data1 = usbMIDI.getData1();
-        byte data2 = usbMIDI.getData2();
+//   return false;
+// }
 
 
-        if ((data1 == _filter1.CCforMSB) && (newChannel == _filter1.channel))   //  ================================   FILTER 1 MSB
-        {
-          filterValues[filt1MSB] = data2;
 
-          if (_filter1.resolution == sevenBit)
-          {
-            ccevent = {Filter1, data2};
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
-          }
-        }
+// CCevent readMIDI()
+// {
+//   CCevent ccevent = {0,0};
+//   static uint16_t cutoff[totalFilters] = {0};
+//   static uint16_t oldCutoff[totalFilters] = {0};
+//   static uint8_t filterValues[totalFiltValues];
 
-        if ((data1 == _filter1.CCforLSB) && (newChannel == _filter1.channel))   //  ================================   FILTER 1 LSB
-        {
-          filterValues[filt1LSB] = data2;
-          uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt1MSB], filterValues[filt1LSB]);
+//   if (usbMIDI.read())
+//   {             
+//     if (usbMIDI.getType() == usbMIDI.ControlChange)
+//     {
+//       byte newChannel = usbMIDI.getChannel();
+
+//       if (newChannel == _filter1.channel || _filter2.channel)
+//       {
+//         byte data1 = usbMIDI.getData1();
+//         byte data2 = usbMIDI.getData2();
+
+
+//         if ((data1 == _filter1.CCforMSB) && (newChannel == _filter1.channel))   //  ================================   FILTER 1 MSB
+//         {
+//           filterValues[filt1MSB] = data2;
+
+//           if (_filter1.resolution == sevenBit)
+//           {
+//             ccevent = {Filter1, data2};
+//             //printCC(ccevent.whichFilter, ccevent.value);
+//             return ccevent;
+//           }
+//         }
+
+//         if ((data1 == _filter1.CCforLSB) && (newChannel == _filter1.channel))   //  ================================   FILTER 1 LSB
+//         {
+//           filterValues[filt1LSB] = data2;
+//           uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt1MSB], filterValues[filt1LSB]);
           
-          if (sixteenBitNumber != oldCutoff[Filter1])
-          {
-            oldCutoff[Filter1] = cutoff[Filter1];
-            cutoff[Filter1] = sixteenBitNumber;
+//           if (sixteenBitNumber != oldCutoff[Filter1])
+//           {
+//             oldCutoff[Filter1] = cutoff[Filter1];
+//             cutoff[Filter1] = sixteenBitNumber;
 
-            ccevent = {Filter1, cutoff[Filter1]};
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
-          }
-        }
+//             ccevent = {Filter1, cutoff[Filter1]};
+//             //printCC(ccevent.whichFilter, ccevent.value);
+//             return ccevent;
+//           }
+//         }
 
-        if ((data1 == _filter2.CCforMSB) && (newChannel == _filter2.channel))   //  ================================   FILTER 2 MSB
-        {
-          filterValues[filt2MSB] = data2;
+//         if ((data1 == _filter2.CCforMSB) && (newChannel == _filter2.channel))   //  ================================   FILTER 2 MSB
+//         {
+//           filterValues[filt2MSB] = data2;
 
-          if (_filter2.resolution == sevenBit)
-          {
-            ccevent = {Filter2, data2};
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
-          }
-        }
+//           if (_filter2.resolution == sevenBit)
+//           {
+//             ccevent = {Filter2, data2};
+//             //printCC(ccevent.whichFilter, ccevent.value);
+//             return ccevent;
+//           }
+//         }
 
-        if ((data1 == _filter2.CCforMSB) && (newChannel == _filter2.channel))  // ==================================   FILTER 2 LSB
-        {
-          filterValues[filt2LSB] = data2;
-          uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt2MSB], filterValues[filt2LSB]);
+//         if ((data1 == _filter2.CCforMSB) && (newChannel == _filter2.channel))  // ==================================   FILTER 2 LSB
+//         {
+//           filterValues[filt2LSB] = data2;
+//           uint16_t sixteenBitNumber = bitShiftCombine(filterValues[filt2MSB], filterValues[filt2LSB]);
         
-          if (sixteenBitNumber != oldCutoff[Filter2])
-          {
-            oldCutoff[Filter2] = cutoff[Filter2];
-            cutoff[Filter2] = sixteenBitNumber;
+//           if (sixteenBitNumber != oldCutoff[Filter2])
+//           {
+//             oldCutoff[Filter2] = cutoff[Filter2];
+//             cutoff[Filter2] = sixteenBitNumber;
 
-            ccevent = {Filter2, cutoff[Filter2]};
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
-          }
-        }
-      }
-    }
-  }
-  return ccevent;
-}
-
-
-
-uint16_t bitShiftCombine( uint8_t x_high, uint8_t x_low)
-{
-  uint16_t combined;
-  combined = x_high;              //send x_high to rightmost 8 bits
-  combined = combined<<8;         //shift x_high over to leftmost 8 bits
-  combined |= x_low;              //logical OR keeps x_high intact in combined and fills in rightmost 8 bits
-  return combined;
-}
+//             ccevent = {Filter2, cutoff[Filter2]};
+//             //printCC(ccevent.whichFilter, ccevent.value);
+//             return ccevent;
+//           }
+//         }
+//       }
+//     }
+//   }
+//   return ccevent;
+// }
 
 
-void initScaling()
-{
-  float window = _filter1.maxValue - _filter1.minValue;
-  _filter1.scaledIncrement = ((float)twelvebit / window);
 
-  window = _filter2.maxValue - _filter2.minValue;
-  _filter2.scaledIncrement = ((float)twelvebit / window);
-}
+// uint16_t bitShiftCombine( uint8_t x_high, uint8_t x_low)
+// {
+//   uint16_t combined;
+//   combined = x_high;              //send x_high to rightmost 8 bits
+//   combined = combined<<8;         //shift x_high over to leftmost 8 bits
+//   combined |= x_low;              //logical OR keeps x_high intact in combined and fills in rightmost 8 bits
+//   return combined;
+// }
 
 
-uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
-{
-  if (data < filter->minValue) data = filter->minValue;  // clamping
-  if (data > filter->maxValue) data = filter->maxValue;
+// void initScaling()
+// {
+//   float window = _filter1.maxValue - _filter1.minValue;
+//   _filter1.scaledIncrement = ((float)twelvebit / window);
 
-  //Serial.print("scaled increment  = ");
-  //Serial.println(filter->scaledIncrement);
+//   window = _filter2.maxValue - _filter2.minValue;
+//   _filter2.scaledIncrement = ((float)twelvebit / window);
+// }
+
+
+// uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
+// {
+//   if (data < filter->minValue) data = filter->minValue;  // clamping
+//   if (data > filter->maxValue) data = filter->maxValue;
+
+//   //Serial.print("scaled increment  = ");
+//   //Serial.println(filter->scaledIncrement);
  
-  data = data - filter->minValue;  // minus offset
-  data = data * filter->scaledIncrement;  // multiply to final value
-  //if (data > 4095) data = 4095;  // don't need this, clamped in next function
+//   data = data - filter->minValue;  // minus offset
+//   data = data * filter->scaledIncrement;  // multiply to final value
+//   //if (data > 4095) data = 4095;  // don't need this, clamped in next function
 
-  return data;
-}
+//   return data;
+// }
 
-uint16_t smooth(uint16_t value, uint16_t filter)
-{
-    total[filter] = total[filter] - smoothingValue[filter][smoothIndex[filter]];      // subtract the last reading ready for the next read
-    smoothingValue[filter][smoothIndex[filter]] = currentValue[filter];    // read from the sensor
-    total[filter] = total[filter] + smoothingValue[filter][smoothIndex[filter]];      // add the reading to the total
-    smoothIndex[filter]++;                // advance to the next position in the array
-    if (smoothIndex[filter] >= (numberVals-1)) smoothIndex[filter] = 0;
-    uint32_t newAverage = total[filter] / numberVals;
+// uint16_t smooth(uint16_t value, uint16_t filter)
+// {
+//     total[filter] = total[filter] - smoothingValue[filter][smoothIndex[filter]];      // subtract the last reading ready for the next read
+//     smoothingValue[filter][smoothIndex[filter]] = currentValue[filter];    // read from the sensor
+//     total[filter] = total[filter] + smoothingValue[filter][smoothIndex[filter]];      // add the reading to the total
+//     smoothIndex[filter]++;                // advance to the next position in the array
+//     if (smoothIndex[filter] >= (numberVals-1)) smoothIndex[filter] = 0;
+//     uint32_t newAverage = total[filter] / numberVals;
    
-    Serial.print("new avg = ");
-    Serial.println(newAverage);
-    uint16_t scaledAverage = scaleForDAC(newAverage, &_filter1);
-    Serial.print("scaled avg = ");
-    Serial.println(scaledAverage);
-    *filterVal[Filter1] = scaledAverage;
+//     Serial.print("new avg = ");
+//     Serial.println(newAverage);
+//     uint16_t scaledAverage = scaleForDAC(newAverage, &_filter1);
+//     Serial.print("scaled avg = ");
+//     Serial.println(scaledAverage);
+//     *filterVal[Filter1] = scaledAverage;
    
-    return newAverage;
+//     return newAverage;
     
 
-}
+// }
 
 
 
-void smoothCCs(bool* flag, uint16_t* val1, uint16_t* val2)
-{
-  if (*flag)
-  {
-    uint16_t v1 = *val1;
-    //uint16_t v2 = *val2;
+// void smoothCCs(bool* flag, uint16_t* val1, uint16_t* val2)
+// {
+//   if (*flag)
+//   {
+//     uint16_t v1 = *val1;
+//     //uint16_t v2 = *val2;
 
-    //*val1 = (getDEMA(v1));
-    //*val1 = EMA_function(ema_a, v1, ema);
-    //noInterrupts();
-    *val1 = smooth(v1, Filter1);
-    //interrupts();
-    *flag = false;    
-  }
+//     //*val1 = (getDEMA(v1));
+//     //*val1 = EMA_function(ema_a, v1, ema);
+//     //noInterrupts();
+//     *val1 = smooth(v1, Filter1);
+//     //interrupts();
+//     *flag = false;    
+//   }
   
-}
+// }
 
 
-void printCC(int cc, int val)
-{
-  Serial.print("cc event    channel ");
-  Serial.print(cc);
-  Serial.print("    value ");
-  Serial.println(val);
-}
+// void printCC(int cc, int val)
+// {
+//   Serial.print("cc event    channel ");
+//   Serial.print(cc);
+//   Serial.print("    value ");
+//   Serial.println(val);
+// }
 
 
-void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
-{
-  _filter1 = *f1;
-  _filter2 = *f2;
+// void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
+// {
+//   _filter1 = *f1;
+//   _filter2 = *f2;
 
-  Serial.println("== Filter 1 ===========");
-  Serial.print("CH: ");
-  Serial.print(_filter1.channel);
-  Serial.print("   RES: ");
-  Serial.print(_filter1.resolution);
-  Serial.print("   CC: ");
-  Serial.print(_filter1.CCforMSB);
-  Serial.print("   MIN: ");
-  Serial.print(_filter1.minValue);
-  Serial.print("   MAX: ");
-  Serial.println(_filter1.maxValue);
+//   Serial.println("== Filter 1 ===========");
+//   Serial.print("CH: ");
+//   Serial.print(_filter1.channel);
+//   Serial.print("   RES: ");
+//   Serial.print(_filter1.resolution);
+//   Serial.print("   CC: ");
+//   Serial.print(_filter1.CCforMSB);
+//   Serial.print("   MIN: ");
+//   Serial.print(_filter1.minValue);
+//   Serial.print("   MAX: ");
+//   Serial.println(_filter1.maxValue);
 
-  Serial.println("== Filter 2 ===========");
-  Serial.print("CH: ");
-  Serial.print(_filter2.channel);
-  Serial.print("   RES: ");
-  Serial.print(_filter2.resolution);
-  Serial.print("   CC: ");
-  Serial.print(_filter2.CCforMSB);
-  Serial.print("   MIN: ");
-  Serial.print(_filter2.minValue);
-  Serial.print("   MAX: ");
-  Serial.println(_filter2.maxValue);
-}
+//   Serial.println("== Filter 2 ===========");
+//   Serial.print("CH: ");
+//   Serial.print(_filter2.channel);
+//   Serial.print("   RES: ");
+//   Serial.print(_filter2.resolution);
+//   Serial.print("   CC: ");
+//   Serial.print(_filter2.CCforMSB);
+//   Serial.print("   MIN: ");
+//   Serial.print(_filter2.minValue);
+//   Serial.print("   MAX: ");
+//   Serial.println(_filter2.maxValue);
+// }
 
-void initFilterPointers(uint16_t* f1, uint16_t* f2)
-{
-  filterVal[Filter1] = f1;
-  filterVal[Filter2] = f2;
+// void initFilterPointers(uint16_t* f1, uint16_t* f2)
+// {
+//   filterVal[Filter1] = f1;
+//   filterVal[Filter2] = f2;
 
-}
+// }

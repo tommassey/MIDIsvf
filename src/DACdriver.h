@@ -1,5 +1,5 @@
-#ifndef DAC_H
-#define DAC_H
+#ifndef DAC_DRIVER_H
+#define DAC_DRIVER_H
 
 
 #include "Arduino.h"

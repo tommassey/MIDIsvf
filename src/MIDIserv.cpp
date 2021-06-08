@@ -7,16 +7,23 @@ enum Bytes
     totalBytes
 };
 
-MIDIservice::MIDIservice(bool* ptr_smthFlag)
+
+MIDIservice::MIDIservice()
 {
-  timeToSmooth = ptr_smthFlag;
+  usbMIDI.begin();
+  //timeToSmooth = ptr_smthFlag;
+  Serial.println("constructor");
 }
+
 
 void MIDIservice::initParameter(output name, MIDIconfigProfile conf, uint16_t* p_value)
 {
     config[name] = conf;
     externVal[name] = p_value;
+    Serial.print("init param ");
+    Serial.println((int)name);
 }
+
 
 void MIDIservice::initScaling()
 {
@@ -24,6 +31,8 @@ void MIDIservice::initScaling()
   {
    float window = config[i].maxValue - config[i].minValue;
   config[i].scaledIncrement = ((float)twelvebit / window); 
+  Serial.print("init scaling ");
+  Serial.println(i);
   }
 }
 
@@ -42,34 +51,28 @@ void MIDIservice::check(void)
 
   else
   {
-    valueToBeSmoothed[newEvent.name] = newEvent.value;
+    Serial.print("event = ");
+    Serial.print(newEvent.name);
+    Serial.print("  external val");
+    Serial.println(newEvent.value);
+
+    *externVal[newEvent.name] = newEvent.value;
     return;
   }
 }
 
 
 
-void MIDIservice::smoothValues(void)
-{
-  if (*timeToSmooth)
-  {
-    for (byte i = 0; i < parameterTotal; i++)
-    {
-      uint16_t val = smoother[i].smooth(valueToBeSmoothed[i]);  //  add new val to smoothing array
-      *externVal[i] = scaleForDAC(val, config[i]);              //  scale new average and write to external pointer location
-    }
-    *timeToSmooth = false;
-
-  }
-}
-
-
 MIDIevent MIDIservice::getMIDImsgFromBuffer()
 {
   MIDIevent ccevent = {noParameter,0};
 
+  //Serial.println("check buff");
+
   if (usbMIDI.read())
-  {             
+  {
+    Serial.println("midi rcv");
+
     if (usbMIDI.getType() == usbMIDI.ControlChange)
     {
       byte newChannel = usbMIDI.getChannel();
@@ -158,20 +161,7 @@ uint16_t MIDIservice::bitShiftCombine(uint8_t msb, uint8_t lsb)
   return combined;
 }
 
-uint16_t MIDIservice::scaleForDAC(uint16_t data, MIDIconfigProfile value)
-{
-  if (data < value.minValue) data = value.minValue;  // clamping
-  if (data > value.maxValue) data = value.maxValue;
 
-  //Serial.print("scaled increment  = ");
-  //Serial.println(filter->scaledIncrement);
- 
-  data = data - value.minValue;  // minus offset
-  data = data * value.scaledIncrement;  // multiply to final value
-  //if (data > 4095) data = 4095;  // don't need this, clamped in next function
-
-  return data;
-}
 
 
 
@@ -205,10 +195,10 @@ void MIDIservice::printConfigData()
 {
   for(byte i = 0; i < parameterTotal; i++)
   {
-    Serial.println("== Config ");
+    Serial.print("== Config ");
     Serial.print(i);
     Serial.print(" ===========");
-    Serial.print("CH: ");
+    Serial.print("    CH: ");
     Serial.print(config[i].channel);
     Serial.print("   RES: ");
     Serial.print(config[i].resolution);

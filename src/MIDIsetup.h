@@ -3,10 +3,11 @@
 
 #include <Arduino.h>
 //#include "MIDIUSB.h"
-#include "pinDefines.h"
 #include "LED.h"
 #include "button.h"
 #include "EEPROMservice.h"
+#include "MIDIdefines.h"
+
 
 #define Filter1CCmsb 31
 #define Filter1CClsb 63
@@ -17,21 +18,6 @@
 #define twelvebit 4095
 
 
-struct MIDIconfigProfile
-{
-    byte channel = 1;               //  MIDI channel
-    byte CCforMSB = 0;                 //  CC# 7bit
-    byte CCforLSB = 0;                 // 2nd CC# for 14bit MIDI
-    bool resolution = sevenBit;
-    byte incomingValueMSB = 0;  // incoming MIDI CC value
-    byte incomingValueLSB = 0;  // incoming MIDI CC value
-    uint16_t currentValue = 0;
-    uint16_t minValue = 33000;       // lowest value so far
-    uint16_t maxValue = 1;     // highest value so far
-    bool initialised7bit = false;
-    bool initialised14bit = false;
-    float scaledIncrement = 0;
-};
 
 
 enum configModes

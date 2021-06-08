@@ -19,29 +19,7 @@
 #define twelvebit 4095
 
 
-enum CCresolution
-{
-    sevenBit = 0,
-    fourteenBit
-};
 
-enum filters
-{
-    noFilter = 0,
-    Filter1,
-    Filter2,
-    totalFilters
-};
-
-
-enum filterBytes
-{
-    filt1LSB = 0,
-    filt1MSB,
-    filt2LSB,
-    filt2MSB,
-    totalFiltValues
-};
 
 
 

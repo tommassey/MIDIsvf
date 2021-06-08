@@ -1,20 +1,18 @@
-#ifndef MIDISERVICE_H
-#define MIDISERVICE_H
+// #ifndef MIDISERVICE_H
+// #define MIDISERVICE_H
 
-#include <Arduino.h>
-#include "DAC.h"
-#include "pinDefines.h"
-#include "MIDIsetup.h"
-
-
-typedef struct
-{
-    byte whichFilter = noFilter;
-    uint16_t value = 0;
-
-}   CCevent;
+// #include <Arduino.h>
+// #include "DAC.h"
+// #include "pinDefines.h"
+// #include "MIDIsetup.h"
 
 
+// typedef struct
+// {
+//     byte whichFilter = noFilter;
+//     uint16_t value = 0;
+
+// }   CCevent;
 
 
 
@@ -24,36 +22,38 @@ typedef struct
 
 
 
-void initFilterPointers(uint16_t* f1, uint16_t* f2);
+
+
+// void initFilterPointers(uint16_t* f1, uint16_t* f2);
 
 
 
 
-byte checkMIDI(void);  // returns 0, 1 or 2 depending on which one changed
-CCevent readMIDI(void);
-uint16_t getMIDIvalue(void);
+// byte checkMIDI(void);  // returns 0, 1 or 2 depending on which one changed
+// CCevent readMIDI(void);
+// uint16_t getMIDIvalue(void);
 
 
 
-void printCC(int cc, int val);
+// void printCC(int cc, int val);
 
-uint16_t bitShiftCombine(uint8_t x_high, uint8_t x_low);
-uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);
+// uint16_t bitShiftCombine(uint8_t x_high, uint8_t x_low);
+// uint16_t bitShiftCombine16(uint8_t x_high, uint8_t x_low);
 
 
-bool newCCswitch(byte cc, byte val);
+// bool newCCswitch(byte cc, byte val);
 
-void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);
+// void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2);
 
-void initScaling(void);
-uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter);
+// void initScaling(void);
+// uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter);
 
 
 
     
-    uint16_t smooth(uint16_t value, uint16_t filter);
-    void smoothCCs(bool* flag, uint16_t* val1, uint16_t* val2);
+//     uint16_t smooth(uint16_t value, uint16_t filter);
+//     void smoothCCs(bool* flag, uint16_t* val1, uint16_t* val2);
 
 
 
-#endif
+// #endif

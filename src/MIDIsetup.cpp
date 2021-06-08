@@ -1,4 +1,5 @@
 #include "MIDIsetup.h"
+#include "MIDIdefines.h"
 
 LED* _led;
 Bounce* _btn;
