@@ -43,11 +43,6 @@ enum filterBytes
     totalFiltValues
 };
 
-enum Bytes
-{
-    LSB = 0,
-    MSB,
-    totalBytes
-};
+
 
 #endif

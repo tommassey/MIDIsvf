@@ -1,7 +1,15 @@
 #include "MIDIserv.h"
 
-MIDIservice::MIDIservice(/* args */)
+enum Bytes
 {
+    LSB = 0,
+    MSB,
+    totalBytes
+};
+
+MIDIservice::MIDIservice(bool* ptr_smthFlag)
+{
+  timeToSmooth = ptr_smthFlag;
 }
 
 void MIDIservice::initParameter(output name, MIDIconfigProfile conf, uint16_t* p_value)
