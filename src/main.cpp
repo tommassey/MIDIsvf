@@ -26,8 +26,8 @@ uint16_t output2CCamt = 0;
 
 int16_t LFOvalue = 0;   //  +/- 2048
 
-float DAC1finalOutput = 0; // 4095 max
-float DAC2finalOutput = 0;
+uint16_t DAC1finalOutput = 0; // 4095 max
+uint16_t DAC2finalOutput = 0;
 
 
 
@@ -74,7 +74,6 @@ void isrWriteToDAC(void)
 }
 
 
-
 void setup()
 {
 
@@ -106,7 +105,7 @@ void setup()
 
   LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
   potTimer.begin(readpotsISR, 100_Hz);
-  smoothTimer.begin(smoothISR, 8.2_kHz);
+  smoothTimer.begin(smoothISR, 1000_Hz);
 
   lfo.initWaveForms();
 
@@ -121,7 +120,7 @@ void loop()
 
   checkPots(&lfo);
   lfo.update();
-  //smoothCCs(&smoothFlag, &output1CCamt, &output2CCamt);
+  smoothCCs(&smoothFlag, &output2CCamt, &output2CCamt);
 
   //DACrawSpeedTest();
   byte MIDIchange = checkMIDI();
@@ -133,7 +132,8 @@ void loop()
 
 
 
-  DAC1finalOutput = (float)output1CCamt + ((float)LFOvalue * LFOamtA);
+  DAC1finalOutput = output1CCamt + ((float)LFOvalue * LFOamtA);
+  
   if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
   if (DAC1finalOutput < 0) DAC1finalOutput = 0;
   

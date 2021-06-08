@@ -3,13 +3,14 @@
 static MIDIconfigProfile _filter1;
 static MIDIconfigProfile _filter2;
 
-uint16_t* filter1Val;
-uint16_t* filter2Val;
+uint16_t* filterVal[totalFilters];
+
 
 bool scaling_init = false;
 
 
 static const byte numberVals = 8;
+uint16_t currentValue[totalFilters] = {0};
     uint16_t smoothingValue[totalFilters][numberVals] = {0};
     uint8_t smoothIndex[totalFilters] = {0};
     uint8_t chatterWindow = 1;
@@ -17,9 +18,6 @@ static const byte numberVals = 8;
     uint16_t average[totalFilters] = {0};
 
 
-float ema_a = 0.3;
-float ema_ema = 0;
-float ema = 0;
 
 
 byte checkMIDI(void)
@@ -42,14 +40,7 @@ byte checkMIDI(void)
       case Filter1:
       {
         digitalWrite(CONFIG_LED_PIN, HIGH);
-        //Serial.print("filter1 input = ");
-        //Serial.println(newCC.value);
-        uint16_t val = scaleForDAC(newCC.value, &_filter1);
-        
-        //Serial.print("  scaled value = ");
-        //Serial.println(val);
-        *filter1Val = val; //getDEMA(val); //smooth(val, Filter1);
-        //DACwriteChannelA(val);
+        currentValue[Filter1] = newCC.value;
         digitalWrite(CONFIG_LED_PIN, LOW);
         return newCC.whichFilter;
       }
@@ -62,7 +53,7 @@ byte checkMIDI(void)
         uint16_t val = scaleForDAC(newCC.value, &_filter2);
         //Serial.print("  scaled value = ");
         //Serial.println(val);
-        *filter2Val = val;//smooth(val, Filter2);
+        *filterVal[Filter2] = val;//smooth(val, Filter2);
         //DACwriteChannelB(val);
         digitalWrite(CONFIG_LED_PIN, LOW);
         return newCC.whichFilter;
@@ -197,44 +188,24 @@ uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile* filter)
 uint16_t smooth(uint16_t value, uint16_t filter)
 {
     total[filter] = total[filter] - smoothingValue[filter][smoothIndex[filter]];      // subtract the last reading ready for the next read
-    smoothingValue[filter][smoothIndex[filter]] = value;    // read from the sensor
+    smoothingValue[filter][smoothIndex[filter]] = currentValue[filter];    // read from the sensor
     total[filter] = total[filter] + smoothingValue[filter][smoothIndex[filter]];      // add the reading to the total
     smoothIndex[filter]++;                // advance to the next position in the array
-    if (smoothIndex[filter] >= numberVals) smoothIndex[filter] = 0;
+    if (smoothIndex[filter] >= (numberVals-1)) smoothIndex[filter] = 0;
     uint32_t newAverage = total[filter] / numberVals;
-        
-    // if ((newAverage > average + chatterWindow) || (newAverage < average - chatterWindow))
-    // {       
-    //     //*externalValue = deadZoneScale(newAverage);  // update final float value
-    //     average = newAverage;
-    //     Serial.print("pot value = ");
-    //     Serial.println(*externalValue);
-    //     //*changeFlag = true;
-    // }
+   
+    Serial.print("new avg = ");
+    Serial.println(newAverage);
+    uint16_t scaledAverage = scaleForDAC(newAverage, &_filter1);
+    Serial.print("scaled avg = ");
+    Serial.println(scaledAverage);
+    *filterVal[Filter1] = scaledAverage;
    
     return newAverage;
     
 
 }
 
-
-
-uint16_t getDEMA(float newVal)
-{
-  ema = EMA_function(ema_a, newVal, ema);
-  ema_ema = EMA_function(ema_a, ema, ema_ema);
-   
-  int16_t DEMA = 2*ema - ema_ema;
-  Serial.println(DEMA);
-  if (DEMA < 0) DEMA = 0;
-  if (DEMA > 4095) DEMA = 4095;
-  return DEMA;
-}
-
-float EMA_function(float alpha, int latest, int stored)
-{
-  return round(alpha*latest) + round((1-alpha)*stored);
-}
 
 
 void smoothCCs(bool* flag, uint16_t* val1, uint16_t* val2)
@@ -296,7 +267,7 @@ void setMIDIprofiles(MIDIconfigProfile* f1, MIDIconfigProfile* f2)
 
 void initFilterPointers(uint16_t* f1, uint16_t* f2)
 {
-  filter1Val = f1;
-  filter2Val = f2;
+  filterVal[Filter1] = f1;
+  filterVal[Filter2] = f2;
 
 }
