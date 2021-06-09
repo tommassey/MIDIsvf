@@ -12,7 +12,7 @@ uint16_t NMLcurrentStep = 0;
 
 
 
-LFO::LFO(int16_t* value)
+LFO::LFO(float* value)
 {
     externalLFOval = value;
 }
@@ -49,7 +49,7 @@ void LFO::update(void)
     //if (micros() > (prevLFOtime + _LFOrate))
     if ((micros() - prevLFOtime) > LFOrate)
     {   
-        *externalLFOval = LFOval - 2048;
+        *externalLFOval = LFOval;
         analogWrite(5, (LFOval /16));
 
         switch (currentWaveForm)
@@ -130,28 +130,7 @@ void LFO::update(void)
 
 }
 
-// uint16_t LFO::smooth(uint16_t value)
-// {
-//     total = total - smoothingValue[smoothIndex];      // subtract the last reading ready for the next read
-//     smoothingValue[smoothIndex] = value;    // read from the sensor
-//     total = total + smoothingValue[smoothIndex];      // add the reading to the total
-//     smoothIndex++;                // advance to the next position in the array
-//     if (smoothIndex >= numberVals) smoothIndex = 0;
-//     uint32_t newAverage = total / numberVals;
-        
-//     // if ((newAverage > average + chatterWindow) || (newAverage < average - chatterWindow))
-//     // {       
-//     //     //*externalValue = deadZoneScale(newAverage);  // update final float value
-//     //     average = newAverage;
-//     //     Serial.print("pot value = ");
-//     //     Serial.println(*externalValue);
-//     //     //*changeFlag = true;
-//     // }
-   
-//     return newAverage;
-    
 
-// }
 
 
 void LFO::initWaveForms(void)

@@ -36,7 +36,7 @@ uint16_t value[parameterTotal] = {0};                   //  14bit values
 
 
 
-int16_t LFOvalue = 0;   //  +/- 2048
+float LFOvalue = 0;   //  +/- 2048
 LFO lfo(&LFOvalue);
 
 
@@ -91,37 +91,30 @@ void isrWriteToDAC(void)
   DACwriteBothChannels(DAC1finalOutput, DAC2finalOutput);   
 }
 
-int count = 0; 
+//int count = 0; 
 
 void sumBeforeDAC(void)
 {
-  count++;
+  //count++;
 
+  DAC1finalOutput = (value[parameterFilter1]>>3) + (LFOvalue * LFOamtA);
     
-  uint16_t sum = value[parameterFilter1] + ((float)LFOvalue * LFOamtA);
-  DAC1finalOutput = sum>>3;
-
-  
-  
     if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
     if (DAC1finalOutput < 0) DAC1finalOutput = 0;
   
-    sum = value[parameterFilter2] + ((float)LFOvalue * LFOamtA);
-    DAC2finalOutput = sum>>3;
-
-  
-
+  DAC2finalOutput = (value[parameterFilter2]>>3) + (LFOvalue * LFOamtA);
+    
     if (DAC2finalOutput > 4095) DAC2finalOutput = 4095;
     if (DAC2finalOutput < 0) DAC2finalOutput = 0;
 
-    if (count == 100)
-    {
-      Serial.print("DAC1 final  = ");
-      Serial.print(DAC1finalOutput);
-      Serial.print("      DAC2 final  = ");
-      Serial.println(DAC2finalOutput);
-      count = 0;
-    }
+    // if (count == 1000)
+    // {
+    //   Serial.print("DAC1 final  = ");
+    //   Serial.print(DAC1finalOutput);
+    //   Serial.print("      DAC2 final  = ");
+    //   Serial.println(DAC2finalOutput);
+    //   count = 0;
+    // }
 }
 
 void setup()

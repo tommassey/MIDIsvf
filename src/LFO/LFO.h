@@ -28,7 +28,7 @@ private:
     uint16_t LFOrate = 0;
     uint64_t prevLFOtime = 0;
 
-    int16_t* externalLFOval;
+    float* externalLFOval;
 
     waveform currentWaveForm = sine;
     bool triangleGoingUp = true;
@@ -43,7 +43,7 @@ private:
 
 
 public:
-    LFO(int16_t* value);
+    LFO(float* value);
     void initWaveForms(void);
 
     void setRate(float rate);
