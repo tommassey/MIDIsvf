@@ -150,9 +150,9 @@ void setup()
 
   midi.printConfigData();
 
-  LFOtimer.begin(isrWriteToDAC, 44.1_kHz);
+  LFOtimer.begin(isrWriteToDAC, 88.2_kHz);
   potTimer.begin(readpotsISR, 100_Hz);
-  smoothTimer.begin(smoothISR, 1000_Hz);
+  smoothTimer.begin(smoothISR, 88.2_kHz);
 
   lfo.initWaveForms();
 }

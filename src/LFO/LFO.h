@@ -30,7 +30,7 @@ private:
 
     float* externalLFOval;
 
-    waveform currentWaveForm = sine;
+    waveform currentWaveForm = triangle;
     bool triangleGoingUp = true;
 
     
