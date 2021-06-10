@@ -1,31 +1,36 @@
 # MIDIsvf
 14bit MIDI to CV
-
-
+----------------
 the device is a 2 channel USB MIDI CC to CV converter with LFO.  
+
+it's currently running on a teensy 4.0
+
 
 a MIDI CC (continuous controller) message is a 7 or 14bit value that can control various things on a MIDI device (pitch bend, filter cutoff, volume, pan, etc.)
 it can be sent with note on/off data or assigned to a pot/slider or used from a sequencer/DAW as an automation clip
+
 
 basically this thing allows you to have two DAC outputs each controlled by different MIDI CCs.
 there's one LFO and each channel has it's own LFO amount knob.  
 the LFO and the CC data are added together and written to the DAC.
 
+============
+
 currently the external 'hardware' is:
 
-pot for LFOrate
-pot for LFO amountchannel1
-pot for LFO amount channel2  <--  not currently implemented in code
+- pot for LFOrate
+- pot for LFO amountchannel1
+- pot for LFO amount channel2  <--  not currently implemented in code
 
-an LED to show LFO output
-an LED on the teensy board itself
+- an LED to show LFO output
+- an LED on the teensy board itself
 
-single pushbutton for config
+- single pushbutton for config
 
-2 channel SPI DAC for the 2 outputs
+- 2 channel SPI DAC for the 2 outputs
 
 
-
+=============
 
 Config mode
 
