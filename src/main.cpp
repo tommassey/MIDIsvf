@@ -32,12 +32,8 @@ uint16_t valueToBeSmoothed[parameterTotal] = {0};
 uint16_t value[parameterTotal] = {0};                   //  14bit values
 
 
-
-
-
 float LFOvalue = 0;   //  +/- 2048
 LFO lfo(&LFOvalue);
-
 
 
 uint16_t DAC1finalOutput = 0; // 4095 max
@@ -49,6 +45,7 @@ void smoothISR(void)
   smoothFlag = true;
 }
 
+
 void printISR(void)
 {
   Serial.print("lfo = ");
@@ -57,33 +54,16 @@ void printISR(void)
   Serial.println(LFOamtA);
 }
 
+
 bool smoothValues(void)  // return true if it smoothed
-{
-  
+{  
   if (smoothFlag)
   {
-    // Serial.println("time to smooth");
-    // Serial.print("vals to smooth  0 = ");
-    // Serial.print(valueToBeSmoothed[noParameter]);
-    // Serial.print("   F1 = ");
-    // Serial.print(valueToBeSmoothed[parameterFilter1]);
-    // Serial.print("   F2 = ");
-    // Serial.println(valueToBeSmoothed[parameterFilter2]);
-
     for (byte i = parameterFilter1; i < parameterTotal; i++)
     {
       uint16_t val = smoother[i].smooth(valueToBeSmoothed[i]);  //  add new val to smoothing array
-      //  Serial.print("val in = ");
-      //  Serial.println(val);
-      value[i] = val; //scaleForDAC(val, config[i]);              //  scale new average and write to external pointer location
+      value[i] = val;
     }
-    // Serial.print("done smoothing 0 = ");
-    // Serial.print(value[noParameter]);
-    // Serial.print("    F1 = ");
-    // Serial.print(value[parameterFilter1]);
-    // Serial.print("    F2 = ");
-    // Serial.println(value[parameterFilter2]);
-
     smoothFlag = false;
     return true;
   }
@@ -91,19 +71,14 @@ bool smoothValues(void)  // return true if it smoothed
 }
 
 
-
 void isrWriteToDAC(void)
 {
-  
   DACwriteBothChannels(DAC1finalOutput, DAC2finalOutput);   
 }
 
-//int count = 0; 
 
 void sumBeforeDAC(void)
 {
-  //count++;
-
   DAC1finalOutput = (value[parameterFilter1]>>3) + (LFOvalue * LFOamtA);
     
     if (DAC1finalOutput > 4095) DAC1finalOutput = 4095;
@@ -113,16 +88,11 @@ void sumBeforeDAC(void)
     
     if (DAC2finalOutput > 4095) DAC2finalOutput = 4095;
     if (DAC2finalOutput < 0) DAC2finalOutput = 0;
-
-    // if (count == 1000)
-    // {
-    //   Serial.print("DAC1 final  = ");
-    //   Serial.print(DAC1finalOutput);
-    //   Serial.print("      DAC2 final  = ");
-    //   Serial.println(DAC2finalOutput);
-    //   count = 0;
-    // }
 }
+
+
+
+
 
 void setup()
 {
@@ -144,56 +114,36 @@ void setup()
     }
   }
 
+
   //else
-  initMCP4xxx();
-  checkForSavedMIDIdata();
+  initMCP4xxx();            // init DAC
+  checkForSavedMIDIdata();  
   config[parameterFilter1] = getFilterConfig(parameterFilter1);  //  load MIDI config data into MIDIservice
   config[parameterFilter2] = getFilterConfig(parameterFilter2);
 
 
-  midi.initParameter(noParameter, config[noParameter], &valueToBeSmoothed[noParameter]);
+  midi.initParameter(noParameter, config[noParameter], &valueToBeSmoothed[noParameter]);  // init pointers for values
   midi.initParameter(parameterFilter1, config[parameterFilter1], &valueToBeSmoothed[parameterFilter1]);
   midi.initParameter(parameterFilter2, config[parameterFilter2], &valueToBeSmoothed[parameterFilter2]);
 
   midi.printConfigData();
 
-  LFOtimer.begin(isrWriteToDAC, 88.2_kHz);
+  LFOtimer.begin(isrWriteToDAC, 88.2_kHz);  // setup timers
   potTimer.begin(readpotsISR, 100_Hz);
   smoothTimer.begin(smoothISR, 88.2_kHz);
   printTimer.begin(printISR, 10_Hz);
 
 
-  lfo.initWaveForms();
+  lfo.initWaveForms();  //  load arrays with wavetable data
 }
 
 
 void loop()
 {
-
   checkPots(&lfo);
   lfo.update();
-
-  //DACrawSpeedTest();
-  //byte MIDIchange = checkMIDI();
   midi.check();
-  if (smoothValues()) sumBeforeDAC();
-
-
-
-
-
-
-
-
-
-  
-  
-
-
-
-    
-  
-  
+  if (smoothValues()) sumBeforeDAC();  
 }
 
 
