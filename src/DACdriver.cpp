@@ -25,9 +25,6 @@ void initMCP4xxx()
 
 void DACwriteChannelA(uint16_t data)
 {
-             //Serial.print("dacwrite  ");
-             //Serial.println(data);
-
     if (data > twelvebit) data = twelvebit;
     if (data < 0) data = 0;
 

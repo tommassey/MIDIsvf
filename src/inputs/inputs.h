@@ -20,7 +20,7 @@ pot LFOamtAPot(22, &LFOamtA, &LFOamtAchange);
 
 
 
-void checkPots(LFO* lfo)
+void checkPots(LFO* lfo)  //  polled externally, checks pots if flag set via ISR
 {
   LFOratePot.update();
   LFOamtAPot.update();
@@ -34,12 +34,12 @@ void checkPots(LFO* lfo)
   if (LFOamtAchange) 
   {
     lfo->setAmount(LFOamtA);
-    LFOrateChange = false;
+    LFOamtAchange = false;
   }
 }
 
 
-void readpotsISR(void)
+void readpotsISR(void)   //  call this with an ISR at desired rate, sets flags to read pots
 {
   LFOratePot.timeToRead();
   LFOamtAPot.timeToRead();

@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include "setup.h"
-//#include "MIDIservice.h"
 #include "MIDIsetup.h"
 #include "MIDIserv.h"
 #include "TeensyTimerTool.h"
@@ -14,10 +13,10 @@ using namespace TeensyTimerTool;
 
 LED led;
 
-
 PeriodicTimer LFOtimer(TCK);
 PeriodicTimer potTimer(TCK);
 PeriodicTimer smoothTimer(TCK);
+PeriodicTimer printTimer(TCK);
 
 
 MIDIconfigProfile config[parameterTotal];
@@ -48,6 +47,14 @@ uint16_t DAC2finalOutput = 0; //
 void smoothISR(void)
 {
   smoothFlag = true;
+}
+
+void printISR(void)
+{
+  Serial.print("lfo = ");
+  Serial.print(LFOvalue);
+  Serial.print("    amt = ");
+  Serial.println(LFOamtA);
 }
 
 bool smoothValues(void)  // return true if it smoothed
@@ -153,6 +160,8 @@ void setup()
   LFOtimer.begin(isrWriteToDAC, 88.2_kHz);
   potTimer.begin(readpotsISR, 100_Hz);
   smoothTimer.begin(smoothISR, 88.2_kHz);
+  printTimer.begin(printISR, 10_Hz);
+
 
   lfo.initWaveForms();
 }

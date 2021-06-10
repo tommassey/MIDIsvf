@@ -15,11 +15,12 @@ struct LEDblinkProfile
     uint16_t TimeOff[MAX_LED_BLINKS] = {50};    // millis
 };
 
-const LEDblinkProfile init     = {          4,  0,    {500,   0,   0,   0,},    {500, 500, 500, 500} };
-const LEDblinkProfile f1config = {          1,  0,    {200,   0,   0,   0,},    {200, 500, 500, 500} };
-const LEDblinkProfile f2config = {          2,  0,    {100, 100,   0,   0,},    {100, 100, 500, 500} };
-const LEDblinkProfile saved    = {          4,  0,    { 50,  50,  50,   0,},    { 50,  50,  50, 900} };
-const LEDblinkProfile reset    = {          4,  0,    { 20,  20,  20,   0,},    { 20,  20,  20, 900} };
+//===================================== num blinks - current - on times ---------------- off times
+static const LEDblinkProfile init     = {          4,  0,    {500,   0,   0,   0,},    {500, 500, 500, 500} };
+static const LEDblinkProfile f1config = {          1,  0,    {200,   0,   0,   0,},    {200, 500, 500, 500} };
+static const LEDblinkProfile f2config = {          2,  0,    {100, 100,   0,   0,},    {100, 100, 500, 500} };
+static const LEDblinkProfile saved    = {          4,  0,    { 50,  50,  50,   0,},    { 50,  50,  50, 900} };
+static const LEDblinkProfile reset    = {          4,  0,    { 20,  20,  20,   0,},    { 20,  20,  20, 900} };
 
 
 class LED
@@ -35,7 +36,7 @@ class LED
     void setBlinkProfile(LEDblinkProfile);
 };
 
-void updateLED(LED* led);
+void updateLED(LED* led);  // polled externally to update LED
 
 
 

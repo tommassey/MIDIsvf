@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 
-
+//input value goes into array then average returned of last X values
 class Smoother
 {
 private:
@@ -18,14 +18,7 @@ private:
 public:
     Smoother();
     uint16_t smooth(uint16_t input);
-
 };
-
-
-
-
-
-
 
 
 #endif

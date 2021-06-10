@@ -27,7 +27,7 @@ void initMIDIconfig(bool* stayInConfigMode, LED* led, Bounce* btn)
 }
 
 
-void MIDIconfigModeLoop(void)
+void MIDIconfigModeLoop(void)  //  loop that runs while were in config mode
 {
   updateLED(_led);
   if (buttonService(_btn) == 1) menuUpdate();
@@ -181,12 +181,17 @@ void readMIDIforConfig(MIDIconfigProfile* configToChange)
       }
     }
   }
-}  // end of function 
+} 
 
+
+
+
+// this function takes the incoming MIDI CC data and assigns to to the relevant MIDIconfigProfile
+// it will detect and accept either 7bit or 14bit CC values
 
 bool newCCswitch(byte cc, byte val, byte channel, MIDIconfigProfile* filter)  // return true if value needs changing
 {
-  cc = CCfilter(cc);   // filter out invalid CC numbers
+  cc = CCfilter(cc);   // filter out invalid CC numbers.  returns 0 if invalid
 
   //=========================================================================================== 7bit mode  
   if (!filter->initialised7bit)  // if it's the first time, set incoming CC# to Filter1CCMSB
@@ -288,8 +293,9 @@ uint16_t bitShiftCombine16( byte x_high, byte x_low)
 }
 
 
-void inputValueBounding(MIDIconfigProfile* configToChange)
-{
+
+void inputValueBounding(MIDIconfigProfile* configToChange)  // once initial chatter has stopped, this keeps track of the highest
+{                                                           // and lowest values recieved on the current CC and stores them
   if (readyForBounding > boundNow)
   {
     uint16_t newValue = configToChange->currentValue;
@@ -360,7 +366,7 @@ byte CCfilter(byte cc)   // filters out excluded CC numbers, returns CC if valid
 }
 
 
-void initMIDIprofileInMenu(MIDIconfigProfile* value)
+void initMIDIprofileInMenu(MIDIconfigProfile* value)    //  called to reset a config to defaults
 {
   value->channel = 1;               //  MIDI channel
   value->CCforMSB = 0;                 //  CC# 7bit
@@ -544,7 +550,6 @@ MIDIconfigProfile getFilterConfig(uint8_t whichFilter)
     {
       return filter2;
     }
-  
   
   default:
     break;

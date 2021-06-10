@@ -5,11 +5,7 @@
 #include "MIDIdefines.h"
 
 
-
-
-
-
-uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile value);
+uint16_t scaleForDAC(uint16_t data, MIDIconfigProfile value);  //  take min & max limits from MIDIconfig and scale input to suitable value for DAC
 
 
 

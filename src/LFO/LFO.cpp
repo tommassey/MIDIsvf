@@ -17,18 +17,16 @@ LFO::LFO(float* value)
     externalLFOval = value;
 }
 
-void LFO::setRate(float rate)
+void LFO::setRate(float rate)  // recieves percentage of pot travel as a float 
 {
     //float r = ((rate / (pow(rate, rate) + 1)) * 2);
-    float r = (1 / 1 - (powf(rate + 1, rate))) * -1;
+    float r = (1 / 1 - (powf(rate + 1, rate))) * -1;   //  weird shit to try and make the pot taper a bit nicer
     Serial.print(" pow = ");
     Serial.println(r);
     if (r > 1.0) r = 1.0;
     if (r < 0.0) r = 0.0;
     
-    //double exp = pow()
-    LFOrate = (r * 4095) + 1;
-    
+    LFOrate = (r * LFOmax) + 1;  //  change to a value between 0 and LFO max.   +1 make sure it's never 0 
 }
 
 void LFO::setAmount(float amount)
@@ -44,96 +42,78 @@ void LFO::setShape(waveform wave)
 }
 
 
-void LFO::update(void)
+void LFO::update(void)  // polled externally to keep LFO updated
 {
-    //if (micros() > (prevLFOtime + _LFOrate))
-    if ((micros() - prevLFOtime) > LFOrate)
-    {   
-        *externalLFOval = LFOval;
-        analogWrite(5, (LFOval /16));
-
-        switch (currentWaveForm)
-        {
-            case sine:
-            {
-                LFOval = sineTable[sineCurrentStep];
-                sineCurrentStep++;
-                if (sineCurrentStep > (sinSteps-1)) sineCurrentStep = 0;
-                prevLFOtime = micros();
-                //if(prevLFOtime > 4294967294) prevLFOtime = 0;
-                break;
-            }
-
-            case triangle:
-            {   
-                if (triangleGoingUp)
-                {
-                    LFOval++;
-                    prevLFOtime = micros();
-                    //if(prevLFOtime > 4294967294) prevLFOtime = 0;
-
-                    if (LFOval > LFOmax)
-                    {   
-                        triangleGoingUp = false;
-                        return;
-                    }
-                }
+  if ((micros() - prevLFOtime) > LFOrate) //  micros() is time since prog start
+  {   
+    *externalLFOval = LFOval;           //  update external value
+    analogWrite(5, (LFOval /16));       //  PWM to LED for visual indicator
  
-                if (!triangleGoingUp)
-                {
-                    LFOval--;
-                    prevLFOtime = micros();
-                    //if(prevLFOtime > 4294967294) prevLFOtime = 0;
-
-                    if (LFOval < 1)
-                    {
-                        triangleGoingUp = true;
-                        return;
-                    }
-                }
-
-           break;
-        }
-
-        case rampUp:
-        {
-          
-          LFOval++;
-          if(LFOval > LFOmax) LFOval = 0;
+    switch (currentWaveForm)
+    {
+      case sine:
+      {
+          LFOval = sineTable[sineCurrentStep];   //  read sine values from array
+          sineCurrentStep++;
+          if (sineCurrentStep > (sinSteps-1)) sineCurrentStep = 0;
           prevLFOtime = micros();
-          //if(prevLFOtime > 4294967294) prevLFOtime = 0;
           break;
-        }
+      }
 
-
-        case nonMusicLFO:
+      case triangle:
+      {   
+        if (triangleGoingUp)
         {
-            LFOval = NMLtable[NMLcurrentStep];
-            NMLcurrentStep++;
-            if (NMLcurrentStep > (NMLsteps-1)) NMLcurrentStep = 0;
-            prevLFOtime = micros();
-            //if(prevLFOtime > 4294967294) prevLFOtime = 0;               
-            break;
+          LFOval++;
+          prevLFOtime = micros();
 
+          if (LFOval > LFOmax)
+          {   
+            triangleGoingUp = false;
+            return;
+          }
+        }
+ 
+        if (!triangleGoingUp)
+        {
+          LFOval--;
+          prevLFOtime = micros();
+
+          if (LFOval < 1)
+          {
+           triangleGoingUp = true;
+           return;
+          }
         }
 
-        
-    
-    default:
         break;
-    }
+      }
 
-    }
-    
-    
-    
+      case rampUp:
+      {
+        LFOval++;
+        if(LFOval > LFOmax) LFOval = 0;
+        prevLFOtime = micros();
+        break;
+      }
 
+      case nonMusicLFO:
+      {
+        LFOval = NMLtable[NMLcurrentStep];
+        NMLcurrentStep++;
+        if (NMLcurrentStep > (NMLsteps-1)) NMLcurrentStep = 0;
+        prevLFOtime = micros();
+        break;
+      }
+
+      default:
+            break;
+    }
+  }
 }
 
 
-
-
-void LFO::initWaveForms(void)
+void LFO::initWaveForms(void)  //  fill arrays with wavetable data
 {
     initSineTable();
     initNMLtable();
@@ -141,7 +121,7 @@ void LFO::initWaveForms(void)
 }
 
 
-void LFO::initSineTable()
+void LFO::initSineTable()       //  fill array with sine values
 {
   for (int i = 0; i < sinSteps; i++){
     sineTable[i] = 2048+2048*sin(i*(2*3.14)/sinSteps);
@@ -228,10 +208,6 @@ void LFO::initNMLtable()
     {
         NMLtable[i] = 0;
     }
-
-
-
-
 
     for(uint16_t i = 0; i < NMLsteps-1; i++)
     {

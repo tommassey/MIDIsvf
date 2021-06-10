@@ -23,12 +23,12 @@ private:
     uint16_t newAverage;
     uint16_t average;
 
-    bool timeToReadAvalue = false;            //  set high via external timer (or ISR) when it's time to update
+    bool timeToReadAvalue = false;            //  set high via timeToRead() when it's time to update
 
     float* externalValue;                     //  pointer to external float that gets updated with final pot value
     bool* changeFlag;                         //  pointer to external flag, set high to alert main prog of pot value change
 
-    float deadZoneScale(uint16_t value);
+    float deadZoneScale(uint16_t value);      //  scales pot travel outside of deadzones
 
 
     

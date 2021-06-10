@@ -11,6 +11,7 @@ enum Bytes
 MIDIservice::MIDIservice()
 {
   usbMIDI.begin();
+  initScaling();
 }
 
 
@@ -21,7 +22,7 @@ void MIDIservice::initParameter(output name, MIDIconfigProfile conf, uint16_t* p
 }
 
 
-void MIDIservice::initScaling()
+void MIDIservice::initScaling()  //  scale incoming MIDI CC value to useful 12bit value
 {
   for (uint8_t i = 0; i < parameterTotal; i++)
   {
@@ -33,43 +34,42 @@ void MIDIservice::initScaling()
 }
 
 
-void MIDIservice::check(void)
+void MIDIservice::check(void)  //  polled externally to check for midi messages
 {
-  if(!scaling_init)
-  {
-    initScaling();
-    scaling_init = true;
-  }
+  // if(!scaling_init)
+  // {
+  //   initScaling();
+  //   scaling_init = true;
+  // }
 
-  MIDIevent newEvent = getMIDImsgFromBuffer();
+  MIDIevent newEvent = getMIDImsgFromBuffer();  // returns noParameter if no message
 
-  if (newEvent.name == noParameter) return;
+  if (newEvent.name == noParameter) return;  
 
   else
   {
-    *externVal[newEvent.name] = newEvent.value;
+    *externVal[newEvent.name] = newEvent.value; // if there's a valid message then update the relevant value
     return;
   }
 }
-
 
 
 MIDIevent MIDIservice::getMIDImsgFromBuffer()
 {
   MIDIevent ccevent = {noParameter,0};
 
-  if (usbMIDI.read())
+  if (usbMIDI.read())  // check MIDI buffer
   {
     ///Serial.println("midi rcv");
 
-    if (usbMIDI.getType() == usbMIDI.ControlChange)
+    if (usbMIDI.getType() == usbMIDI.ControlChange)  //  if it's a control change message
     {
-      byte newChannel = usbMIDI.getChannel();
+      byte newChannel = usbMIDI.getChannel(); 
 
       if (newChannel == config[parameterFilter1].channel    //  if the channel is correct
                      || config[parameterFilter2].channel)
       {
-        byte data1 = usbMIDI.getData1();
+        byte data1 = usbMIDI.getData1();                    //  ge the two data bytes
         byte data2 = usbMIDI.getData2();
 
         if ((data1 == config[parameterFilter1].CCforMSB) 
@@ -140,8 +140,7 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
 
 
 
-
-uint16_t MIDIservice::bitShiftCombine(uint8_t msb, uint8_t lsb)
+uint16_t MIDIservice::bitShiftCombine(uint8_t msb, uint8_t lsb)  // combine two bytes into a uint16
 {
   uint16_t combined;
   combined = msb;              //send x_high to rightmost 8 bits
@@ -149,25 +148,6 @@ uint16_t MIDIservice::bitShiftCombine(uint8_t msb, uint8_t lsb)
   combined |= lsb;              //logical OR keeps x_high intact in combined and fills in rightmost 8 bits
   return combined;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

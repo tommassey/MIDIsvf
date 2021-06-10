@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include "Bounce2.h"
 
-const uint32_t buttonholdtimeforsave = 500;   // millis
 
 enum buttonPresses
 {
@@ -13,13 +12,8 @@ enum buttonPresses
     longPress
 };
 
-
-
 void buttonInit(Bounce* btn, uint8_t pin, uint8_t mode, uint16_t bounceTime);
-int8_t checkButton(Bounce* btn);
-
-
-
+int8_t checkButton(Bounce* btn);  //  called to poll the button, returns a value from buttonPresses enum 
 
 
 #endif

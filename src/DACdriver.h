@@ -21,23 +21,23 @@
 
 typedef uint16_t mcp4xxx_register;  // 16bit register for a single channel
 
-const mcp4xxx_register mcp4xxxChannelA  = 0B0000000000000000;   //  for all MCP4XXX
-const mcp4xxx_register mcp4xxxChannelB  = 0B1000000000000000;   //  for MCP4XX2 only
-const mcp4xxx_register mcp4xxxBufferOff = 0B0000000000000000;   //  for all MCP4XXX
-const mcp4xxx_register mcp4xxxBufferOn  = 0B0100000000000000;   //  for MCP4XX2 only
-const mcp4xxx_register mcp4xxxGainOne   = 0B0010000000000000;   //
-const mcp4xxx_register mcp4xxxGainTwo   = 0B0000000000000000;   //
-const mcp4xxx_register mcp4xxxOutputOn  = 0B0001000000000000;   //
-const mcp4xxx_register mcp4xxxOutputOff = 0B0000000000000000;   //
+static const mcp4xxx_register mcp4xxxChannelA  = 0B0000000000000000;   //  for all MCP4XXX
+static const mcp4xxx_register mcp4xxxChannelB  = 0B1000000000000000;   //  for MCP4XX2 only
+static const mcp4xxx_register mcp4xxxBufferOff = 0B0000000000000000;   //  for all MCP4XXX
+static const mcp4xxx_register mcp4xxxBufferOn  = 0B0100000000000000;   //  for MCP4XX2 only
+static const mcp4xxx_register mcp4xxxGainOne   = 0B0010000000000000;   //
+static const mcp4xxx_register mcp4xxxGainTwo   = 0B0000000000000000;   //
+static const mcp4xxx_register mcp4xxxOutputOn  = 0B0001000000000000;   //
+static const mcp4xxx_register mcp4xxxOutputOff = 0B0000000000000000;   //
 
 
 
 //  consts for the control bit to the left, adjust to taste
 
-const mcp4xxx_register mcp4822ChannelA = mcp4xxxChannelA | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
-const mcp4xxx_register mcp4822ChannelB = mcp4xxxChannelB | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
-const mcp4xxx_register mcp4922ChannelA = mcp4xxxChannelA | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
-const mcp4xxx_register mcp4922ChannelB = mcp4xxxChannelB | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
+static const mcp4xxx_register mcp4822ChannelA = mcp4xxxChannelA | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
+static const mcp4xxx_register mcp4822ChannelB = mcp4xxxChannelB | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
+static const mcp4xxx_register mcp4922ChannelA = mcp4xxxChannelA | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
+static const mcp4xxx_register mcp4922ChannelB = mcp4xxxChannelB | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
 
 
 void initMCP4xxx();

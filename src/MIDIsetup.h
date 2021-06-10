@@ -51,7 +51,7 @@ void menuUpdate();
 bool buttonService(Bounce* btn);
 
 
-void initMIDIprofileInMenu(MIDIconfigProfile* value); // called when returning to already set filter
+void initMIDIprofileInMenu(MIDIconfigProfile* value); // called when returning to already set filter to reset defaults
 
 void restoreSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to restore both filters' current MIDI config values from EEPROM
 void saveSettings(MIDIconfigProfile* f1, MIDIconfigProfile* f2);  // called to save both filters' current MIDI config values to EEPROM

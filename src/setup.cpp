@@ -4,7 +4,7 @@ void setupStuff()
 {
   usbMIDI.begin();
 
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);        //  flash led to let us know it's rebooted
   delay(100);
   digitalWrite(LED_BUILTIN, LOW);
   delay(100);
@@ -12,6 +12,7 @@ void setupStuff()
   delay(100);
   digitalWrite(LED_BUILTIN, LOW);
 }
+
 
 void initPins(Bounce* btn)
 {
@@ -21,13 +22,10 @@ void initPins(Bounce* btn)
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   
-  
   pinMode(CONFIG_SWITCH_PIN, INPUT_PULLUP);
   digitalWrite(CONFIG_SWITCH_PIN, HIGH);
 
-  if (digitalRead(INPUT_BUTTON_PIN) == LOW) buttonInit(btn, INPUT_BUTTON_PIN, INPUT_PULLUP, 25);   //  only if we're in config mode
-    
+  if (digitalRead(INPUT_BUTTON_PIN) == LOW) buttonInit(btn, INPUT_BUTTON_PIN, INPUT_PULLUP, 25);   //  only if we want to go into config mode
 }
 
 
-//  checks for saved MIDI config. returns true and updates values if data exists, returns false if no data present

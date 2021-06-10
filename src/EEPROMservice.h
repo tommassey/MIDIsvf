@@ -3,11 +3,9 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
-#include "MIDIsetup.h"
 
 
-
-//Address can range from 0 to the EEPROM size minus 1. 128bytes max Teensy LC
+//Address can range from 0 to the EEPROM size minus 1. 128bytes max Teensy LC, 1024bytes Teensy 4.0
 
 enum ROMlocation
 {
@@ -33,10 +31,6 @@ enum ROMlocation
     resetFlag      = 20
 };
 
-
-    
-
-
 void EEPROMwriteuint16(ROMlocation location, uint16_t input);
 uint16_t EEPROMreaduint16(ROMlocation location);
 
@@ -44,10 +38,7 @@ void testEEPROMread16(ROMlocation loc);
 
 void testEEPROM(void);
 
-
-
-
-
+static uint16_t bitShiftCombine16(byte x_high, byte x_low);
 
 
 #endif

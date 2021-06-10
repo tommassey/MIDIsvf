@@ -1,6 +1,9 @@
 #include "button.h"
-#include "pinDefines.h"
 
+
+#define BUTTON_HOLD_TIME_FOR_SAVE 500   // millis
+
+uint32_t buttonholdstarttime = 0;
 
 
 void buttonInit(Bounce* btn, uint8_t pin, uint8_t mode, uint16_t bounceTime)
@@ -10,30 +13,28 @@ void buttonInit(Bounce* btn, uint8_t pin, uint8_t mode, uint16_t bounceTime)
 }
 
 
-int8_t checkButton(Bounce* btn)
+int8_t checkButton(Bounce* btn)  //  called to poll the button, returns a value from buttonPresses enum
 {
-  static uint32_t buttonholdstarttime = 0;
   btn->update();
 
   if (btn->rose())
   {
-    if ((buttonholdstarttime + buttonholdtimeforsave) <= millis())   //  if button's been held long enough, long press
+    if ((buttonholdstarttime + BUTTON_HOLD_TIME_FOR_SAVE) <= millis())   //  if button's been held long enough, long press
     {
-        buttonholdstarttime = 0;
-        return longPress;
+      buttonholdstarttime = 0;
+      return longPress;
     }
-
     else                                                             //  if buttons not been held, short press
     {
-        buttonholdstarttime = 0;
-        return shortPress;
+      buttonholdstarttime = 0;
+      return shortPress;
     }
-    
   }
 
   if (btn->fell())    //  start counting when button is held
   {
     buttonholdstarttime = millis();
   }
+
   return noPress;
 }
