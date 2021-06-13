@@ -22,10 +22,20 @@ typedef enum
 
 }   output;
 
+typedef enum
+{
+    noEvent = 0,
+    channel1CCevent,
+    channel2CCevent,
+    channel1NoteOnEvent,
+    channel2NoteOnEvent
+
+}   EventType;
+
 
 typedef struct
 {
-    output name = noParameter;
+    EventType name = noEvent;
     uint16_t value = 0;
 
 }   MIDIevent;

@@ -56,7 +56,7 @@ void MIDIservice::check(void)  //  polled externally to check for midi messages
 
 MIDIevent MIDIservice::getMIDImsgFromBuffer()
 {
-  MIDIevent ccevent = {noParameter,0};
+  MIDIevent ccevent = {noEvent, 0};
 
   if (usbMIDI.read())  // check MIDI buffer
   {
@@ -79,7 +79,7 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
 
           if (config[parameterFilter1].resolution == sevenBit)
           {
-            ccevent = {parameterFilter1, data2};  // because it's only 7bit, send MSB as value
+            ccevent = {channel1CCevent, data2};  // because it's only 7bit, send MSB as value
             //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
@@ -97,7 +97,7 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
             previousValue[parameterFilter1] = value[parameterFilter1];
             value[parameterFilter1] = sixteenBitNumber;
 
-            ccevent = {parameterFilter1, value[parameterFilter1]};
+            ccevent = {channel1CCevent, value[parameterFilter1]};
             //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
@@ -110,7 +110,7 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
 
           if (config[parameterFilter2].resolution == sevenBit)
           {
-            ccevent = {parameterFilter2, data2};
+            ccevent = {channel2CCevent, data2};
             //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
@@ -127,7 +127,7 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
             previousValue[parameterFilter2] = value[parameterFilter2];
             value[parameterFilter2] = sixteenBitNumber;
 
-            ccevent = {parameterFilter2, value[parameterFilter2]};
+            ccevent = {channel2CCevent, value[parameterFilter2]};
             //printCC(ccevent.whichFilter, ccevent.value);
             return ccevent;
           }
