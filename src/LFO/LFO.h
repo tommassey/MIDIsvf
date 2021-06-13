@@ -30,7 +30,7 @@ class LFO
 
     float* externalLFOval;      //  pointer to external value we keep updated
 
-    waveform currentWaveForm = triangle;
+    waveform currentWaveForm = sine;
     bool triangleGoingUp = true;            //  used to switch triangle direction at top/bottom
 
     bool waveForms_Init = false;            //  set true after wavetable arrays have been filled

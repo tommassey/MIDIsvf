@@ -10,13 +10,13 @@ Bounce button = Bounce();
 bool LFOrateChange = false;
 float LFOrate = 0;
 
-pot LFOratePot(23, &LFOrate, &LFOrateChange);
+pot LFOratePot(23, &LFOrate, &LFOrateChange, potmode_unipolar);
 
 
 bool LFOamtAchange = false;
-float LFOamtA = 0;
+float LFOamtA = 0;   
 
-pot LFOamtAPot(22, &LFOamtA, &LFOamtAchange);
+pot LFOamtAPot(22, &LFOamtA, &LFOamtAchange, potmode_bipolar);
 
 
 

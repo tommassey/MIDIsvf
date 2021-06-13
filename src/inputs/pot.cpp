@@ -1,11 +1,12 @@
 #include "pot.h"
 
 
-pot::pot(uint8_t _pin, float* _externalValue, bool* _changeFlag)
+pot::pot(uint8_t _pin, float* _externalValue, bool* _changeFlag, potMode _mode)
 {
     pin = _pin;
     externalValue = _externalValue;
     changeFlag = _changeFlag;
+    mode = _mode;
 }
 
 
@@ -27,7 +28,7 @@ void pot::update()  //  checks if timeToReadAvalue is high, work out average and
         
         if ((newAverage > average + chatterWindow) || (newAverage < average - chatterWindow))  //  to remove input noise
         {       
-            *externalValue = deadZoneScale(newAverage);  // update final float value
+            *externalValue = finalOffsetScale(deadZoneScale(newAverage));  // update final float value
             average = newAverage;
             Serial.print("pot value = ");
             Serial.println(*externalValue);
@@ -49,4 +50,17 @@ float pot::deadZoneScale(uint16_t value)     //  create a small dead area at top
                      (((float)ADCresolution - (2 * deadZone)) / (float)value));
 
     return newFloat;
+}
+
+float pot::finalOffsetScale(float input)      //  scales pot value for bipolar / unipolar etc.
+{
+    if (mode == potmode_bipolar)
+    {
+        float scaled = (input * 2) - 1.0;
+        return scaled;
+    }
+    else
+    {
+        return input;
+    }    
 }
