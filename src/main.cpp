@@ -35,6 +35,8 @@ uint16_t value[parameterTotal] = {0};                   //  14bit values
 float LFOvalue = 0;   //  +/- 2048
 LFO lfo(&LFOvalue);
 
+bool LFOresetFlag = false;
+
 
 uint16_t DAC1finalOutput = 0; // 4095 max
 uint16_t DAC2finalOutput = 0; //  
@@ -48,10 +50,10 @@ void smoothISR(void)
 
 void printISR(void)
 {
-  Serial.print("lfo = ");
-  Serial.print(LFOvalue);
-  Serial.print("    amt = ");
-  Serial.println(LFOamtA);
+  // Serial.print("lfo = ");
+  // Serial.print(LFOvalue);
+  // Serial.print("    amt = ");
+  // Serial.println(LFOamtA);
 }
 
 
@@ -122,9 +124,9 @@ void setup()
   config[parameterFilter2] = getFilterConfig(parameterFilter2);
 
 
-  midi.initParameter(noParameter, config[noParameter], &valueToBeSmoothed[noParameter]);  // init pointers for values
-  midi.initParameter(parameterFilter1, config[parameterFilter1], &valueToBeSmoothed[parameterFilter1]);
-  midi.initParameter(parameterFilter2, config[parameterFilter2], &valueToBeSmoothed[parameterFilter2]);
+  midi.initParameter(noParameter, config[noParameter], &valueToBeSmoothed[noParameter], &LFOresetFlag);  // init pointers for values
+  midi.initParameter(parameterFilter1, config[parameterFilter1], &valueToBeSmoothed[parameterFilter1], &LFOresetFlag);
+  midi.initParameter(parameterFilter2, config[parameterFilter2], &valueToBeSmoothed[parameterFilter2], &LFOresetFlag);
 
   midi.printConfigData();
 

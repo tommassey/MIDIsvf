@@ -15,10 +15,11 @@ MIDIservice::MIDIservice()
 }
 
 
-void MIDIservice::initParameter(output name, MIDIconfigProfile conf, uint16_t* p_value)
+void MIDIservice::initParameter(output name, MIDIconfigProfile conf, uint16_t* p_value, bool* p_noteOn)
 {
     config[name] = conf;
     externVal[name] = p_value;
+    noteOn[name] = p_noteOn;
 }
 
 
@@ -44,11 +45,11 @@ void MIDIservice::check(void)  //  polled externally to check for midi messages
 
   MIDIevent newEvent = getMIDImsgFromBuffer();  // returns noParameter if no message
 
-  if (newEvent.name == noParameter) return;  
+  if (newEvent.event == noEvent) return;  
 
   else
   {
-    *externVal[newEvent.name] = newEvent.value; // if there's a valid message then update the relevant value
+    *externVal[newEvent.event] = newEvent.value; // if there's a valid message then update the relevant value
     return;
   }
 }
@@ -56,13 +57,14 @@ void MIDIservice::check(void)  //  polled externally to check for midi messages
 
 MIDIevent MIDIservice::getMIDImsgFromBuffer()
 {
-  MIDIevent ccevent = {noEvent, 0};
+  MIDIevent newEvent = {noEvent, 0};
 
   if (usbMIDI.read())  // check MIDI buffer
   {
     ///Serial.println("midi rcv");
+    uint8_t msgType = usbMIDI.getType();
 
-    if (usbMIDI.getType() == usbMIDI.ControlChange)  //  if it's a control change message
+    if (msgType == usbMIDI.ControlChange)  //  if it's a control change message
     {
       byte newChannel = usbMIDI.getChannel(); 
 
@@ -79,9 +81,9 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
 
           if (config[parameterFilter1].resolution == sevenBit)
           {
-            ccevent = {channel1CCevent, data2};  // because it's only 7bit, send MSB as value
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
+            newEvent = {channel1CCevent, data2};  // because it's only 7bit, send MSB as value
+            //printCC(newEvent.whichFilter, newEvent.value);
+            return newEvent;
           }
         }
 
@@ -97,9 +99,9 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
             previousValue[parameterFilter1] = value[parameterFilter1];
             value[parameterFilter1] = sixteenBitNumber;
 
-            ccevent = {channel1CCevent, value[parameterFilter1]};
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
+            newEvent = {channel1CCevent, value[parameterFilter1]};
+            //printCC(newEvent.whichFilter, newEvent.value);
+            return newEvent;
           }
         }
 
@@ -110,9 +112,9 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
 
           if (config[parameterFilter2].resolution == sevenBit)
           {
-            ccevent = {channel2CCevent, data2};
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
+            newEvent = {channel2CCevent, data2};
+            //printCC(newEvent.whichFilter, newEvent.value);
+            return newEvent;
           }
         }
 
@@ -127,15 +129,47 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
             previousValue[parameterFilter2] = value[parameterFilter2];
             value[parameterFilter2] = sixteenBitNumber;
 
-            ccevent = {channel2CCevent, value[parameterFilter2]};
-            //printCC(ccevent.whichFilter, ccevent.value);
-            return ccevent;
+            newEvent = {channel2CCevent, value[parameterFilter2]};
+            //printCC(newEvent.whichFilter, newEvent.value);
+            return newEvent;
           }
         }
       }
     }
+
+    if (msgType == usbMIDI.NoteOn)
+    {
+      byte newChannel = usbMIDI.getChannel(); 
+
+      Serial.println("Note on");
+
+      if (newChannel == config[parameterFilter1].channel)
+      {
+        *noteOn[parameterFilter1] = true;
+      }
+      if (newChannel == config[parameterFilter2].channel)
+      {
+        *noteOn[parameterFilter2] = true;
+      }
+    }
+
+    if (msgType == usbMIDI.NoteOff)
+    {
+      byte newChannel = usbMIDI.getChannel(); 
+      
+      Serial.println("Note off");
+
+      if (newChannel == config[parameterFilter1].channel)
+      {
+        *noteOn[parameterFilter1] = false;
+      }
+      if (newChannel == config[parameterFilter2].channel)
+      {
+        *noteOn[parameterFilter2] = false;
+      }
+    }
   }
-  return ccevent;
+  return newEvent;
 }
 
 

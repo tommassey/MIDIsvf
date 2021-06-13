@@ -30,12 +30,12 @@ typedef enum
     channel1NoteOnEvent,
     channel2NoteOnEvent
 
-}   EventType;
+}   MIDIeventType;
 
 
 typedef struct
 {
-    EventType name = noEvent;
+    MIDIeventType event = noEvent;
     uint16_t value = 0;
 
 }   MIDIevent;
@@ -53,6 +53,7 @@ private:
     static const uint8_t totalParameters = parameterTotal;  //  for indexing
     MIDIconfigProfile config[parameterTotal];               //  config profiles
     uint16_t* externVal[parameterTotal];                    //  pointers to external values we update
+    bool* noteOn[parameterTotal];
     uint16_t value[parameterTotal] = {0};                   //  14bit values
     uint16_t previousValue[parameterTotal] = {0};
     
@@ -79,7 +80,7 @@ public:
 
     MIDIservice();
     void check(void);   //  poll this as often as you want to check for MIDI messages
-    void initParameter(output param, MIDIconfigProfile config, uint16_t* p_value);   //  need to call this to setup each output to be used
+    void initParameter(output param, MIDIconfigProfile config, uint16_t* p_value, bool* p_noteOn);   //  need to call this to setup each output to be used
     //void smoothNow(void);
     void printConfigData();        // prints config data to serial monitor
     //void smoothValues(void);
