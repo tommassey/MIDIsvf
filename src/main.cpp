@@ -145,7 +145,13 @@ void loop()
   checkPots(&lfo);
   lfo.update();
   midi.check();
-  if (smoothValues()) sumBeforeDAC();  
+  if (smoothValues()) sumBeforeDAC();
+  
+  if (LFOresetFlag)
+  {
+    lfo.reset();
+    LFOresetFlag = false;
+  }
 }
 
 

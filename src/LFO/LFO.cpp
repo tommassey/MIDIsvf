@@ -41,6 +41,21 @@ void LFO::setShape(waveform wave)
     currentWaveForm = wave;
 }
 
+void LFO::setPhase(float phase)
+{
+  startPhase = (LFOmax * phase);
+
+  if (startPhase > LFOmax) startPhase = LFOmax;
+  if (startPhase < 0) startPhase = 0;
+}
+
+void LFO::reset(void)
+{
+  LFOval = startPhase;
+  sineCurrentStep = startPhase;
+  
+}
+
 
 void LFO::update(void)  // polled externally to keep LFO updated
 {
