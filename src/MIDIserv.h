@@ -7,6 +7,12 @@
 
 #include "MIDIsetup.h"
 
+// enum byte
+// {
+//     channe
+
+// }  CHANNELS;
+
 typedef enum
 {
     noParameter = 0,
