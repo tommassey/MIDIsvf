@@ -26,7 +26,7 @@ class LFO
     int16_t LFOval = 0;           //  current LFO value
     float LFOamp = 0.0;           //  LFO amplitude +/- 1.0
     uint16_t LFOrate = 0;
-    uint16_t startPhase = 2048;      //  max 4095
+    uint16_t startPhase = 0;      //  max 4095
     uint64_t prevLFOtime = 0;
 
     float* externalLFOval;      //  pointer to external value we keep updated

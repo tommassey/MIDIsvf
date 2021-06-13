@@ -47,6 +47,9 @@ void LFO::setPhase(float phase)
 
   if (startPhase > LFOmax) startPhase = LFOmax;
   if (startPhase < 0) startPhase = 0;
+
+  Serial.print("LFO phase = ");
+  Serial.println(startPhase);
 }
 
 void LFO::reset(void)
