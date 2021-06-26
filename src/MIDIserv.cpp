@@ -63,7 +63,7 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
   {
     ///Serial.println("midi rcv");
     uint8_t msgType = usbMIDI.getType();
-
+//=============================================================================================================   CC Message
     if (msgType == usbMIDI.ControlChange)  //  if it's a control change message
     {
       byte newChannel = usbMIDI.getChannel(); 
@@ -136,6 +136,7 @@ MIDIevent MIDIservice::getMIDImsgFromBuffer()
         }
       }
     }
+//=============================================================================================================   Note Message
 
     if (msgType == usbMIDI.NoteOn)
     {
