@@ -12,9 +12,10 @@ enum messageByteNames
 
 
 
-// Sample input: 1,2,3\n
+// Sample input: 1,2\n
 char inputBuffer[40];
-byte newCommand[3] = {};
+uint16_t newCommand[3] = {};
+byte newByte[2] = {};
 int counter = 0;
 
 
@@ -23,27 +24,39 @@ serialMessage getSerialMessage(void)
 {
     serialMessage newMessage;
 
+    newMessage.messageType = 0;
+    newMessage.data = 0;
+
     if(Serial.available() > 0)
     {
-        Serial.readBytesUntil('\n', inputBuffer, 100);
+        Serial.readBytesUntil('\n', inputBuffer, 3);
+
+        Serial.print("buffer = ");
+        Serial.println(inputBuffer);
+
+
+
         char* pch = strtok(inputBuffer,",\r\n");
 
     while(pch != NULL)
     {
       newCommand[counter] = atoi(pch);
+      newByte[counter] = *pch;
       pch = strtok(NULL, ",\r\n");
       counter++;
     }
 
     counter = 0;
 
-    newMessage.messageType = newCommand[commandByte];
-    newMessage.data = newCommand[dataByte];
+    newMessage.messageType = newByte[commandByte];
+    newMessage.data = (newByte[dataByte] - 48);    //  -48 temp so we can test with ascii via serial monitor
 
     Serial.print ("New serial message,   type = ");
     Serial.print (newMessage.messageType);
     Serial.print (",  data = ");
-    Serial.println (newCommand[dataByte]);
+    Serial.println (newMessage.data);
+
+    
     
   }
     return newMessage;

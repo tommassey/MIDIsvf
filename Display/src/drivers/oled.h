@@ -38,6 +38,19 @@ class oled
 
         void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
 
+
+        
+        void pixel(int x,int y,char color);
+        void writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+        void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+
+        void text(uint8_t x, uint8_t y, uint8_t chChar);
+        void char1616(uint8_t x,uint8_t y,uint8_t chChar);
+        void char3216(uint8_t x, uint8_t y, uint8_t chChar);
+        void string(uint8_t x, uint8_t y, const char *pString, uint8_t Size, uint8_t Mode);
+        
+        void bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint8_t chHeight);
+
     public:
         oled();
         oled(uint16_t width, uint16_t height);
@@ -49,21 +62,16 @@ class oled
         void display();
         void clear();
 
-        void pixel(int x,int y,char color);
-        void writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
-        void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
         
         void sine(uint8_t rate, uint8_t amp);
         void triangle(uint8_t rate, uint8_t amp);
         void saw(uint8_t rate, float amp);
         void square(uint8_t rate, float amp);
         
-        void text(uint8_t x, uint8_t y, uint8_t chChar);
-        void char1616(uint8_t x,uint8_t y,uint8_t chChar);
-        void char3216(uint8_t x, uint8_t y, uint8_t chChar);
-        void string(uint8_t x, uint8_t y, const char *pString, uint8_t Size, uint8_t Mode);
+        void splashScreen(void);
+
         
-        void bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint8_t chHeight);
+        
 
         void test(void);
 

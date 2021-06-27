@@ -17,6 +17,16 @@ void displayService::showScreen(byte screenNumber)
     Serial.print("show screen: ");
     Serial.println(screenNumber);
 
+    switch (screenNumber)
+    {
+    case 1:
+        screen->splashScreen();
+        break;
+    
+    default:
+        break;
+    }
+
 }
 
 void displayService::updateLFO()

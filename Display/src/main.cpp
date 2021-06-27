@@ -69,10 +69,4 @@ void setup()
 void loop()
 {
   checkSerial();
-
-  // screen.test();
-  Serial.println("loopy");
-  delay(1000);
-
-
 }

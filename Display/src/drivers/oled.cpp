@@ -545,18 +545,18 @@ void oled::bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint
 void oled::test()
 {
   clear();
-  bitmap(0, 0, PIC2, 128, 64);
-  display();
-//   delay(100);  
-//   i2c.sendI2Ccommand(0xa7);//--set Negative display 
-//   delay(100);
-//   i2c.sendI2Ccommand(0xa6);//--set normal display
+//   bitmap(0, 0, PIC2, 128, 64);
+//   display();
+// //   delay(100);  
+// //   i2c.sendI2Ccommand(0xa7);//--set Negative display 
+// //   delay(100);
+// //   i2c.sendI2Ccommand(0xa6);//--set normal display
 
   
-  clear();
-  /* display images of bitmap matrix */
-  bitmap(0, 2, Signal816, 16, 8); 
-  bitmap(24, 2,Bluetooth88, 8, 8); 
+//   clear();
+//   /* display images of bitmap matrix */
+//   bitmap(0, 2, Signal816, 16, 8); 
+//   bitmap(24, 2,Bluetooth88, 8, 8); 
 
   string(10, 52, "www.buydisplay.com", 12, 1); 
  
@@ -683,5 +683,48 @@ void oled::test()
   
   
 //   //writeLine(0,31,127,31, 1);
+
+}
+
+
+void oled::splashScreen(void)
+{
+
+  Serial.println("splashscreen");
+
+  clear();
+  bitmap(0,0, PIC1, 128, 64);
+  display();
+  delay(10);
+  i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  delay(10);
+  i2c.sendI2Ccommand(0xa6);//--set normal display
+  //clear();
+  // bitmap(0,0, static2, 128, 64);
+  // display();
+  // delay(10);
+  // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  // delay(10);
+  // i2c.sendI2Ccommand(0xa6);//--set normal display
+  // bitmap(0,0, nml3, 128, 64);
+  // display();
+  // delay(100);
+  // clear();
+  // bitmap(0,0, nml3, 128, 64);
+  // display();
+  // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  // delay(100);
+  // i2c.sendI2Ccommand(0xa6);//--set normal display
+  // delay(200);
+  // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  // delay(50);
+  // //i2c.sendI2Ccommand(0xa6);//--set normal display
+  // delay(2000);
+  // clear();
+  // bitmap(0,0, static3, 128, 64);
+  // display();
+
+
+
 
 }
