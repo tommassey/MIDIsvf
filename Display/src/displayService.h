@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include "drivers/oled.h"
-#include "globals.h"
+#include "../../Shared/commandList.h"
 
 
 class displayService

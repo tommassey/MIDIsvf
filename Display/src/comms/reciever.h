@@ -4,15 +4,7 @@
 #include <Arduino.h>
 
 
-enum commandTypes
-{
-    noCommand = 48,   //  offset so we can send ascii in serial monitor to test
-    changeScreen,
-    setWaveform,
-    setRate,
-    setAmp,
-    setPhase
-};
+
 
 struct serialMessage
 {
