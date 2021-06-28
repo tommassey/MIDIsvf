@@ -5,7 +5,7 @@
 
 enum commandTypes
 {
-    noCommand = 48,   //  offset so we can send ascii in serial monitor to test
+    noCommand = 0,   
     changeScreen,
     setWaveform,
     setRate,

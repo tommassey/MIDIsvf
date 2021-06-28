@@ -27,6 +27,8 @@ void displayService::showScreen(byte screenNumber)
         break;
     }
 
+    screen->display();
+
 }
 
 void displayService::updateLFO()

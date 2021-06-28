@@ -9,6 +9,9 @@
 #include "DACservice.h"
 #include "DACdriver.h"
 
+#include "comms/transmit.h"
+
+
 using namespace TeensyTimerTool;
 
 LED led;
@@ -41,6 +44,8 @@ bool LFOresetFlag = false;
 uint16_t DAC1finalOutput = 0; // 4095 max
 uint16_t DAC2finalOutput = 0; //  
 
+transmit txToDisplay;
+
 
 void smoothISR(void)
 {
@@ -55,12 +60,12 @@ void printISR(void)
   // Serial.print("    amt = ");
   // Serial.println(LFOamtA);
 
-  Serial.println("send msg");
-  //Serial4.println(1,1);
-  Serial4.write('3');
-  Serial4.write(',');
-  Serial4.write('2');
-  Serial4.write('\n');
+  // Serial.println("send msg");
+  // //Serial4.println(1,1);
+  // Serial4.write(51);
+  // Serial4.write(',');
+  // Serial4.write(50);
+  // Serial4.write('\n');
   
 }
 
@@ -106,11 +111,11 @@ void sumBeforeDAC(void)
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   initPins(&button);
   setupStuff();
 
-  Serial4.begin(9600);
+  Serial4.begin(115200);
   
   if (digitalRead(INPUT_BUTTON_PIN) == LOW)    //  if button is low during startup, enter config mode
   {
@@ -140,12 +145,14 @@ void setup()
   midi.printConfigData();
 
   LFOtimer.begin(isrWriteToDAC, 88.2_kHz);  // setup timers
-  potTimer.begin(readpotsISR, 100_Hz);
+  potTimer.begin(readpotsISR, 1000_Hz);
   smoothTimer.begin(smoothISR, 88.2_kHz);
   printTimer.begin(printISR, 0.1_Hz);
 
 
   lfo.initWaveForms();  //  load arrays with wavetable data
+
+  txToDisplay.showScreen(1);
 }
 
 

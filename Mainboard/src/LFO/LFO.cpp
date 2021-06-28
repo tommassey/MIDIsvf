@@ -1,8 +1,12 @@
 #include "LFO/LFO.h"
+#include "comms/transmit.h"
 
 
 #define sinSteps 4095
 #define NMLsteps 640
+
+
+transmit txToScreen;
 
 uint16_t sineTable[sinSteps];
 uint16_t sineCurrentStep = 0;
@@ -25,7 +29,9 @@ void LFO::setRate(float rate)  // recieves percentage of pot travel as a float
     Serial.println(r);
     if (r > 1.0) r = 1.0;
     if (r < 0.0) r = 0.0;
-    
+
+    txToScreen.setLFOrate(r);
+
     LFOrate = (r * LFOmax) + 1;  //  change to a value between 0 and LFO max.   +1 make sure it's never 0 
 }
 
@@ -33,12 +39,16 @@ void LFO::setAmount(float amount)
 {
     if (amount > 1.0) amount = 1.0;
     if (amount < 0.0) amount = 0.0;
+
+    txToScreen.setLFOamp(amount);
     LFOamp = amount;
 }
 
 void LFO::setShape(waveform wave)
 {
-    currentWaveForm = wave;
+  txToScreen.setLFOwave(wave);
+  
+  currentWaveForm = wave;
 }
 
 void LFO::setPhase(float phase)
@@ -47,6 +57,8 @@ void LFO::setPhase(float phase)
 
   if (startPhase > LFOmax) startPhase = LFOmax;
   if (startPhase < 0) startPhase = 0;
+
+  txToScreen.setLFOphase(phase);
 
   Serial.print("LFO phase = ");
   Serial.println(startPhase);
