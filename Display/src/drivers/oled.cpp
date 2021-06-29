@@ -30,16 +30,6 @@ oled::oled(uint16_t width, uint16_t height)
 }
 
 
-oled::oled(uint16_t width, uint16_t height, uint8_t I2Caddress)
-{
-    WIDTH = width;
-    HEIGHT = height;
-    initScreenBuffer();
-    i2c.setAddress(I2Caddress);
-}
-
-
-
 oled::~oled()
 {
     if (buffer) free(buffer);
@@ -61,62 +51,26 @@ void oled::initScreenBuffer()
 }
 
 
-void oled::begin()
-{
-    i2c.sendI2Ccommand(0xae);//--turn off oled panel
-	
-    i2c.sendI2Ccommand(0xd5);//--set display clock divide ratio/oscillator frequency
-    i2c.sendI2Ccommand(0x80);//--set divide ratio
-
-    i2c.sendI2Ccommand(0xa8);//--set multiplex ratio(1 to 64)
-    i2c.sendI2Ccommand(0x3f);//--1/64 duty
-
-    i2c.sendI2Ccommand(0xd3);//-set display offset
-    i2c.sendI2Ccommand(0x00);//-not offset
-
-    i2c.sendI2Ccommand(0x8d);//--set Charge Pump enable/disable
-    i2c.sendI2Ccommand(0x14);//--set(0x10) disable
-
-    i2c.sendI2Ccommand(0x40);//--set start line addressess
-
-    i2c.sendI2Ccommand(0xa6);//--set normal display
-
-    i2c.sendI2Ccommand(0xa4);//Disable Entire Display On
-
-    i2c.sendI2Ccommand(0xa1);//--set segment re-map 128 to 0
-
-    i2c.sendI2Ccommand(0xC8);//--Set COM Output Scan Direction 64 to 0
-
-    i2c.sendI2Ccommand(0xda);//--set com pins hardware configuration
-    i2c.sendI2Ccommand(0x12);
-
-    i2c.sendI2Ccommand(0x81);//--set contrast control register
-    i2c.sendI2Ccommand(0xcf);
-
-    i2c.sendI2Ccommand(0xd9);//--set pre-charge period
-    i2c.sendI2Ccommand(0xf1);
-
-    i2c.sendI2Ccommand(0xdb);//--set vcomh
-    i2c.sendI2Ccommand(0x40);
-    
-    i2c.sendI2Ccommand(0xaf);//--turn on oled panel
-}
 
 //===================================================================  Basics
 
 void oled::display()  // write the buffer to the oled
-{ 
-    for (uint8_t page = 0; page < PAGES; page++)
-    {         
-        i2c.sendI2Ccommand(0xB0 + page);/* set page addressess */     
-        i2c.sendI2Ccommand(0x00);   /* set low column addressess */      
-        i2c.sendI2Ccommand(0x10);  /* set high column addressess */           
-        
-        for (uint8_t i = 0; i < WIDTH; i++)
-        {
-            i2c.sendI2Cdata(buffer[i + page * WIDTH]);
-        }        
-    }
+{   
+  uint8_t* pBuf = buffer;
+
+  for (uint8_t page = 0; page < PAGES; page++) {         
+      spi.sendCommand(0xB0 + page);/* set page address */     
+      spi.sendCommand(0x00);   /* set low column address */      
+      spi.sendCommand(0x10);  /* set high column address */      
+      //digitalWrite(OLED_DC, HIGH);
+      //SPIWrite(pBuf, WIDTH); /* write data  one page*/
+      //pBuf += WIDTH;        
+      for(uint8_t i = 0; i< WIDTH; i++ ) {
+        spi.setDChigh();
+        spi.sendBytes(pBuf, 1);// write data one
+        *pBuf++;
+      }        
+  }
 }
 
 
@@ -548,9 +502,9 @@ void oled::test()
 //   bitmap(0, 0, PIC2, 128, 64);
 //   display();
 // //   delay(100);  
-// //   i2c.sendI2Ccommand(0xa7);//--set Negative display 
+// //   spi.sendSPIcommand(0xa7);//--set Negative display 
 // //   delay(100);
-// //   i2c.sendI2Ccommand(0xa6);//--set normal display
+// //   spi.sendSPIcommand(0xa6);//--set normal display
 
   
 //   clear();
@@ -577,15 +531,15 @@ void oled::test()
 
 
 
-//   // i2c.sendI2Ccommand(0x26);  // right scroll
-//   // i2c.sendI2Ccommand(0x00);  // a dummy
-//   // i2c.sendI2Ccommand(0x00);  // b start page
-//   // i2c.sendI2Ccommand(0x07);  // c interval
-//   // i2c.sendI2Ccommand(0x07);  // d end page
-//   // i2c.sendI2Ccommand(0x00);  // e start column
-//   // i2c.sendI2Ccommand(0x7f);  // f end column
-//   //   //i2c.sendI2Ccommand(0x2F);  //  activate scroling
-//   //   i2c.sendI2Ccommand(0x2E);  //  stop scroling
+//   // spi.sendSPIcommand(0x26);  // right scroll
+//   // spi.sendSPIcommand(0x00);  // a dummy
+//   // spi.sendSPIcommand(0x00);  // b start page
+//   // spi.sendSPIcommand(0x07);  // c interval
+//   // spi.sendSPIcommand(0x07);  // d end page
+//   // spi.sendSPIcommand(0x00);  // e start column
+//   // spi.sendSPIcommand(0x7f);  // f end column
+//   //   //spi.sendSPIcommand(0x2F);  //  activate scroling
+//   //   spi.sendSPIcommand(0x2E);  //  stop scroling
 
 // //int i = 0;
 
@@ -593,7 +547,7 @@ void oled::test()
 // // sine(9, 10);
 // // display();
 // // delay(3);
-// // i2c.sendI2Ccommand(0x2F);  //  activate scroling
+// // spi.sendSPIcommand(0x2F);  //  activate scroling
 // // while (1)
 // // {}
 
@@ -604,29 +558,29 @@ void oled::test()
 //   // bitmap(0,0, static1, 128, 64);
 //   // display();
 //   // delay(10);
-//   // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+//   // spi.sendSPIcommand(0xa7);//--set Negative display 
 //   // delay(10);
-//   // i2c.sendI2Ccommand(0xa6);//--set normal display
+//   // spi.sendSPIcommand(0xa6);//--set normal display
 //   // clear();
 //   // bitmap(0,0, static2, 128, 64);
 //   // display();
 //   // delay(10);
-//   // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+//   // spi.sendSPIcommand(0xa7);//--set Negative display 
 //   // delay(10);
-//   //i2c.sendI2Ccommand(0xa6);//--set normal display
+//   //spi.sendSPIcommand(0xa6);//--set normal display
 //   // bitmap(0,0, nml3, 128, 64);
 //   // display();
 //   // delay(100);
 //   // clear();
 //   // bitmap(0,0, nml3, 128, 64);
 //   // display();
-//   // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+//   // spi.sendSPIcommand(0xa7);//--set Negative display 
 //   // delay(100);
-//   // i2c.sendI2Ccommand(0xa6);//--set normal display
+//   // spi.sendSPIcommand(0xa6);//--set normal display
 //   // delay(200);
-//   // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+//   // spi.sendSPIcommand(0xa7);//--set Negative display 
 //   // delay(50);
-//   // //i2c.sendI2Ccommand(0xa6);//--set normal display
+//   // //spi.sendSPIcommand(0xa6);//--set normal display
 //   // delay(2000);
 //   // clear();
 //   // bitmap(0,0, static3, 128, 64);
@@ -644,8 +598,8 @@ void oled::test()
 
 
 
-// i2c.sendI2Ccommand(0xa6);//--set normal display
-// i2c.sendI2Ccommand(0x2E);  //  sttop scroling
+// spi.sendSPIcommand(0xa6);//--set normal display
+// spi.sendSPIcommand(0x2E);  //  sttop scroling
 
 
 
@@ -656,20 +610,20 @@ void oled::test()
 // //   for (uint8_t i = 1; i < 8; i++)
 // //   {
 // //     square(i, (i * 10));
-// //     i2c.sendI2Ccommand(0x2E);  //  stop scroling
+// //     spi.sendSPIcommand(0x2E);  //  stop scroling
 
 // //     display();
-// //     //i2c.sendI2Ccommand(0x2F);  //  activate scroling
+// //     //spi.sendSPIcommand(0x2F);  //  activate scroling
 
 // //     delay(1000);
 // //   }
 // //   for (uint8_t i = 8; i > 1; i--)
 // //   {
 // //     square(i, (i * 10));
-// //     i2c.sendI2Ccommand(0x2E);  //  stop scroling
+// //     spi.sendSPIcommand(0x2E);  //  stop scroling
 
 // //     display();
-// //     //i2c.sendI2Ccommand(0x2F);  //  activate scroling
+// //     //spi.sendSPIcommand(0x2F);  //  activate scroling
 
 // //     delay(1000);
 // //   }
@@ -696,29 +650,29 @@ void oled::splashScreen(void)
   bitmap(0,0, PIC1, 128, 64);
   display();
   delay(10);
-  i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  spi.sendCommand(0xa7);//--set Negative display 
   delay(10);
-  i2c.sendI2Ccommand(0xa6);//--set normal display
+  spi.sendCommand(0xa6);//--set normal display
   //clear();
   // bitmap(0,0, static2, 128, 64);
   // display();
   // delay(10);
-  // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  // spi.sendSPIcommand(0xa7);//--set Negative display 
   // delay(10);
-  // i2c.sendI2Ccommand(0xa6);//--set normal display
+  // spi.sendSPIcommand(0xa6);//--set normal display
   // bitmap(0,0, nml3, 128, 64);
   // display();
   // delay(100);
   // clear();
   // bitmap(0,0, nml3, 128, 64);
   // display();
-  // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  // spi.sendSPIcommand(0xa7);//--set Negative display 
   // delay(100);
-  // i2c.sendI2Ccommand(0xa6);//--set normal display
+  // spi.sendSPIcommand(0xa6);//--set normal display
   // delay(200);
-  // i2c.sendI2Ccommand(0xa7);//--set Negative display 
+  // spi.sendSPIcommand(0xa7);//--set Negative display 
   // delay(50);
-  // //i2c.sendI2Ccommand(0xa6);//--set normal display
+  // //spi.sendSPIcommand(0xa6);//--set normal display
   // delay(2000);
   // clear();
   // bitmap(0,0, static3, 128, 64);

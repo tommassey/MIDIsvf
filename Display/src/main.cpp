@@ -58,11 +58,13 @@ void setup()
 
   Serial.println("init");
   Serial.println("OLED Example\n");
-  Wire.begin();
-  Wire.setClock(1000000);
-
-  screen.begin();
+  
+  
   screen.clear();
+
+  display.showScreen(1);
+
+  delay(5000);
 
 }
 

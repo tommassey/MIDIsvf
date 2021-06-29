@@ -7,7 +7,8 @@ EastRising Technology Co.,LTD
 #define _oled_H_
 
 #include <Arduino.h>
-#include "i2cDriver.h"
+#include "spiDriver.h"
+
 
 
 
@@ -15,7 +16,7 @@ class oled
 {
     private:
 
-        SSD1306_I2C_Driver i2c;
+        SSD1306_SPI_Driver spi;
         
         uint16_t HEIGHT = 64;
         uint16_t WIDTH = 128;
@@ -56,8 +57,6 @@ class oled
         oled(uint16_t width, uint16_t height);
         oled(uint16_t width, uint16_t height, uint8_t I2Caddress);
         ~oled();
-
-        void begin();
 
         void display();
         void clear();

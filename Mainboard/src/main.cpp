@@ -146,7 +146,7 @@ void setup()
 
   LFOtimer.begin(isrWriteToDAC, 88.2_kHz);  // setup timers
   potTimer.begin(readpotsISR, 1000_Hz);
-  smoothTimer.begin(smoothISR, 88.2_kHz);
+  smoothTimer.begin(smoothISR, 882_kHz);
   printTimer.begin(printISR, 0.1_Hz);
 
 
