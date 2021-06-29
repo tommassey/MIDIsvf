@@ -512,21 +512,21 @@ void oled::test()
 //   bitmap(0, 2, Signal816, 16, 8); 
 //   bitmap(24, 2,Bluetooth88, 8, 8); 
 
-  string(10, 52, "www.buydisplay.com", 12, 1); 
+  // string(10, 52, "www.buydisplay.com", 12, 1); 
  
 
-  char3216(0, 16, '1');
-  char3216(16, 16, '2');
-  char3216(32, 16, ':');
-  char3216(48, 16, '3');
-  char3216(64, 16, '4');
-  char3216(80, 16, ':');
-  char3216(96, 16, '5');
-  char3216(112, 16, '6');
+  // char3216(0, 16, '1');
+  // char3216(16, 16, '2');
+  // char3216(32, 16, ':');
+  // char3216(48, 16, '3');
+  // char3216(64, 16, '4');
+  // char3216(80, 16, ':');
+  // char3216(96, 16, '5');
+  // char3216(112, 16, '6');
 
-  display(); 
-  delay(1000);
-  clear();
+  // display(); 
+  // delay(1000);
+  // clear();
 
 
 
@@ -552,49 +552,50 @@ void oled::test()
 // // {}
 
 
+int i = 0; 
 
-// // while(i < 1)
-// // {
-//   // bitmap(0,0, static1, 128, 64);
-//   // display();
-//   // delay(10);
-//   // spi.sendSPIcommand(0xa7);//--set Negative display 
-//   // delay(10);
-//   // spi.sendSPIcommand(0xa6);//--set normal display
-//   // clear();
-//   // bitmap(0,0, static2, 128, 64);
-//   // display();
-//   // delay(10);
-//   // spi.sendSPIcommand(0xa7);//--set Negative display 
-//   // delay(10);
-//   //spi.sendSPIcommand(0xa6);//--set normal display
-//   // bitmap(0,0, nml3, 128, 64);
-//   // display();
-//   // delay(100);
-//   // clear();
-//   // bitmap(0,0, nml3, 128, 64);
-//   // display();
-//   // spi.sendSPIcommand(0xa7);//--set Negative display 
-//   // delay(100);
-//   // spi.sendSPIcommand(0xa6);//--set normal display
-//   // delay(200);
-//   // spi.sendSPIcommand(0xa7);//--set Negative display 
-//   // delay(50);
-//   // //spi.sendSPIcommand(0xa6);//--set normal display
-//   // delay(2000);
-//   // clear();
-//   // bitmap(0,0, static3, 128, 64);
-//   // display();
-//   // delay(1);
-//   // clear();
+//while(i < 1)
+//{
+  bitmap(0,0, static1, 128, 64);
+  display();
+  delay(10);
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(10);
+  spi.sendCommand(0xa6);//--set normal display
+  clear();
+  bitmap(0,0, static2, 128, 64);
+  display();
+  delay(10);
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(10);
+  spi.sendCommand(0xa6);//--set normal display
+  bitmap(0,0, nml3, 128, 64);
+  display();
+  delay(100);
+  clear();
+  bitmap(0,0, nml3, 128, 64);
+  display();
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(100);
+  spi.sendCommand(0xa6);//--set normal display
+  delay(200);
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(50);
+  //spi.sendSPIcommand(0xa6);//--set normal display
+  delay(2000);
+  clear();
+  bitmap(0,0, static3, 128, 64);
+  display();
+  delay(1);
+  clear();
   
   
     
-//     //display();
+    display();
 
-//   //delay(100);
-//   //i++;
-// //} 
+  delay(100);
+  //i++;
+//} 
 
 
 
@@ -649,34 +650,61 @@ void oled::splashScreen(void)
   clear();
   bitmap(0,0, PIC1, 128, 64);
   display();
+  delay(1000);
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(1);
+  spi.sendCommand(0xa6);//--set normal display
+  clear();
+  bitmap(0,0, static2, 128, 64);
+  display();
   delay(10);
   spi.sendCommand(0xa7);//--set Negative display 
   delay(10);
   spi.sendCommand(0xa6);//--set normal display
-  //clear();
-  // bitmap(0,0, static2, 128, 64);
-  // display();
-  // delay(10);
-  // spi.sendSPIcommand(0xa7);//--set Negative display 
-  // delay(10);
-  // spi.sendSPIcommand(0xa6);//--set normal display
-  // bitmap(0,0, nml3, 128, 64);
-  // display();
-  // delay(100);
-  // clear();
-  // bitmap(0,0, nml3, 128, 64);
-  // display();
-  // spi.sendSPIcommand(0xa7);//--set Negative display 
-  // delay(100);
-  // spi.sendSPIcommand(0xa6);//--set normal display
-  // delay(200);
-  // spi.sendSPIcommand(0xa7);//--set Negative display 
-  // delay(50);
-  // //spi.sendSPIcommand(0xa6);//--set normal display
-  // delay(2000);
-  // clear();
-  // bitmap(0,0, static3, 128, 64);
-  // display();
+  bitmap(0,0, nml3, 128, 64);
+  display();
+  delay(100);
+  clear();
+  bitmap(0,0, nml3, 128, 64);
+  display();
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(100);
+  spi.sendCommand(0xa6);//--set normal display
+  delay(200);
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(50);
+  //spi.sendSPIcommand(0xa6);//--set normal display
+  delay(2000);
+  clear();
+  bitmap(0,0, static3, 128, 64);
+  display();
+  
+  //while (1)
+  //{
+  bitmap(0,0, static1, 128, 64);
+  display();
+  delay(30);
+  //spi.sendCommand(0xa7);//--set Negative display 
+  delay(10);
+  spi.sendCommand(0xa6);//--set normal display
+  clear();
+  bitmap(0,0, static2, 128, 64);
+  display();
+  delay(10);
+  clear();
+  bitmap(0,0, static1, 128, 64);
+  display();
+  delay(20);
+  spi.sendCommand(0xa7);//--set Negative display 
+  delay(10);
+  //spi.sendCommand(0xa6);//--set normal display
+  clear();
+  bitmap(0,0, static3, 128, 64);
+  display();
+  delay(16);
+  //}
+
+  
 
 
 

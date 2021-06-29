@@ -27,9 +27,9 @@ serialMessage getSerialMessage(void)
     newMessage.messageType = 0;
     newMessage.data = 0;
 
-    if(Serial.available() > 0)
+    if(Serial2.available() > 0)
     {
-        Serial.readBytesUntil('\n', inputBuffer, 3);
+        Serial2.readBytesUntil('\n', inputBuffer, 10);
 
         Serial.print("buffer = ");
         Serial.println(inputBuffer);
@@ -40,7 +40,7 @@ serialMessage getSerialMessage(void)
 
     while(pch != NULL)
     {
-      newCommand[counter] = atoi(pch);
+      //newCommand[counter] = atoi(pch);
       newByte[counter] = *pch;
       pch = strtok(NULL, ",\r\n");
       counter++;
@@ -49,7 +49,7 @@ serialMessage getSerialMessage(void)
     counter = 0;
 
     newMessage.messageType = newByte[commandByte];
-    newMessage.data = (newByte[dataByte] - 48);    //  -48 temp so we can test with ascii via serial monitor
+    newMessage.data = (newByte[dataByte]);    //  -48 temp so we can test with ascii via serial monitor
 
     Serial.print ("New serial message,   type = ");
     Serial.print (newMessage.messageType);
