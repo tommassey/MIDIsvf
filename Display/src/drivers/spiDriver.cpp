@@ -7,7 +7,7 @@ SSD1306_SPI_Driver::SSD1306_SPI_Driver()
     begin();
     SPI.setMOSI(11);
     SPI.setSCK(13);
-    SPI.setCS(10);
+    //SPI.setCS(10);
     //SPI.beginTransaction;
 }
 

@@ -61,6 +61,9 @@ class oled
         void display();
         void clear();
 
+        void startScroll();
+        void stopScroll();
+
         
         void sine(uint8_t rate, uint8_t amp);
         void triangle(uint8_t rate, uint8_t amp);
@@ -69,7 +72,7 @@ class oled
         
         void splashScreen(void);
 
-        
+               
         
 
         void test(void);

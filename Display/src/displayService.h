@@ -32,6 +32,8 @@ class displayService
         void setLFOrate(byte rate);
         void setLFOamp(byte amp);
         void setLFOphase(byte phase);
+
+
 };
 
 

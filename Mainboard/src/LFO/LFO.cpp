@@ -37,9 +37,13 @@ void LFO::setRate(float rate)  // recieves percentage of pot travel as a float
 
 void LFO::setAmount(float amount)
 {
+    Serial.print("LFO amount = ");
+    
+
     if (amount > 1.0) amount = 1.0;
     if (amount < 0.0) amount = 0.0;
 
+    Serial.println(amount);
     txToScreen.setLFOamp(amount);
     LFOamp = amount;
 }

@@ -33,6 +33,8 @@ void displayService::showScreen(byte screenNumber)
 
 void displayService::updateLFO()
 {
+    
+
     switch (LFOshape)
     {
         case sine:
@@ -77,7 +79,10 @@ void displayService::updateLFO()
             break;
     }
 
+    screen->stopScroll();
+
     screen->display();
+    screen->startScroll();
 
 }
 
@@ -124,4 +129,5 @@ void displayService::setLFOphase(byte phase)
 
     updateLFO();
 }
+
 

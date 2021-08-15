@@ -18,7 +18,15 @@
 
 oled::oled(/* args */)
 {
-    initScreenBuffer();    
+    initScreenBuffer();
+
+  spi.sendCommand(0x26);  // right scroll
+  spi.sendCommand(0x00);  // a dummy
+  spi.sendCommand(0x00);  // b start page
+  spi.sendCommand(0x07);  // c interval
+  spi.sendCommand(0x07);  // d end page
+  spi.sendCommand(0x00);  // e start column
+  spi.sendCommand(0x7f);  // f end column
 }
 
 
@@ -27,6 +35,14 @@ oled::oled(uint16_t width, uint16_t height)
     WIDTH = width;
     HEIGHT = height;
     initScreenBuffer();
+
+    spi.sendCommand(0x26);  // right scroll
+  spi.sendCommand(0x00);  // a dummy
+  spi.sendCommand(0x00);  // b start page
+  spi.sendCommand(0x07);  // c interval
+  spi.sendCommand(0x07);  // d end page
+  spi.sendCommand(0x00);  // e start column
+  spi.sendCommand(0x7f);  // f end column
 }
 
 
@@ -82,6 +98,23 @@ void oled::clear(void)
 		buffer[i] = 0;
 	}
 }
+
+
+//===================================================================  Scrolling
+
+
+void oled::startScroll()
+{
+  spi.sendCommand(0x2F);  //  activate scroling
+}
+
+
+
+void oled::stopScroll()
+{
+  spi.sendCommand(0x2E);  //  stop scroling
+}
+
 
 
 //===================================================================  Drawing shapes
@@ -165,15 +198,29 @@ void oled::sine(uint8_t rate, uint8_t amp)
   float y;
   float z;
 
-  if (rate > 14) rate = 14;
-  if (rate < 1) rate = 1;
+  //  rate comes in at a max of 255, higher is a slower LFO
+  //  we need it to range between 0 and 14, higher is more cycles onscreen (so faster LFO)
 
-  if (amp > 35) amp = 35;
-  if (amp < 1) amp = 1;
+  uint8_t invRate = 255 - rate;   // invert rate so higher is faster
 
-  uint8_t thickness = rate + 1;
+  uint8_t cycles = invRate / 18;   // 255 / 18 = 14.16666
 
-  if (thickness > 10) thickness = 10;
+  if (cycles > 14) cycles = 14;
+  if (cycles < 1) cycles = 1;
+
+
+
+  //  amp comes in at a max of 255, higher is a louder LFO
+  //  we need it to range between 0 and 35, higher is higher
+
+  uint8_t scaledAmp = amp / 8;
+
+  if (scaledAmp > 35) scaledAmp = 35;
+  if (scaledAmp < 1) scaledAmp = 1;
+
+  uint8_t thickness = (cycles + 1) * (1 / (scaledAmp/35));
+
+  if (thickness > 8) thickness = 8;
   if (thickness < 4) thickness = 4;
   //uint16_t lineStart = (thickness / 2) - 1;
 
@@ -182,7 +229,7 @@ void oled::sine(uint8_t rate, uint8_t amp)
   for (uint16_t i=0; i<(WIDTH); i++)  
   {   
     y = i * 0.049;   // 0.049 magic number to fit sine to screen
-    z = (sin(y * rate) * amp) + centreY;
+    z = (sin(y * cycles) * scaledAmp) + centreY;
     uint16_t lineStartY = (z - (thickness / 2)); // draw vertical line instead of pixel
     drawFastVLine(i, lineStartY, thickness, 1);  // to make waveform thicker
   }
