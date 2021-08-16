@@ -39,7 +39,7 @@ void displayService::updateLFO()
     {
         case sine:
         {
-            screen->sine(LFOrate, LFOamp);
+            screen->sine(sinCycles, LFOamp);
             break;
         }
 
@@ -100,10 +100,35 @@ void displayService::setLFOwave(byte waveForm)
 
 void displayService::setLFOrate(byte rate)
 {
-    Serial.print("set rate: ");
+    Serial.print("new rate: ");
     Serial.println(rate);
 
     LFOrate = rate;
+
+    switch (LFOshape)
+    {
+        case sine:
+        {
+            //  rate comes in at a max of 255, higher is a slower LFO
+            //  we need it to range between 0 and 14, higher is more cycles onscreen (so faster LFO)
+
+            uint8_t invRate = 255 - rate;   // invert rate so higher is faster
+
+            sinCycles = invRate / 18;   // 255 / 18 = 14.16666
+
+            if (sinCycles > 14) sinCycles = 14;
+            if (sinCycles < 1) sinCycles = 1;
+
+            if (sinCycles == sinCyclesPrevious) return;
+            sinCyclesPrevious = sinCycles;
+            break;
+        }
+    
+        default:
+        break;
+    }
+
+    
 
     updateLFO();    
 }

@@ -26,7 +26,7 @@ class oled
         int16_t centreX = ((WIDTH / 2) - 1);
         int16_t centreY = ((HEIGHT / 2) - 1);
 
-
+        uint8_t sinCyclesPrevious = 0;
         uint16_t sawY = HEIGHT;
         uint16_t triY = HEIGHT;
         bool triangleDirectionisUp = false;

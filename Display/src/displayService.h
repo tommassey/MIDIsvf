@@ -18,6 +18,9 @@ class displayService
         byte LFOamp = 0;
         byte LFOphase = 0;
 
+        uint8_t sinCycles = 0;
+        uint8_t sinCyclesPrevious = 0;
+
 
 
         void updateLFO();

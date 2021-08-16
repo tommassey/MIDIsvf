@@ -195,18 +195,19 @@ void oled::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 
 void oled::sine(uint8_t rate, uint8_t amp)
 {
-  float y;
-  float z;
+  
+  // //  rate comes in at a max of 255, higher is a slower LFO
+  // //  we need it to range between 0 and 14, higher is more cycles onscreen (so faster LFO)
 
-  //  rate comes in at a max of 255, higher is a slower LFO
-  //  we need it to range between 0 and 14, higher is more cycles onscreen (so faster LFO)
+  // uint8_t invRate = 255 - rate;   // invert rate so higher is faster
 
-  uint8_t invRate = 255 - rate;   // invert rate so higher is faster
+  // uint8_t cycles = invRate / 18;   // 255 / 18 = 14.16666
 
-  uint8_t cycles = invRate / 18;   // 255 / 18 = 14.16666
+  // if (cycles > 14) cycles = 14;
+  // if (cycles < 1) cycles = 1;
 
-  if (cycles > 14) cycles = 14;
-  if (cycles < 1) cycles = 1;
+  // if (cycles == sinCyclesPrevious) return;
+  // sinCyclesPrevious = cycles;
 
 
 
@@ -218,7 +219,7 @@ void oled::sine(uint8_t rate, uint8_t amp)
   if (scaledAmp > 35) scaledAmp = 35;
   if (scaledAmp < 1) scaledAmp = 1;
 
-  uint8_t thickness = (cycles + 1) * (1 / (scaledAmp/35));
+  uint8_t thickness = (rate + 1) * (1 / (scaledAmp/35));
 
   if (thickness > 8) thickness = 8;
   if (thickness < 4) thickness = 4;
@@ -226,10 +227,13 @@ void oled::sine(uint8_t rate, uint8_t amp)
 
   clear();
 
+  float y;
+  float z;
+
   for (uint16_t i=0; i<(WIDTH); i++)  
   {   
     y = i * 0.049;   // 0.049 magic number to fit sine to screen
-    z = (sin(y * cycles) * scaledAmp) + centreY;
+    z = (sin(y * rate) * scaledAmp) + centreY;
     uint16_t lineStartY = (z - (thickness / 2)); // draw vertical line instead of pixel
     drawFastVLine(i, lineStartY, thickness, 1);  // to make waveform thicker
   }
