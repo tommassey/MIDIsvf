@@ -1,19 +1,33 @@
 #include <Arduino.h>
 #include "displayService.h"
 #include <Wire.h>
-#include <Encoder.h>
+#include "TeensyTimerTool.h"
+#include "inputs/inputManager.h"
+
 
 #include "comms/reciever.h"
 #include "drivers/button.h"
 
-Bounce button1 = Bounce();   // LFO1 button
-Bounce button2 = Bounce();   //  LFO2 button
-Bounce button3 = Bounce();   //  Encoder button
+using namespace TeensyTimerTool;
 
-Encoder encoder = Encoder(3,2);
+
+
+
+
 
 oled screen(128, 64);
 displayService display(&screen);
+
+
+PeriodicTimer encoderTimer(TCK);
+
+void encoderTimerISR(void)
+{
+  menuEncoder.update();
+}
+
+
+
 
 void checkSerial(void)
 {
@@ -71,9 +85,12 @@ void setup()
   Serial.println("init");
   Serial.println("OLED Example\n");
 
-  buttonInit(&button1, 6, INPUT_PULLUP, 50);
-  buttonInit(&button2, 5, INPUT_PULLUP, 50);
-  buttonInit(&button3, 4, INPUT_PULLUP, 50);
+  //buttonInit(&button1, 6, INPUT_PULLUP, 50);
+  //buttonInit(&button2, 5, INPUT_PULLUP, 50);
+  //buttonInit(&button3, 4, INPUT_PULLUP, 50);
+
+  encoderTimer.begin(encoderTimerISR, 50_Hz);  // setup timers
+
   
   
   
@@ -126,24 +143,10 @@ void checkAllButtons(void)
   }
 }
 
-uint32_t encoderCount = 0;
 
-void checkEncoder(void)
-{
-  uint32_t newEncoderCount = encoder.read();
-
-  if (newEncoderCount != encoderCount)
-  {
-    Serial.print("Encoder = ");
-    Serial.println(newEncoderCount);
-    encoderCount = newEncoderCount;
-  }
-}
 
 void loop()
 {
   checkSerial();
   checkAllButtons();
-  checkEncoder();
-
 }
