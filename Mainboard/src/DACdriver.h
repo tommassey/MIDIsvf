@@ -9,8 +9,6 @@
 #define SPI_MOSI_PIN        11
 #define SPI_SCK_PIN         14
 
-#define MCP4822_LDAC_PIN    1
-#define MCP4822_CS_PIN      10
 #define MCP4922_LDAC_PIN    9   //  LOW = write to registers immediatley.   put HIGH , load data, then drop LOW to write to both channels simultaneously
 #define MCP4922_CS_PIN      10
 #define MCP4922_SHDN_PIN    8   //  DAC shutdown, active low, tie high for normal operation
@@ -34,8 +32,6 @@ static const mcp4xxx_register mcp4xxxOutputOff = 0B0000000000000000;   //
 
 //  consts for the control bit to the left, adjust to taste
 
-static const mcp4xxx_register mcp4822ChannelA = mcp4xxxChannelA | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
-static const mcp4xxx_register mcp4822ChannelB = mcp4xxxChannelB | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
 static const mcp4xxx_register mcp4922ChannelA = mcp4xxxChannelA | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
 static const mcp4xxx_register mcp4922ChannelB = mcp4xxxChannelB | mcp4xxxBufferOff | mcp4xxxGainOne | mcp4xxxOutputOn;
 
@@ -51,11 +47,6 @@ void DACtriangleWave(void);       // generates 4096 step triangle wave
 
 void DACshutdown(void);
 void DACwakeup(void);             // if using DACs SHDN pin, then this needs to be called during init
-
-
-
-
-
 
 
 
