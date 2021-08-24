@@ -15,7 +15,7 @@ void EncoderService::update(void)
   {
     if (newRawCount > 7)    //  and it's bigger
     {
-      Serial.println("big");
+      //Serial.print("  big step  ");
       value = (value + bigStep);
     }
     
@@ -41,7 +41,7 @@ void EncoderService::update(void)
     
     if (newRawCount < -6)    //  and it's smaller
     {
-      Serial.println("big");
+      //Serial.print("  big step  ");
       value = (value - bigStep);
     }
 

@@ -4,21 +4,6 @@
 #include <Arduino.h>
 #include <Encoder.h>
 
-enum EncoderMovement
-{
-    down,
-    down_fast,
-    down_med,
-    down_slow,
-    no_movement,
-    up_slow,
-    up_med,
-    up_fast,
-    up
-};
-
-
-
 
 
 class EncoderService
@@ -30,8 +15,7 @@ class EncoderService
 
     
 
-        //EncoderMovement check(void);
-        void update(void);   //  poll this to update encoder
+    void update(void);   //  poll this to update encoder
 
 
 
