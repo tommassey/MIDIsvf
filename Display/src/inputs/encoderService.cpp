@@ -6,13 +6,23 @@ EncoderService::EncoderService(Encoder* enc)
     encoder = enc;
 }
 
+uint16_t EncoderService::getValue(void)
+{
+  return value;
+}
 
 void EncoderService::update(void)
 {
+  
   int32_t newRawCount = encoder->read();
+
+  //Serial.println(newRawCount);
+
  
   if (newRawCount != 0)           //  if it's changed
   {
+    //Serial.println("enc not zero");
+
     int16_t newMovement = checkForAcceleration(newRawCount);  //  get movement
 
     int32_t newValue = value + newMovement;

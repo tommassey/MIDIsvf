@@ -3,10 +3,19 @@
 
 #include <Arduino.h>
 #include "inputs.h"
+#include "buttonService.h"
 #include "encoderService.h"
 
 
-EncoderService menuEncoder = EncoderService(&encoder);
+void inputManager_init(void);
+
+void checkButtons(void);
+void checkEncoders(void);
+
+
+
+
+
 
 
 #endif  // INPUT_MANAGER_H

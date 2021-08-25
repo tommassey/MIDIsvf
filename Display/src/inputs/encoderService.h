@@ -19,7 +19,8 @@ class EncoderService
         
         EncoderService(Encoder* enc);
 
-        void update(void);   //  poll this to update encoder
+        uint16_t getValue(void);    //  called to get latest value
+        void update(void);          //  poll this to update encoder
 
 
 
