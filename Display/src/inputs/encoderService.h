@@ -5,20 +5,6 @@
 #include <Encoder.h>
 
 
-enum EncoderMovement
-{
-    down,
-    down_fast,
-    down_med,
-    down_slow,
-    no_movement,
-    up_slow,
-    up_med,
-    up_fast,
-    up
-};
-
-
 class EncoderService
 {
     /*
@@ -30,29 +16,17 @@ class EncoderService
 
     */
     public:
-    EncoderService(Encoder* enc);
+        
+        EncoderService(Encoder* enc);
 
-
-    
-
-    void update(void);   //  poll this to update encoder
+        void update(void);   //  poll this to update encoder
 
 
 
     private:
 
-        Encoder* encoder;  // = Encoder(pin1, pin2);
+        Encoder* encoder;
         
-        
-
-        
-
-        
-
-        uint8_t _pin1;
-        uint8_t _pin2;
-
-        //Encoder encoder = Encoder(_pin1, _pin2);
 
         int32_t rawCount = 0;
         int32_t value = 0;
@@ -69,9 +43,6 @@ class EncoderService
         const int16_t bigStep = 50;
 
         int16_t checkForAcceleration(int32_t rawCount);
-        void applyAcceleration(EncoderMovement movement);
-
-
 
 };
 
