@@ -701,7 +701,7 @@ void oled::splashScreen(void)
   clear();
   bitmap(0,0, PIC1, 128, 64);
   display();
-  delay(1000);
+  delay(200);
   spi.sendCommand(0xa7);//--set Negative display 
   delay(1);
   spi.sendCommand(0xa6);//--set normal display
@@ -725,7 +725,7 @@ void oled::splashScreen(void)
   spi.sendCommand(0xa7);//--set Negative display 
   delay(50);
   //spi.sendSPIcommand(0xa6);//--set normal display
-  delay(2000);
+  delay(200);
   clear();
   bitmap(0,0, static3, 128, 64);
   display();

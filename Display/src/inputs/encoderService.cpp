@@ -13,41 +13,81 @@ void EncoderService::update(void)
  
   if (newRawCount != 0)           //  if it's changed
   {
-    if (newRawCount > 7)    //  and it's bigger
-    {
-      //Serial.print("  big step  ");
-      value = (value + bigStep);
-    }
-    
-    if (newRawCount > 3)    //  and it's bigger
-    {
-      value = (value + medStep);
-    }
-    
-    if (newRawCount > 1)    //  and it's bigger
-    {
-      value++;
-    }
+    Serial.print("raw = ");
+    Serial.print(newRawCount);
 
-    if (newRawCount < -1)    //  and it's smaller
-    {
-      value--;
-    }
-    
-    if (newRawCount < -3)    //  and it's smaller
-    {
-      value = (value - medStep);
-    }
-    
-    if (newRawCount < -6)    //  and it's smaller
-    {
-      //Serial.print("  big step  ");
-      value = (value - bigStep);
-    }
+    int16_t newMovement = checkForAcceleration(newRawCount);  //  get movement
 
-    encoder->write(0);  // reset encoder for next read
+    
+    
+    
+    Serial.print("     step = ");
+    Serial.print(newMovement);
+    
 
-    Serial.print("Encoder = ");
+    
+
+    Serial.print("       Encoder = ");
     Serial.println(value);
+
   } 
+  encoder->write(0);  // reset encoder for next read
 }
+
+int16_t EncoderService::checkForAcceleration(int32_t rawCount)
+{
+  // increasing
+  if (rawCount > accelerationHigh)
+  {
+    Serial.print(" big+ ");
+    return bigStep;
+  }
+  
+  if (rawCount > accelerationMed)
+  {
+    Serial.print(" med+ ");
+    return medStep;
+  }
+  
+  if (rawCount > accelerationLow)
+  {
+    Serial.print(" sml+ ");
+    return smallStep;
+  }
+
+
+  if ((rawCount == 0) || (rawCount == 1) || (rawCount == -1))
+  {
+    Serial.print(" none ");
+    return 0;
+  }
+  // decreasing
+  
+  
+  if (rawCount < -accelerationHigh)
+  {
+    Serial.print(" big- ");
+    return (0 - bigStep);
+  }
+
+  if (rawCount < -accelerationMed)
+  {
+    Serial.print(" med- ");
+    return (0 - medStep);
+  }
+
+  if (rawCount < -accelerationLow)
+  {
+    Serial.print(" sml- ");
+    return (0 - smallStep);
+  }
+
+
+
+  
+  
+
+  else return 0;
+}
+
+
