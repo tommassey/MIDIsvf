@@ -57,16 +57,32 @@ void displayService::drawBorders()
 {
     //screen->drawRect(0, 0, 127, 31, 1);
 
-    screen->
-    screen->drawRect(0, 31, 127, 32, 1);
 
-    screen->pixel(0,0,1);
+    screen->drawRect(0, 32, 127, 32, 1);  // top frame
+    screen->drawRect(0, 63, 127, 32, 1);  // bottom frame
 
-    screen->pixel(127,0,1);
+    switch (currentLFOselected)
+    {
+        case 0:  break;
 
-    screen->pixel(0,63,1);
+        case 1:
+        {
+            screen->drawRect(2, 29, 123, 27, 1);  // selected frame LFO1
+            break;
+        }
 
-    screen->pixel(127,63,1);
+        case 2:
+        {
+            screen->drawRect(2, 61, 123, 27, 1);  // selected frame LFO2
+            break;
+        }
+
+    
+    default:
+        break;
+    }
+
+    
 
 
 

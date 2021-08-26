@@ -24,7 +24,7 @@ class displayService
 
         // splitScreen
 
-        uint8_t currentLFOselected = 0;
+        uint8_t currentLFOselected = 2;
 
         void drawBorders(void);
 
