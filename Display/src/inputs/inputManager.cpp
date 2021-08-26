@@ -25,6 +25,7 @@ EncoderService menuEncoder = EncoderService(&encoder);
 
 
 void setupButtons(void);
+void setupEncoders(void);
 
 
 
@@ -37,7 +38,7 @@ void inputManager_init(void)
     pinMode(3, INPUT_PULLUP);
 
     setupButtons();
-    encoder.read();
+    setupEncoders();
 }
 
 
@@ -58,4 +59,9 @@ void setupButtons(void)
     buttonService.addButton(&button0);
     buttonService.addButton(&button1);
     buttonService.addButton(&button2);
+}
+
+void setupEncoders(void)
+{
+    encoder.read();  //  just a read to make sure object has been init'd
 }

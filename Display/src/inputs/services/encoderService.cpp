@@ -22,7 +22,7 @@ void EncoderService::update(void)
  
   if (newRawCount != 0)           //  if it's changed
   {
-    Serial.println("enc not zero");
+    //Serial.println("enc not zero");
 
     int16_t newMovement = checkForAcceleration(newRawCount);  //  get movement
     
@@ -31,8 +31,8 @@ void EncoderService::update(void)
 
     if (newValue != value)
     {
-      Serial.print("  movement = ");
-      Serial.print(newMovement);
+      //Serial.print("  movement = ");
+      //Serial.print(newMovement);
       //Serial.print("rawCount = ");
       //Serial.print(newRawCount);
       //Serial.print("     step size = ");
@@ -71,7 +71,7 @@ int16_t EncoderService::checkForAcceleration(int32_t rawCount)
   // near zero
   if ((rawCount == 0) || (rawCount == 1) || (rawCount == -1))
   {
-    Serial.print(" none ");
+    //Serial.print(" none ");
     return 0;
   }
 
