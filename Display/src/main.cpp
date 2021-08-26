@@ -25,6 +25,7 @@ void checkButtonsTimerISR(void)
 void checkEncodersTimerISR(void)
 {
   checkEncoders();
+  //checkButtons();
 }
 
 
@@ -84,13 +85,13 @@ void setup()
   inputManager_init();
 
   //checkButtonsTimer.begin(checkButtonsTimerISR, 50_Hz);  // setup timers
-  checkEncodersTimer.begin(checkEncodersTimerISR, 10_Hz);  // setup timers
+  checkEncodersTimer.begin(checkEncodersTimerISR, 50_Hz);  // setup timers
 
     
-  //screen.clear();
+  screen.clear();
 
   //display.showScreen(1);
-
+  display.splitScreen();
   //delay(5000);
 
 }
@@ -104,5 +105,4 @@ void loop()
   //Serial.println("loop");
   checkSerial();
   checkButtons();
-  //checkEncoders();
 }

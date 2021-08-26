@@ -178,6 +178,19 @@ void oled::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color)
   writeLine(x, y, x, y + h - 1, color);
 }
 
+void oled::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color)
+{
+  writeLine(x, y, (x + w - 1), y, color);
+}
+
+void oled::drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
+{
+  drawFastHLine(x, y, w, color);
+  drawFastHLine(x, (y-h), w, color);
+  drawFastVLine(x, (y-h), h, color);
+  drawFastVLine((x+w), (y-h), h, color);
+}
+
 
 void oled::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 {

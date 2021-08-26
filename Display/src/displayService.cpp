@@ -31,6 +31,50 @@ void displayService::showScreen(byte screenNumber)
 
 }
 
+void displayService::splitScreen(void)
+{
+    screen->clear();
+
+    drawBorders();
+
+    screen->display();
+
+}
+
+//  0,0                         127,0
+//  -----------------------------
+//  |                           |
+//  |                           |
+//  |                           |
+//  |                           |
+//  |                           |
+//  |                           |
+//  |                           |
+//  -----------------------------
+// 0, 63                        127, 63
+
+void displayService::drawBorders()
+{
+    //screen->drawRect(0, 0, 127, 31, 1);
+
+    screen->
+    screen->drawRect(0, 31, 127, 32, 1);
+
+    screen->pixel(0,0,1);
+
+    screen->pixel(127,0,1);
+
+    screen->pixel(0,63,1);
+
+    screen->pixel(127,63,1);
+
+
+
+
+
+
+}
+
 void displayService::updateLFO()
 {
     

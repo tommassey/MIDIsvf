@@ -38,19 +38,12 @@ class oled
         void printChar(unsigned char x, unsigned char y, char acsii, char size, char mode);
 
         void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+        void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+
 
 
         
-        void pixel(int x,int y,char color);
-        void writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
-        void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
-
-        void text(uint8_t x, uint8_t y, uint8_t chChar);
-        void char1616(uint8_t x,uint8_t y,uint8_t chChar);
-        void char3216(uint8_t x, uint8_t y, uint8_t chChar);
-        void string(uint8_t x, uint8_t y, const char *pString, uint8_t Size, uint8_t Mode);
         
-        void bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint8_t chHeight);
 
     public:
         oled();
@@ -64,6 +57,17 @@ class oled
         void startScroll();
         void stopScroll();
 
+        void pixel(int x,int y,char color);
+        void writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+        void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+        void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+
+        void text(uint8_t x, uint8_t y, uint8_t chChar);
+        void char1616(uint8_t x,uint8_t y,uint8_t chChar);
+        void char3216(uint8_t x, uint8_t y, uint8_t chChar);
+        void string(uint8_t x, uint8_t y, const char *pString, uint8_t Size, uint8_t Mode);
+        
+        void bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint8_t chHeight);
         
         void sine(uint8_t rate, uint8_t amp);
         void triangle(uint8_t rate, uint8_t amp);

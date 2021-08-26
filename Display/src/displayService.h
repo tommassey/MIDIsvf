@@ -22,6 +22,14 @@ class displayService
         uint8_t sinCyclesPrevious = 0;
 
 
+        // splitScreen
+
+        uint8_t currentLFOselected = 0;
+
+        void drawBorders(void);
+
+
+
 
         void updateLFO();
 
@@ -31,6 +39,11 @@ class displayService
         ~displayService();
 
         void showScreen(byte screenNumber);
+        void splitScreen(void);
+
+        
+
+
         void setLFOwave(byte waveForm);
         void setLFOrate(byte rate);
         void setLFOamp(byte amp);
