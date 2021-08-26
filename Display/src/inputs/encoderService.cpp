@@ -6,6 +6,7 @@ EncoderService::EncoderService(Encoder* enc)
     encoder = enc;
 }
 
+
 uint16_t EncoderService::getValue(void)
 {
   return value;

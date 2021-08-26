@@ -14,7 +14,7 @@ oled screen(128, 64);
 displayService display(&screen);
 
 
-PeriodicTimer checkButtonsTimer(TCK);
+//PeriodicTimer checkButtonsTimer(TCK);
 PeriodicTimer checkEncodersTimer(TCK);
 
 void checkButtonsTimerISR(void)
@@ -83,11 +83,11 @@ void setup()
 
   inputManager_init();
 
-  checkButtonsTimer.begin(checkButtonsTimerISR, 50_Hz);  // setup timers
+  //checkButtonsTimer.begin(checkButtonsTimerISR, 50_Hz);  // setup timers
   checkEncodersTimer.begin(checkEncodersTimerISR, 10_Hz);  // setup timers
 
     
-  screen.clear();
+  //screen.clear();
 
   //display.showScreen(1);
 
@@ -101,5 +101,8 @@ void setup()
 
 void loop()
 {
+  //Serial.println("loop");
   checkSerial();
+  checkButtons();
+  //checkEncoders();
 }
