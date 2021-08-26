@@ -84,12 +84,12 @@ void setup()
   inputManager_init();
 
   checkButtonsTimer.begin(checkButtonsTimerISR, 50_Hz);  // setup timers
-  checkEncodersTimer.begin(checkEncodersTimerISR, 60_Hz);  // setup timers
+  checkEncodersTimer.begin(checkEncodersTimerISR, 10_Hz);  // setup timers
 
     
   screen.clear();
 
-  display.showScreen(1);
+  //display.showScreen(1);
 
   //delay(5000);
 

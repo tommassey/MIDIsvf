@@ -42,7 +42,7 @@ void inputManager_init(void)
 
 void checkButtons()
 {
-    buttonService.checkAllButtons();
+    //buttonService.checkAllButtons();
 }
 
 void checkEncoders()
