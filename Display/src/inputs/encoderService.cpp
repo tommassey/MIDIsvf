@@ -24,11 +24,14 @@ void EncoderService::update(void)
     //Serial.println("enc not zero");
 
     int16_t newMovement = checkForAcceleration(newRawCount);  //  get movement
+    
 
     int32_t newValue = value + newMovement;
 
     if (newValue != value)
     {
+      //Serial.print("  movement = ");
+      //Serial.print(newMovement);
       //Serial.print("rawCount = ");
       //Serial.print(newRawCount);
       //Serial.print("     step size = ");
