@@ -7,6 +7,7 @@
 #define MAX_BUTTONS 4
 
 
+
 struct ButtonEvent
 {
     uint8_t whichButton = 0;
@@ -23,15 +24,18 @@ class ButtonService
 
         void addButton(ButtonDriver* newButton);
         ButtonEvent checkButton(uint8_t whichButton);
-        void checkAllButtons(void);
+        int8_t checkAllButtons(void);
+
+        uint8_t buttonCount = 0;
+        uint8_t status[MAX_BUTTONS];   //  holds status of all buttons
+        uint32_t presses[MAX_BUTTONS] = {0};  //  total presses
 
     private:
 
-        uint8_t buttonCount = 0;
+        
 
         ButtonDriver* button[MAX_BUTTONS];   // pointers to the buttonDriver objects
-        uint8_t status[MAX_BUTTONS];   //  holds status of all buttons
-        uint32_t presses[MAX_BUTTONS] = {0};  //  total presses
+        
 
 
 

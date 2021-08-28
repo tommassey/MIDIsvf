@@ -42,17 +42,66 @@ void inputManager_init(void)
 }
 
 
-
-void checkButtons()
+void printButtonChanges(void)
 {
-    buttonService.checkAllButtons();
+    Serial.print("BUTTONS  ");
+
+        for (uint8_t i = 0; i < buttonService.buttonCount; i++)
+        {
+            Serial.print(i);
+            Serial.print(" = ");
+            Serial.print(buttonService.presses[i]);
+            Serial.print("   ");
+        }
+
+        Serial.println();
 }
+
+
+void printEncoderChanges(void)
+{
+    Serial.print("ENCODER = ");
+    Serial.println(menuEncoder.getValue());
+}
+
+
+
+int8_t checkInputs()
+{
+    int8_t newInput = buttonService.checkAllButtons();
+
+    if ((newInput > no_input) && (newInput < max_buttons))   //  if a button changed
+    {
+        printButtonChanges();
+        return newInput;        
+    }
+   
+
+    if (menuEncoder.changeFlag == true)   //  if encoder changed
+    {
+        printEncoderChanges();
+        menuEncoder.changeFlag = false;
+
+        return menu_encoder;        
+    }
+
+    else
+    {
+        return no_input;
+    }
+}
+
+
 
 void checkEncoders()
 {
     menuEncoder.update();
 }
 
+void resetInputFlag(void)
+{
+    buttonService.changeFlag = no_input;
+}
 
 void setupButtons(void)
 {

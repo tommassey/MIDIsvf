@@ -5,6 +5,9 @@
 #include "drivers/oled.h"
 #include "../../Shared/commandList.h"
 
+#include "inputs/inputNames.h"
+
+
 
 class displayService
 {
@@ -24,7 +27,7 @@ class displayService
 
         // splitScreen
 
-        uint8_t currentLFOselected = 2;
+        uint8_t currentLFOselected = 1;
 
         void drawBorders(void);
 
@@ -37,6 +40,8 @@ class displayService
     public:
         displayService(oled* screenPtr);
         ~displayService();
+
+        void actOnInputs(int8_t inputNumber);
 
         void showScreen(byte screenNumber);
         void splitScreen(void);

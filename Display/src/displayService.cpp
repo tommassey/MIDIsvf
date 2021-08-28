@@ -10,6 +10,52 @@ displayService::~displayService()
 {
 }
 
+void displayService::actOnInputs(int8_t inputNumber)
+{ 
+    Serial.print("display serv input number = ");
+    Serial.println(inputNumber);
+
+    switch (inputNumber)
+    {
+        case no_input:
+        {
+
+            break;
+        }
+
+        case encoder_button:
+        {
+            currentLFOselected = 0;
+
+            break;
+        }
+
+        case lfo1_button:
+        {
+            currentLFOselected = 1;
+            break;
+        }
+
+        case lfo2_button:
+        {
+            currentLFOselected = 2;
+
+            break;
+        }
+        
+        case menu_encoder:
+        {
+
+            break;
+        }
+    
+        default:
+            break;
+    }
+
+    splitScreen();
+
+}
 
 
 void displayService::showScreen(byte screenNumber)

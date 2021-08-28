@@ -9,12 +9,15 @@
 
 #include "services/buttonService.h"
 #include "services/encoderService.h"
+#include "inputNames.h"
+
 
 
 void inputManager_init(void);
 
-void checkButtons(void);
+int8_t checkInputs(void);
 void checkEncoders(void);
+void resetInputFlag(void);
 
 
 

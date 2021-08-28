@@ -19,7 +19,7 @@ PeriodicTimer checkEncodersTimer(TCK);
 
 void checkButtonsTimerISR(void)
 {
-  checkButtons();
+  //checkButtons();
 }
 
 void checkEncodersTimerISR(void)
@@ -84,7 +84,7 @@ void setup()
 
   inputManager_init();
 
-  //checkButtonsTimer.begin(checkButtonsTimerISR, 50_Hz);  // setup timers
+  //checkButtonsTimer.begin(checkButtonsTimerISR, 10_Hz);  // setup timers
   checkEncodersTimer.begin(checkEncodersTimerISR, 50_Hz);  // setup timers
 
     
@@ -104,5 +104,16 @@ void loop()
 {
   //Serial.println("loop");
   checkSerial();
-  checkButtons();
+  
+  int8_t input = checkInputs();
+
+  if (input != no_input)
+  {
+    Serial.print("input == ");
+    Serial.println(input);
+
+    display.actOnInputs(input);
+    resetInputFlag();
+  }
+  //display.actOnInputs();
 }

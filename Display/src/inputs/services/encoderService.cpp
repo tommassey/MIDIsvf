@@ -7,7 +7,7 @@ EncoderService::EncoderService(Encoder* enc)
 }
 
 
-uint16_t EncoderService::getValue(void)
+int32_t EncoderService::getValue(void)
 {
   return value;
 }
@@ -37,9 +37,9 @@ void EncoderService::update(void)
       //Serial.print(newRawCount);
       //Serial.print("     step size = ");
       //Serial.print(newMovement);
-      Serial.print("  Encoder value = ");
-      Serial.println(newValue);
-      
+      //Serial.print("  Encoder value = ");
+      //Serial.println(newValue);
+      changeFlag = true;
       value = newValue;
     }
   } 
@@ -52,19 +52,19 @@ int16_t EncoderService::checkForAcceleration(int32_t rawCount)
   // increasing
   if (rawCount > accelerationHigh)
   {
-    Serial.print(" big+ ");
+    //Serial.print(" big+ ");
     return bigStep;
   }
   
   if (rawCount > accelerationMed)
   {
-    Serial.print(" med+ ");
+    //Serial.print(" med+ ");
     return medStep;
   }
   
   if (rawCount > accelerationLow)
   {
-    Serial.print(" sml+ ");
+    //Serial.print(" sml+ ");
     return smallStep;
   }
 
@@ -78,19 +78,19 @@ int16_t EncoderService::checkForAcceleration(int32_t rawCount)
   // decreasing
   if (rawCount < -accelerationHigh)
   {
-    Serial.print(" big- ");
+    //Serial.print(" big- ");
     return (0 - bigStep);
   }
 
   if (rawCount < -accelerationMed)
   {
-    Serial.print(" med- ");
+    //Serial.print(" med- ");
     return (0 - medStep);
   }
 
   if (rawCount < -accelerationLow)
   {
-    Serial.print(" sml- ");
+    //Serial.print(" sml- ");
     return (0 - smallStep);
   }
 

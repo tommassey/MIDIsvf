@@ -30,7 +30,7 @@ ButtonEvent ButtonService::checkButton(uint8_t whichButton)
 }
 
 
-void ButtonService::checkAllButtons(void)
+int8_t ButtonService::checkAllButtons(void)   //  returns a value from InputNames enum showing which button changed
 {
   for (uint8_t i = 0; i < buttonCount; i++)
   {
@@ -44,20 +44,5 @@ void ButtonService::checkAllButtons(void)
       }
   }
   
-
-  if (changeFlag > -1)
-  {
-    Serial.print("BUTTONS  ");
-
-    for (uint8_t i = 0; i < buttonCount; i++)
-    {
-        Serial.print(i);
-        Serial.print(" = ");
-        Serial.print(presses[i]);
-        Serial.print("   ");
-    }
-
-    Serial.println();
-    changeFlag = -1; 
-  }
+    return changeFlag;
 }

@@ -19,8 +19,9 @@ class EncoderService
         
         EncoderService(Encoder* enc);
 
-        uint16_t getValue(void);    //  called to get latest value
+        int32_t getValue(void);    //  called to get latest value
         void update(void);          //  poll this to update encoder
+        bool changeFlag = false;
 
 
 
