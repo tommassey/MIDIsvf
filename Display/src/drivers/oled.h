@@ -77,7 +77,7 @@ class oled
         void saw(uint8_t rate, float amp);
         void square(uint8_t rate, float amp);
 
-        void smallSine(void);
+        void smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase);
         
         void splashScreen(void);
 

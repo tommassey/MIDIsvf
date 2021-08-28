@@ -239,48 +239,88 @@ void displayService::drawBorders()
 
 }
 
+uint8_t centreLFO1 = 16;
+uint8_t centreLFO2 = 48;
+
 void displayService::drawLFOs(void)
 {
-    screen->smallSine();
+    
 
     if (splitScreenMode == ss_mode_home)
     {
+        screen->smallSine(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value, menu[1][menu_option_phase].value); // LFO1
+        screen->smallSine(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value); // LFO2
         
+    }
+
+    if (splitScreenMode == ss_mode_menu)
+    {
+        if (currentLFOselected == 1)
+        {
+            screen->smallSine(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value,  menu[1][menu_option_phase].value); // LFO1
+        }
+
+        if (currentLFOselected == 2)
+        {
+            screen->smallSine(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value); // LFO2
+        }
     }
 }
 
 
+uint8_t Y1 = 40;
+uint8_t Y2 = 8;
+uint8_t optionX = 12;
+uint8_t valueX = 64;
 
 void displayService::drawMenu(void)
 {
-    if (currentMenuOption == menu_option_none)
-    {
-        return;
-    }
-
     Serial.print(" lfo  =  ");
     Serial.println(currentLFOselected);
     
     Serial.print(" option  =  ");
     Serial.println(menu[currentLFOselected][currentMenuOption].name);
+
+    if (currentMenuOption == menu_option_none)
+    {
+        return;
+    }
+
     
-
-    //  print option name
-    screen->string(12, 40, menu[currentLFOselected][currentMenuOption].name, 16, 1);
-
-    //  print value
+    //  get value
     int16_t value = menu[currentLFOselected][currentMenuOption].value;
     char str[5];
+    itoa(value, str, 10);   //  int to a string
 
-    itoa(value, str, 10);
+    // Serial.print(" value  =  ");
+    // Serial.print(value);
+    // Serial.print("    string = ");
+    // Serial.println(str);
 
-    Serial.print(" value  =  ");
-    Serial.print(value);
-    Serial.print("    string = ");
-    Serial.println(str);
 
+    // //  print option name
+    // screen->string(12, 40, menu[currentLFOselected][currentMenuOption].name, 16, 1);
+
+    // // print value
+    // screen->string16pix(64, 40, str);
+
+    if (currentLFOselected == 1)
+    {
+        //  print option name
+        screen->string(optionX, Y1, menu[currentLFOselected][currentMenuOption].name, 16, 1);
+        // print value  
+        screen->string16pix(valueX, Y1, str);
+
+    }
+
+    if (currentLFOselected == 2)
+    {
+        screen->string(optionX, Y2, menu[currentLFOselected][currentMenuOption].name, 16, 1);
+        // print value  
+        screen->string16pix(valueX, Y2, str);
+        
+    }
     
-    screen->string16pix(64, 40, str);
 
     
 }
