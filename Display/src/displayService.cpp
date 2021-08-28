@@ -17,11 +17,7 @@ void displayService::actOnInputs(int8_t inputNumber)
 
     switch (inputNumber)
     {
-        case no_input:
-        {
-
-            break;
-        }
+        case no_input:  break;
 
         case encoder_button:
         {
@@ -32,13 +28,30 @@ void displayService::actOnInputs(int8_t inputNumber)
 
         case lfo1_button:
         {
-            currentLFOselected = 1;
+            if (currentLFOselected == 1)
+            {
+                advanceMenu();
+                
+            }
+            else
+            {
+                currentLFOselected = 1;
+            }
+
             break;
         }
 
         case lfo2_button:
         {
-            currentLFOselected = 2;
+            if (currentLFOselected == 2)
+            {
+                advanceMenu();
+                
+            }
+            else
+            {
+                currentLFOselected = 2;
+            }
 
             break;
         }
@@ -55,6 +68,19 @@ void displayService::actOnInputs(int8_t inputNumber)
 
     splitScreen();
 
+}
+
+void displayService::advanceMenu(void)
+{
+    currentMenuOption++;
+
+    if (currentMenuOption >= total_menu_options)
+    {
+        currentMenuOption = menu_option_none;
+    }
+
+    Serial.print("Advance menu = ");
+    Serial.println(currentMenuOption);
 }
 
 
@@ -77,9 +103,32 @@ void displayService::showScreen(byte screenNumber)
 
 }
 
+
+
 void displayService::splitScreen(void)
 {
     screen->clear();
+
+    switch (splitScreenMode)
+    {
+        case ss_mode_home:
+            {
+                drawLFO1();
+                drawMenu();
+                //drawLFO2();
+                break;
+            }
+        
+        case ss_mode_menu:
+            {
+                // draw 2 LFOs
+                break;
+            }
+            
+        
+        default:
+            break;
+    }
 
     drawBorders();
 
@@ -136,6 +185,37 @@ void displayService::drawBorders()
 
 
 }
+
+void displayService::drawLFO1(void)
+{
+    screen->smallSine();
+}
+
+
+
+void displayService::drawMenu(void)
+{
+    //  print option name
+    screen->string(4, 48, menu[currentMenuOption].name, 16, 1);
+
+    //  print value
+    int16_t value = menu[currentMenuOption].value;
+    char str[5];
+
+    itoa(value, str, 10);
+
+    Serial.print(" value  =  ");
+    Serial.print(value);
+    Serial.print("    string = ");
+    Serial.println(str);
+
+    
+    screen->string(40, 48, str, 16, 0);
+
+    
+}
+
+
 
 void displayService::updateLFO()
 {

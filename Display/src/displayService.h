@@ -7,7 +7,34 @@
 
 #include "inputs/inputNames.h"
 
+#define TOTAL_LFOS 2
 
+enum splitScreenModes
+{
+    ss_mode_home,
+    ss_mode_menu
+
+};
+
+enum menuOptions
+{
+    menu_option_none,
+    menu_option_rate,
+    menu_option_amp,
+    menu_option_phase,
+    menu_option_reset,
+    total_menu_options
+
+};
+
+struct menuOption
+{
+    int16_t value;
+    int16_t min;
+    int16_t max;
+    char name[6];
+
+} ;
 
 class displayService
 {
@@ -28,8 +55,25 @@ class displayService
         // splitScreen
 
         uint8_t currentLFOselected = 1;
+        uint8_t splitScreenMode = ss_mode_home;
+        uint8_t currentMenuOption = menu_option_none;
+
+        menuOption menu[total_menu_options] = 
+        {
+            {0, 0, 0, "NONE"},
+            {10, 0, 0, "RATE"},
+            {120, 0, 0, "AMP"},
+            {50, 0, 0, "PHASE"},
+            {70, 0, 0, "35467"},  // reset
+
+        };
+
+        void advanceMenu();
+
 
         void drawBorders(void);
+        void drawLFO1(void);
+        void drawMenu(void);
 
 
 
