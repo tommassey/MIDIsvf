@@ -524,6 +524,40 @@ void oled::string(uint8_t x, uint8_t y, const char *pString, uint8_t Size, uint8
     }
 }
 
+void oled::string32pix(uint8_t x, uint8_t y, const char *pString)
+{
+    while (*pString != '\0') {       
+        if (x > (WIDTH - 32 / 2)) {
+            x = 0;
+            y += 32;
+            if (y > (HEIGHT - 32)) {
+                y = x = 0;
+            }
+        }
+        
+        char3216(x, y, *pString);
+        x += 32 / 2;
+        pString++;
+    }
+}
+
+void oled::string16pix(uint8_t x, uint8_t y, const char *pString)
+{
+    while (*pString != '\0') {       
+        if (x > (WIDTH - 16)) {
+            x = 0;
+            y += 16;
+            if (y > (HEIGHT - 16)) {
+                y = x = 0;
+            }
+        }
+        
+        char1616(x, y, *pString);
+        x += 16;
+        pString++;
+    }
+}
+
 
 
 void oled::char1616(uint8_t x, uint8_t y, uint8_t chChar)

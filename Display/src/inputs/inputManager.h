@@ -17,6 +17,7 @@ void inputManager_init(void);
 
 int8_t checkInputs(void);
 void checkEncoders(void);
+int16_t getEncoderChange(void);
 void resetInputFlag(void);
 
 

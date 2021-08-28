@@ -22,7 +22,8 @@ enum waveForms
     rampUp,
     rampDown,
     squaree,
-    nonMusicLFO
+    nonMusicLFO,
+    totalWaveforms
 };
 
 

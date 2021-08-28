@@ -23,6 +23,9 @@ Encoder encoder = Encoder(ENCODER_PIN_A, ENCODER_PIN_B);
 
 EncoderService menuEncoder = EncoderService(&encoder);
 
+int32_t previousEncoderValue = 0;
+int32_t currentEncoderValue = 0;
+
 
 void setupButtons(void);
 void setupEncoders(void);
@@ -58,10 +61,10 @@ void printButtonChanges(void)
 }
 
 
-void printEncoderChanges(void)
+void printEncoderValue(void)
 {
     Serial.print("ENCODER = ");
-    Serial.println(menuEncoder.getValue());
+    Serial.println(currentEncoderValue);
 }
 
 
@@ -73,13 +76,18 @@ int8_t checkInputs()
     if ((newInput > no_input) && (newInput < max_buttons))   //  if a button changed
     {
         printButtonChanges();
+        menuEncoder.reset();
         return newInput;        
     }
    
 
     if (menuEncoder.changeFlag == true)   //  if encoder changed
     {
-        printEncoderChanges();
+        currentEncoderValue = menuEncoder.getValue();
+        printEncoderValue();
+
+        menuEncoder.reset();       
+
         menuEncoder.changeFlag = false;
 
         return menu_encoder;        
@@ -96,6 +104,11 @@ int8_t checkInputs()
 void checkEncoders()
 {
     menuEncoder.update();
+}
+
+int16_t getEncoderChange(void)
+{
+    return currentEncoderValue;
 }
 
 void resetInputFlag(void)

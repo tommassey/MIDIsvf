@@ -21,6 +21,7 @@ class EncoderService
 
         int32_t getValue(void);    //  called to get latest value
         void update(void);          //  poll this to update encoder
+        void reset(void);           //  reset value to 0
         bool changeFlag = false;
 
 

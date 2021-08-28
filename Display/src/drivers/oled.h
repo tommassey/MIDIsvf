@@ -66,6 +66,9 @@ class oled
         void char1616(uint8_t x,uint8_t y,uint8_t chChar);
         void char3216(uint8_t x, uint8_t y, uint8_t chChar);
         void string(uint8_t x, uint8_t y, const char *pString, uint8_t Size, uint8_t Mode);
+        void string16pix(uint8_t x, uint8_t y, const char *pString);
+        void string32pix(uint8_t x, uint8_t y, const char *pString);
+        
         
         void bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint8_t chHeight);
         

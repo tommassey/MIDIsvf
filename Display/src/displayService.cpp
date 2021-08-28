@@ -4,6 +4,8 @@
 displayService::displayService(oled* screenPtr)
 {
     screen = screenPtr;
+
+    initMenuOptions();
 }
 
 displayService::~displayService()
@@ -22,37 +24,34 @@ void displayService::actOnInputs(int8_t inputNumber)
         case encoder_button:
         {
             currentLFOselected = 0;
+            clearMenu();
+
+            splitScreenMode = ss_mode_home;
 
             break;
         }
 
         case lfo1_button:
         {
-            if (currentLFOselected == 1)
-            {
-                advanceMenu();
-                
-            }
-            else
-            {
-                currentLFOselected = 1;
-            }
+            splitScreenMode = ss_mode_menu;
 
+            if (currentLFOselected == 2) resetMenu();
+
+            currentLFOselected = 1;
+            advanceMenu();
+            
             break;
         }
 
         case lfo2_button:
         {
-            if (currentLFOselected == 2)
-            {
-                advanceMenu();
-                
-            }
-            else
-            {
-                currentLFOselected = 2;
-            }
+            splitScreenMode = ss_mode_menu;
 
+            if (currentLFOselected == 1) resetMenu();
+
+            currentLFOselected = 2;
+            advanceMenu();
+            
             break;
         }
         
@@ -70,17 +69,72 @@ void displayService::actOnInputs(int8_t inputNumber)
 
 }
 
+void displayService::newEncoderMovement(int32_t movement)
+{
+    selectedOption->value += movement;
+
+    if (selectedOption->value > selectedOption->max) selectedOption->value = selectedOption->max;
+    if (selectedOption->value < selectedOption->min) selectedOption->value = selectedOption->min;
+    
+}
+
+
+void displayService::initMenuOptions(void)
+{   
+
+    menuOption moNone  = {0,            0,           0,          "NONE"};
+    menuOption moWave  = {sine,         1,   totalWaveforms,     "WAVE"};
+    menuOption moRate  = {1,            1,         255,          "RATE"};
+    menuOption moAmp   = {99,         -99,          99,          "AMP"};
+    menuOption moPhase = {0,            0,         360,          "PHASE"};
+    menuOption moDelay = {0,            0,         255,          "DELAY"};
+  
+
+    menu[1][menu_option_none]  = moNone;
+    menu[1][menu_option_wave]  = moWave;
+    menu[1][menu_option_rate]  = moRate;
+    menu[1][menu_option_amp]   = moAmp;
+    menu[1][menu_option_phase] = moPhase;
+    menu[1][menu_option_delay] = moDelay;
+
+    menu[2][menu_option_none]  = moNone;
+    menu[2][menu_option_wave]  = moWave;
+    menu[2][menu_option_rate]  = moRate;
+    menu[2][menu_option_amp]   = moAmp;
+    menu[2][menu_option_phase] = moPhase;
+    menu[2][menu_option_delay] = moDelay;
+
+    
+
+}
+
+
+
 void displayService::advanceMenu(void)
 {
     currentMenuOption++;
 
     if (currentMenuOption >= total_menu_options)
     {
-        currentMenuOption = menu_option_none;
+        currentMenuOption = 1;
     }
 
     Serial.print("Advance menu = ");
     Serial.println(currentMenuOption);
+
+    selectedOption = &menu[currentLFOselected][currentMenuOption];
+}
+
+void displayService::clearMenu(void)
+{
+    currentMenuOption = menu_option_none;
+    selectedOption = &menu[currentLFOselected][menu_option_none];
+}
+
+void displayService::resetMenu(void)
+{
+    currentMenuOption = 1;
+    selectedOption = &menu[currentLFOselected][1];
 }
 
 
@@ -113,15 +167,14 @@ void displayService::splitScreen(void)
     {
         case ss_mode_home:
             {
-                drawLFO1();
-                drawMenu();
-                //drawLFO2();
+                drawLFOs();
                 break;
             }
         
         case ss_mode_menu:
             {
-                // draw 2 LFOs
+                drawLFOs();
+                drawMenu();
                 break;
             }
             
@@ -186,20 +239,37 @@ void displayService::drawBorders()
 
 }
 
-void displayService::drawLFO1(void)
+void displayService::drawLFOs(void)
 {
     screen->smallSine();
+
+    if (splitScreenMode == ss_mode_home)
+    {
+        
+    }
 }
 
 
 
 void displayService::drawMenu(void)
 {
+    if (currentMenuOption == menu_option_none)
+    {
+        return;
+    }
+
+    Serial.print(" lfo  =  ");
+    Serial.println(currentLFOselected);
+    
+    Serial.print(" option  =  ");
+    Serial.println(menu[currentLFOselected][currentMenuOption].name);
+    
+
     //  print option name
-    screen->string(4, 48, menu[currentMenuOption].name, 16, 1);
+    screen->string(12, 40, menu[currentLFOselected][currentMenuOption].name, 16, 1);
 
     //  print value
-    int16_t value = menu[currentMenuOption].value;
+    int16_t value = menu[currentLFOselected][currentMenuOption].value;
     char str[5];
 
     itoa(value, str, 10);
@@ -210,7 +280,7 @@ void displayService::drawMenu(void)
     Serial.println(str);
 
     
-    screen->string(40, 48, str, 16, 0);
+    screen->string16pix(64, 40, str);
 
     
 }

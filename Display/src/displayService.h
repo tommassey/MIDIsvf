@@ -19,10 +19,11 @@ enum splitScreenModes
 enum menuOptions
 {
     menu_option_none,
-    menu_option_rate,
+    menu_option_wave,
     menu_option_amp,
     menu_option_phase,
-    menu_option_reset,
+    menu_option_delay,
+    menu_option_rate,
     total_menu_options
 
 };
@@ -58,21 +59,20 @@ class displayService
         uint8_t splitScreenMode = ss_mode_home;
         uint8_t currentMenuOption = menu_option_none;
 
-        menuOption menu[total_menu_options] = 
-        {
-            {0, 0, 0, "NONE"},
-            {10, 0, 0, "RATE"},
-            {120, 0, 0, "AMP"},
-            {50, 0, 0, "PHASE"},
-            {70, 0, 0, "35467"},  // reset
+        menuOption* selectedOption = &menu[currentLFOselected][menu_option_none];
 
-        };
+        menuOption menu[3][total_menu_options];
+        
+
+        void initMenuOptions(void);
 
         void advanceMenu();
+        void resetMenu();
+        void clearMenu(void);
 
 
         void drawBorders(void);
-        void drawLFO1(void);
+        void drawLFOs(void);
         void drawMenu(void);
 
 
@@ -86,6 +86,7 @@ class displayService
         ~displayService();
 
         void actOnInputs(int8_t inputNumber);
+        void newEncoderMovement(int32_t movement);
 
         void showScreen(byte screenNumber);
         void splitScreen(void);

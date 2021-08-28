@@ -111,6 +111,11 @@ void loop()
   {
     Serial.print("input == ");
     Serial.println(input);
+    
+    if (input == menu_encoder)
+    {
+      display.newEncoderMovement(getEncoderChange());
+    }
 
     display.actOnInputs(input);
     resetInputFlag();

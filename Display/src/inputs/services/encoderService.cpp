@@ -12,6 +12,11 @@ int32_t EncoderService::getValue(void)
   return value;
 }
 
+void EncoderService::reset(void)
+{
+  value = 0;
+}
+
 void EncoderService::update(void)
 {
   
