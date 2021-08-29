@@ -329,7 +329,7 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, u
     drawFastHLine(0, centreY, delay, 1);  // to make waveform thicker
 
     y = (delay + offset) * 0.049;
-    z = (sin(y * rate) * ((smallLFOmaxHeight - 1) / 2) - 2) * (scaledAmp / 10);
+    z = (sin(y * rate) * ((smallLFOmaxHeight - 4) / 2)) * (scaledAmp / 10);
     Serial.print("z   ");
     Serial.println(z);
 

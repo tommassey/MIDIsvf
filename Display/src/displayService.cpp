@@ -86,8 +86,8 @@ void displayService::initMenuOptions(void)
     menuOption moWave  = {sine,         1,   totalWaveforms,     "WAVE"};
     menuOption moRate  = {1,            1,         255,          "RATE"};
     menuOption moAmp   = {99,         -99,          99,          "AMP"};
-    menuOption moPhase = {0,            0,         360,          "PHASE"};
-    menuOption moDelay = {0,            0,         255,          "DELAY"};
+    menuOption moPhase = {0,            0,         254,          "PHASE"};
+    menuOption moDelay = {0,            0,         254,          "DELAY"};
   
 
     menu[1][menu_option_none]  = moNone;
