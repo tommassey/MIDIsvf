@@ -28,7 +28,8 @@ class oled
 
         uint8_t sinCyclesPrevious = 0;
         uint16_t sawY = HEIGHT;
-        uint16_t triY = HEIGHT;
+        uint16_t triY = 0;
+        uint8_t smallLFOmaxHeight = 28;
         bool triangleDirectionisUp = false;
         bool squareIsAtTop = true;
         
@@ -57,6 +58,9 @@ class oled
         void startScroll();
         void stopScroll();
 
+        void invert(void);
+        void uninvert(void);
+
         void pixel(int x,int y,char color);
         void writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
         void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
@@ -77,7 +81,8 @@ class oled
         void saw(uint8_t rate, float amp);
         void square(uint8_t rate, float amp);
 
-        void smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase);
+        void smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
+        void smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase);
         
         void splashScreen(void);
 

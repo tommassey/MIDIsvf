@@ -20,13 +20,19 @@ oled::oled(/* args */)
 {
     initScreenBuffer();
 
+  spi.sendCommand(0xD5);  // reset clock
+  spi.sendCommand(0x80);  // reset clock
+
+  spi.sendCommand(0xD9);  // reset mux
+  spi.sendCommand(0x22);  // reset mux
+  
   spi.sendCommand(0x26);  // right scroll
   spi.sendCommand(0x00);  // a dummy
   spi.sendCommand(0x00);  // b start page
   spi.sendCommand(0x07);  // c interval
   spi.sendCommand(0x07);  // d end page
-  spi.sendCommand(0x00);  // e start column
-  spi.sendCommand(0x7f);  // f end column
+  spi.sendCommand(0x01);  // e start column
+  spi.sendCommand(0xf);  // f end column
 }
 
 
@@ -41,7 +47,7 @@ oled::oled(uint16_t width, uint16_t height)
   spi.sendCommand(0x00);  // b start page
   spi.sendCommand(0x07);  // c interval
   spi.sendCommand(0x07);  // d end page
-  spi.sendCommand(0x00);  // e start column
+  spi.sendCommand(0x01);  // e start column
   spi.sendCommand(0x7f);  // f end column
 }
 
@@ -113,6 +119,18 @@ void oled::startScroll()
 void oled::stopScroll()
 {
   spi.sendCommand(0x2E);  //  stop scroling
+}
+
+
+
+void oled::invert(void)
+{
+  spi.sendCommand(0xa7);//--set Negative display  
+}
+
+void oled::uninvert(void)
+{
+  spi.sendCommand(0xa6);//--set normal display 
 }
 
 
@@ -256,7 +274,7 @@ void oled::sine(uint8_t rate, uint8_t amp)
 }
 
 
-void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase)
+void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
 {
   uint8_t offset = phase / 2;
   
@@ -304,8 +322,22 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase)
   int16_t modAmp = 0;
 
   //uint8_t centreLFO1 = 16;
+  if (delay > 0)
+  {
+    drawFastHLine(0, centreY, delay, 1);  // to make waveform thicker
 
-  for (uint16_t i=0; i<(WIDTH); i++)  
+    y = (1 + offset) * 0.049;
+    z = (sin(y * rate) * modAmp);
+    Serial.print("z   ");
+    Serial.println(z);
+
+    drawFastVLine(delay, centreY, z, 1);
+
+  }
+  
+
+
+  for (uint16_t i=delay; i<(WIDTH); i++)  
   {   
     Serial.print("scaled   ");
     Serial.println(scaledAmp);
@@ -398,6 +430,129 @@ void oled::triangle(uint8_t rate, uint8_t amp)
   }
     display();
 }
+
+
+void oled::smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase)
+{
+  float halfLFO = smallLFOmaxHeight / 2;
+  float scaledAmp = ((float)amp / 99);
+  Serial.print("scaled amp = ");
+  Serial.println(scaledAmp);
+  float triTop = centreY + (halfLFO * scaledAmp);//) * scaledAmp;
+  float triBottom = centreY - (halfLFO * scaledAmp);  //) * scaledAmp;
+
+  Serial.print("top = ");
+  Serial.println(triTop);
+  Serial.print("bottom = ");
+  Serial.println(triBottom);
+
+
+  uint8_t y = (centreY - (smallLFOmaxHeight / 2) * scaledAmp);
+
+
+  if (scaledAmp < 0)
+  {
+    triangleDirectionisUp = true;
+  }
+
+  if (scaledAmp >= 0)
+  {
+    triangleDirectionisUp = false;
+  }
+
+  for (uint8_t x = 0; x < WIDTH; x = x + rate)
+  {
+    drawFastHLine(x, y, rate, 1);
+    
+
+
+    
+    if (triangleDirectionisUp && (y < triTop))
+    {
+      y++;
+    }
+
+    if (!triangleDirectionisUp && (y > triBottom))
+    {
+      y--;
+    }
+
+
+      if (y >= triTop)
+      {
+        triangleDirectionisUp = false;
+        //Serial.println("tri down");
+      }
+      if (y <= triBottom)
+      {
+        triangleDirectionisUp = true;
+        //Serial.println("tri up");
+      }
+
+  }
+
+
+}
+
+
+//void oled::smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase)
+// {
+
+//   uint8_t triangleTop = centreY + 12;
+//   uint8_t triangleBottom = centreY - 12;
+
+//   if (rate > 14) rate = 14;
+//   if (rate < 1) rate = 1;
+
+//   if (amp > 1) amp = 1;
+//   if (amp < 0.001) amp = 0.001;  // ensure amp is never 0
+
+//   uint8_t thickness = (rate / 2) + 1;
+
+//   if (thickness > 8) thickness = 8;
+//   if (thickness < 2) thickness = 2;
+
+
+//   float stepY = rate; 
+
+//   //stepY = 14;
+
+//   uint16_t finishX = WIDTH;// - 1;
+
+//   clear();
+
+//   triY = centreY;
+
+//   for (uint16_t i = 0; i < WIDTH; i++)  
+//   {
+//     if (triangleDirectionisUp)
+//     {      
+//       uint16_t lineStartY = (triY - (thickness / 2)); // work out bottom of the vertical line we're going to ...
+//       drawFastVLine(i, lineStartY, thickness, 1);     // draw instead of pixel to make waveform appear thicker
+
+//       triY = (triY + stepY);
+
+//       if (triY >= triangleTop)
+//       {
+//         triangleDirectionisUp = false;
+//       }
+//     }
+
+//     else if (!triangleDirectionisUp)
+//     {
+//       uint16_t lineStartY = (triY - (thickness / 2)); // work out bottom of the vertical line we're going to ...
+//       drawFastVLine(i, lineStartY, thickness, 1);     // draw instead of pixel to make waveform appear thicker
+  
+//       triY = (triY - stepY);
+
+//       if (triY <= triangleBottom)
+//       {
+//         triangleDirectionisUp = true;
+//       }
+//     }
+//   }
+//     display();
+// }
 
 
 
