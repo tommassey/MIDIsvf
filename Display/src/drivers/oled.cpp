@@ -300,42 +300,39 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, u
 
   float scaledAmp = (amp / 10);
 
-  
+  uint8_t thickness = rate;// * (1 / (scaledAmp/35));
 
-  // if (scaledAmp > 35) scaledAmp = 35;
-  // if (scaledAmp < 1) scaledAmp = 1;
+   if (thickness > 4) thickness = 4;
+   if (thickness < 3) thickness = 3;
 
-  //uint8_t scaledAmp = 10;
+   uint8_t delayHzLineBottom = centreY + 1;
+   uint8_t delayHzLineTop = centreY - 1;
 
-  uint8_t thickness = (rate/4) + 1;// * (1 / (scaledAmp/35));
-
-   if (thickness > 8) thickness = 8;
-   if (thickness < 2) thickness = 2;
-   //uint16_t lineStart = (thickness / 2) - 1;
-
-  //uint8_t thickness = 2;
-
-  //clear();
+   uint8_t delayVtLineLeft = delay - 1;
+   uint8_t delayVtLineRight = delay + 1;
 
   float y;
   float z;
   int16_t modAmp = 0;
 
-  //uint8_t centreLFO1 = 16;
-
+ 
   //  draw horiz line for delay
   if (delay > 0)
   {
-    drawFastHLine(0, centreY, delay, 1);  // to make waveform thicker
-
+    for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
+    {
+      drawFastHLine(0, i, delay, 1);  // to make waveform thicker
+    }
+    
     y = (delay + offset) * 0.049;
     z = (sin(y * rate) * ((smallLFOmaxHeight - 4) / 2)) * (scaledAmp / 10);
-    Serial.print("z   ");
-    Serial.println(z);
+    // Serial.print("z   ");
+    // Serial.println(z);
 
-    //draw vertical line to sine start
-    drawFastVLine(delay, centreY, z, 1);
-
+    for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
+    {
+      drawFastVLine(i, centreY, z, 1);  // to make waveform thicker
+    }
   }
   
 
@@ -345,7 +342,7 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, u
     //Serial.print("scaled   ");
     //Serial.println(scaledAmp);
        
-    if (scaledAmp > 0)
+    if (scaledAmp > 0)  // amp above 0 - non-inverted sine
     {
       //Serial.print("amp over 0   ");
       modAmp = scaledAmp;
@@ -355,7 +352,7 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, u
       y = (i + offset) * 0.049;   // 0.049 magic number to fit sine to screen
     }
     
-    else if (scaledAmp <= 0)
+    else if (scaledAmp <= 0)  // amp below 0 - inverted sine
     {
 
       //Serial.print("amp under 0   ");
