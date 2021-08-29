@@ -298,7 +298,7 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, u
   //  amp comes in at a max of 99, higher is a louder LFO
   //  we need it to range between 0 and 10, higher is higher
 
-  int8_t scaledAmp = (amp / 10);
+  float scaledAmp = (amp / 10);
 
   
 
@@ -322,15 +322,18 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, u
   int16_t modAmp = 0;
 
   //uint8_t centreLFO1 = 16;
+
+  //  draw horiz line for delay
   if (delay > 0)
   {
     drawFastHLine(0, centreY, delay, 1);  // to make waveform thicker
 
-    y = (1 + offset) * 0.049;
-    z = (sin(y * rate) * modAmp);
+    y = (delay + offset) * 0.049;
+    z = (sin(y * rate) * ((smallLFOmaxHeight - 1) / 2) - 2) * (scaledAmp / 10);
     Serial.print("z   ");
     Serial.println(z);
 
+    //draw vertical line to sine start
     drawFastVLine(delay, centreY, z, 1);
 
   }
@@ -339,25 +342,26 @@ void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, u
 
   for (uint16_t i=delay; i<(WIDTH); i++)  
   {   
-    Serial.print("scaled   ");
-    Serial.println(scaledAmp);
+    //Serial.print("scaled   ");
+    //Serial.println(scaledAmp);
        
     if (scaledAmp > 0)
     {
-      Serial.print("amp over 0   ");
+      //Serial.print("amp over 0   ");
       modAmp = scaledAmp;
       
-      Serial.println(scaledAmp);
+      //Serial.println(scaledAmp);
+
       y = (i + offset) * 0.049;   // 0.049 magic number to fit sine to screen
     }
     
     else if (scaledAmp <= 0)
     {
 
-      Serial.print("amp under 0   ");
+      //Serial.print("amp under 0   ");
 
       modAmp = scaledAmp * -1;
-      Serial.println(scaledAmp);
+      //Serial.println(scaledAmp);
 
       y = -(i + offset) * 0.049;   // 0.049 magic number to fit sine to screen
     }
