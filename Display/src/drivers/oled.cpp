@@ -648,166 +648,121 @@ void oled::square(uint8_t rate, float amp)
 void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
 {
 
-  
-
-  float squareX = (float)WIDTH / (float)rate;  // length in pixels of a whole cylce
-  uint16_t squareHalfX = squareX / 2;  // halfway point where we change from hi to lo
+  float squareX = (float)WIDTH / ((float)rate);  // length in pixels of a whole cylce
+  uint16_t squareHalfX = squareX / 2;            // halfway point where we change from hi to lo
 
   float scaledPhase = (float)phase / 255.0;
-  uint8_t offset = squareX * scaledPhase;
+  uint8_t offset = squareX * scaledPhase;       //  percentage of a cycle we skip due to phase shift
 
-  Serial.print("smallsquare phase = ");
-  Serial.println(scaledPhase);
-  Serial.print("smallsquare scaled offset = ");
-  Serial.println(offset);
+  // Serial.print("smallsquare phase = ");
+  // Serial.println(scaledPhase);
+  // Serial.print("smallsquare scaled offset = ");
+  // Serial.println(offset);
 
-  //uint16_t squareTopY = centreY + smallLFOhalfHeight - 1;   //  top of square in pixels
-  //uint16_t squareBotY = centreY - smallLFOhalfHeight + 1;   //  top of square in pixels
 
-  uint8_t delayHzLineBottom = centreY + 1;
+  uint8_t delayHzLineBottom = centreY + 1;   //  for the delay line
   uint8_t delayHzLineTop = centreY - 1;
-
-  uint8_t delayVtLineLeft = delay + offset - 1;
-  uint8_t delayVtLineRight = delay + offset + 1;
-
+  uint8_t delayVtLineLeft = delay - 1;
+  uint8_t delayVtLineRight = delay + 1;
 
 
-  float scaledAmp = (float)smallLFOhalfHeight * ((float)amp / 99.0);  //  99 is amp max
+  //  amplitude scaled as a number of pixels to fit one side (+ or -) of the waveform.  2 * scaledAmp = peak to peak
+  float scaledAmp = ((float)smallLFOhalfHeight - 2) * ((float)amp / 99.0);  //  99 is amp max
 
-  Serial.print("smallsquare amp = ");
-  Serial.println(amp);
-  Serial.print("smallsquare scaled amp = ");
-  Serial.println(scaledAmp);
+  // Serial.print("smallsquare amp = ");
+  // Serial.println(amp);
+  // Serial.print("smallsquare scaled amp = ");
+  // Serial.println(scaledAmp);
 
 
 
-//  draw horiz line for delay
-  if (delay > 0)
+
+if ((delay > 0))
+{
+  //  draw horiz line for delay
+  for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
   {
-    for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
-    {
-      drawFastHLine(0, i, (delay + offset), 1);  // to make waveform thicker
-    }
-    
-    // draw first vertical line
-    if (offset <= squareHalfX)
-    {
-      for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
-      {
-        drawFastVLine(i, centreY, scaledAmp, 1);  // to make waveform thicker
-      }
-    }
-    else
-    {
-      for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
-      {
-        drawFastVLine(i, centreY, -scaledAmp, 1);  // to make waveform thicker
-      }
-    }
+    drawFastHLine(0, i, (delay), 1);  // to make waveform thicker
+  }
   
-    
+  // draw first vertical line
+  if (offset <= squareHalfX)   //  if phase is set to first half of cycle
+  {
+    for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
+    {
+      drawFastVLine(i, centreY, scaledAmp, 1);  // to make waveform thicker
+    }
+  }
+  else   //  if phase is set to second half of cycle
+  {
+    for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
+    {
+      drawFastVLine(i, centreY, -scaledAmp, 1);  // to make waveform thicker
+    }
+  }
+}
+
+//  draw first phase adjusted cycle
+
+uint8_t currentXpos = delay;
+
+
+  if (offset <= squareHalfX) //  if the phase is less than a half cycle
+  {
+    drawFastHLine(currentXpos, (centreY + scaledAmp), (squareHalfX - offset), 1);
+    drawFastHLine(currentXpos, (centreY + scaledAmp - 1), (squareHalfX - offset), 1);  //  thicker
+
+    currentXpos = currentXpos + squareHalfX - offset;
+
+    drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    drawFastVLine(currentXpos + 1, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);  //  thicker
+
+    squareIsAtTop = true;
+
+    drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  
+    drawFastHLine(currentXpos, (centreY - scaledAmp + 1), squareHalfX, 1);  // thicker
+
+    currentXpos = currentXpos + squareHalfX;
+
+    drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    drawFastVLine(currentXpos - 1, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1); // thicker
+
   }
 
-    
+  if (offset > squareHalfX) //  if the phase is more than a half cycle
+  {
+    squareIsAtTop = true;
+    drawFastHLine((currentXpos), (centreY - scaledAmp), (squareHalfX + (squareHalfX - offset)), 1);
+    drawFastHLine((currentXpos), (centreY - scaledAmp + 1), (squareHalfX + (squareHalfX - offset)), 1);  // thicker
+    currentXpos = currentXpos + squareX - offset;
 
-  // start the actual square
-
-
-    uint8_t currentXpos = delay;
-
-    if (amp > 0)   //  draw non-inverted wave
-    {
-      squareIsAtTop = false;
-
-
-      //  draw first phase adjusted cycle
-
-      if (offset <= squareHalfX) //  if the phase is less than a half cycle
-      {
-        drawFastHLine(currentXpos + offset, (centreY + scaledAmp), (squareHalfX - offset), 1);
-        currentXpos = currentXpos + squareHalfX;
-
-        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-
-        squareIsAtTop = true;
-
-        drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  
-        currentXpos = currentXpos + squareHalfX;
-
-        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-
-      }
-
-      if (offset > squareHalfX) //  if the phase is more than a half cycle
-      {
-        squareIsAtTop = true;
-        drawFastHLine((currentXpos + offset), (centreY - scaledAmp), (squareHalfX + (squareHalfX - offset)), 1);
-        currentXpos = currentXpos + squareX;
-
-        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-      }
-      
-
-
-
-      for (uint8_t i = (currentXpos); i < WIDTH; i = i + squareX)  // draw complete cycle
-      {
-        drawFastHLine(currentXpos, (centreY + scaledAmp), squareHalfX, 1);  // to make waveform thicker
-        currentXpos = currentXpos + squareHalfX;
-      
-        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-
-        squareIsAtTop = true;
-
-        drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  
-        currentXpos = currentXpos + squareHalfX;
-
-        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-
-        squareIsAtTop = false;
-      }
-    }
-
-    if (amp <= 0)   //  draw inverted wave
-    {
-      squareIsAtTop = true;
-
-      for (uint8_t i = currentXpos; i < WIDTH; i = i + squareX)
-      {
-        drawFastHLine(currentXpos, (centreY + scaledAmp), squareHalfX, 1);  // to make waveform thicker
-        currentXpos = currentXpos + squareHalfX;
-      
-        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-
-        squareIsAtTop = true;
-
-        drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  // to make waveform thicker
-        currentXpos = currentXpos + squareHalfX;
-
-        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-
-        squareIsAtTop = false;
-      }
-    }
-
-
-
-
-
-
-
-
-
+    drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    drawFastVLine(currentXpos - 1, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);  // thicker
+  }
   
 
 
 
+  for (uint8_t i = (currentXpos); i < WIDTH; i = i + squareX)  // draw complete cycle
+  {
+    drawFastHLine(currentXpos, (centreY + scaledAmp), squareHalfX, 1);  
+    drawFastHLine(currentXpos, (centreY + scaledAmp - 1), squareHalfX, 1);  // to make waveform thicker
+    currentXpos = currentXpos + squareHalfX;
+  
+    drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    drawFastVLine(currentXpos + 1, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);  // thicker
 
+    squareIsAtTop = true;
 
+    drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  
+    drawFastHLine(currentXpos, (centreY - scaledAmp + 1), squareHalfX, 1);  // thicker
+    currentXpos = currentXpos + squareHalfX;
 
+    drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    drawFastVLine(currentXpos - 1, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);  // thicker
 
-
-
+    squareIsAtTop = false;
+  }
 
 
 }
