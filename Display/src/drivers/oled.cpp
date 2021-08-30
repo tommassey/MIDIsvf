@@ -648,8 +648,18 @@ void oled::square(uint8_t rate, float amp)
 void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
 {
 
-  float squareX = (float)WIDTH / (float)rate;  // length of the tops and bottoms
+  
+
+  float squareX = (float)WIDTH / (float)rate;  // length in pixels of a whole cylce
   uint16_t squareHalfX = squareX / 2;  // halfway point where we change from hi to lo
+
+  float scaledPhase = (float)phase / 255.0;
+  uint8_t offset = squareX * scaledPhase;
+
+  Serial.print("smallsquare phase = ");
+  Serial.println(scaledPhase);
+  Serial.print("smallsquare scaled offset = ");
+  Serial.println(offset);
 
   //uint16_t squareTopY = centreY + smallLFOhalfHeight - 1;   //  top of square in pixels
   //uint16_t squareBotY = centreY - smallLFOhalfHeight + 1;   //  top of square in pixels
@@ -657,8 +667,8 @@ void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase,
   uint8_t delayHzLineBottom = centreY + 1;
   uint8_t delayHzLineTop = centreY - 1;
 
-  uint8_t delayVtLineLeft = delay - 1;
-  uint8_t delayVtLineRight = delay + 1;
+  uint8_t delayVtLineLeft = delay + offset - 1;
+  uint8_t delayVtLineRight = delay + offset + 1;
 
 
 
@@ -676,19 +686,29 @@ void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase,
   {
     for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
     {
-      drawFastHLine(0, i, delay, 1);  // to make waveform thicker
+      drawFastHLine(0, i, (delay + offset), 1);  // to make waveform thicker
     }
     
-
     // draw first vertical line
-    for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
+    if (offset <= squareHalfX)
     {
-      drawFastVLine(i, centreY, scaledAmp, 1);  // to make waveform thicker
+      for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
+      {
+        drawFastVLine(i, centreY, scaledAmp, 1);  // to make waveform thicker
+      }
     }
+    else
+    {
+      for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
+      {
+        drawFastVLine(i, centreY, -scaledAmp, 1);  // to make waveform thicker
+      }
+    }
+  
+    
   }
 
-
-
+    
 
   // start the actual square
 
@@ -699,7 +719,38 @@ void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase,
     {
       squareIsAtTop = false;
 
-      for (uint8_t i = currentXpos; i < WIDTH; i = i + squareX)
+
+      //  draw first phase adjusted cycle
+
+      if (offset <= squareHalfX) //  if the phase is less than a half cycle
+      {
+        drawFastHLine(currentXpos + offset, (centreY + scaledAmp), (squareHalfX - offset), 1);
+        currentXpos = currentXpos + squareHalfX;
+
+        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+
+        squareIsAtTop = true;
+
+        drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  
+        currentXpos = currentXpos + squareHalfX;
+
+        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+
+      }
+
+      if (offset > squareHalfX) //  if the phase is more than a half cycle
+      {
+        squareIsAtTop = true;
+        drawFastHLine((currentXpos + offset), (centreY - scaledAmp), (squareHalfX + (squareHalfX - offset)), 1);
+        currentXpos = currentXpos + squareX;
+
+        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+      }
+      
+
+
+
+      for (uint8_t i = (currentXpos); i < WIDTH; i = i + squareX)  // draw complete cycle
       {
         drawFastHLine(currentXpos, (centreY + scaledAmp), squareHalfX, 1);  // to make waveform thicker
         currentXpos = currentXpos + squareHalfX;
@@ -708,7 +759,7 @@ void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase,
 
         squareIsAtTop = true;
 
-        drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  // to make waveform thicker
+        drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  
         currentXpos = currentXpos + squareHalfX;
 
         drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
