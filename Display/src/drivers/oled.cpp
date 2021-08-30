@@ -645,6 +645,146 @@ void oled::square(uint8_t rate, float amp)
 
 
 
+void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
+{
+
+  float squareX = (float)WIDTH / (float)rate;  // length of the tops and bottoms
+  uint16_t squareHalfX = squareX / 2;  // halfway point where we change from hi to lo
+  uint16_t squareXpos = 0;  //  how far along the cycle
+
+  uint16_t squareTopY = centreY + smallLFOhalfHeight - 1;   //  top of square in pixels
+  uint16_t squareBotY = centreY - smallLFOhalfHeight + 1;   //  top of square in pixels
+
+  uint8_t delayHzLineBottom = centreY + 1;
+  uint8_t delayHzLineTop = centreY - 1;
+
+  uint8_t delayVtLineLeft = delay - 1;
+  uint8_t delayVtLineRight = delay + 1;
+
+
+
+  float scaledAmp = (float)smallLFOhalfHeight * ((float)amp / 99.0);  //  99 is amp max
+
+  Serial.print("smallsquare amp = ");
+  Serial.println(amp);
+  Serial.print("smallsquare scaled amp = ");
+  Serial.println(scaledAmp);
+
+
+
+//  draw horiz line for delay
+  if (delay > 0)
+  {
+    for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
+    {
+      drawFastHLine(0, i, delay, 1);  // to make waveform thicker
+    }
+    
+    //y = (delay + offset) * 0.049;
+    //z = (sin(y * rate) * ((smallLFOmaxHeight - 4) / 2)) * (scaledAmp / 10);
+    // Serial.print("z   ");
+    // Serial.println(z);
+
+    // draw first vertical line
+    for (int i = delayVtLineLeft; i < delayVtLineRight; i++)
+    {
+      drawFastVLine(i, centreY, scaledAmp, 1);  // to make waveform thicker
+    }
+  }
+
+
+
+
+  // start the actual square
+
+  
+
+  //for (uint8_t i = delay; i < WIDTH; i = i + squareHalfX)
+  //{
+    uint8_t currentXpos = delay;
+
+    if (amp > 0)
+    {
+      squareIsAtTop = false;
+
+
+      for (uint8_t i = currentXpos; i < WIDTH; i = i + squareX)
+      {
+
+        //for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
+      //{
+        drawFastHLine(currentXpos, (centreY + scaledAmp), squareHalfX, 1);  // to make waveform thicker
+        currentXpos = currentXpos + squareHalfX;
+      //}
+        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+
+        squareIsAtTop = true;
+
+        drawFastHLine(currentXpos, (centreY - scaledAmp), squareHalfX, 1);  // to make waveform thicker
+        currentXpos = currentXpos + squareHalfX;
+
+        drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+
+        squareIsAtTop = false;
+
+      }
+    
+      
+
+    //}
+
+
+
+
+
+
+  }
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  // if ((WIDTH % rate) != 0)
+  // {
+  //   drawFastVLine(0, 0, 64, 1);  // draw upright
+  // }
+  
+
+  // for (uint16_t i = 0; i <= (WIDTH); i++)
+  // {    
+  //   if(squareIsAtTop && (squareXpos <= squareHalfX))
+  //   {
+  //     pixel((i), squareTopY, 1);
+  //     squareXpos++;
+  //     if (squareXpos >= squareHalfX)
+  //     {
+  //       drawFastVLine(i, 0, 64, 1);  // draw upright
+  //       squareIsAtTop = false;
+  //     }
+  //   }
+  //   else if(!squareIsAtTop && (squareXpos <= squareX))
+  //   {
+  //     pixel((i), squareBotY, 1);
+  //     squareXpos++;
+  //     if (squareXpos >= squareX)
+  //     {
+  //       drawFastVLine(i, 0, 64, 1);  // draw upright
+  //       squareIsAtTop = true;
+  //       squareXpos = 0;
+  //     }
+  //   }
+  // }
+}
+
+
 
 //============================================================================== text
 

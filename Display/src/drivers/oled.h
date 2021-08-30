@@ -30,6 +30,7 @@ class oled
         uint16_t sawY = HEIGHT;
         uint16_t triY = 0;
         uint8_t smallLFOmaxHeight = 28;
+        uint8_t smallLFOhalfHeight = smallLFOmaxHeight / 2;
         bool triangleDirectionisUp = false;
         bool squareIsAtTop = true;
         
@@ -83,6 +84,7 @@ class oled
 
         void smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
         void smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase);
+        void smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
         
         void splashScreen(void);
 

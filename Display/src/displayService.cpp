@@ -250,8 +250,8 @@ void displayService::drawLFOs(void)
 
     if (splitScreenMode == ss_mode_home)
     {
-        screen->smallSine(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value, menu[1][menu_option_phase].value, menu[1][menu_option_delay].value); // LFO1
-        screen->smallSine(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value, menu[2][menu_option_delay].value); // LFO2
+        screen->smallSquare(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value, menu[1][menu_option_phase].value, menu[1][menu_option_delay].value); // LFO1
+        screen->smallSquare(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value, menu[2][menu_option_delay].value); // LFO2
        // screen->startScroll();
         
     }
@@ -260,12 +260,12 @@ void displayService::drawLFOs(void)
     {
         if (currentLFOselected == 1)
         {
-            screen->smallSine(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value,  menu[1][menu_option_phase].value, menu[1][menu_option_delay].value); // LFO1
+            screen->smallSquare(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value,  menu[1][menu_option_phase].value, menu[1][menu_option_delay].value); // LFO1
         }
 
         if (currentLFOselected == 2)
         {
-            screen->smallSine(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value, menu[2][menu_option_delay].value); // LFO2
+            screen->smallSquare(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value, menu[2][menu_option_delay].value); // LFO2
         }
         //screen->stopScroll();
     }
