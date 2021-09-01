@@ -769,6 +769,127 @@ uint8_t currentXpos = delay;
 
 
 
+
+
+
+
+
+void oled::smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
+{
+
+  delay = delay / 2;
+
+  float sawX = (float)WIDTH / ((float)rate);  // length in pixels of a whole cylce
+
+  float scaledPhase = (float)phase / 255.0;
+  uint8_t offset = sawX * scaledPhase;       //  percentage of a cycle we skip due to phase shift
+
+
+  uint8_t delayHzLineBottom = centreY + 1;   //  for the delay line
+  uint8_t delayHzLineTop = centreY - 1;
+  uint8_t delayVtLineLeft = delay - 1;
+  uint8_t delayVtLineRight = delay + 1;
+
+
+  //  amplitude scaled as a number of pixels to fit one side (+ or -) of the waveform.  2 * scaledAmp = peak to peak
+  float scaledAmp = ((float)smallLFOhalfHeight ) * ((float)amp / 99.0);  //  99 is amp max
+
+  float sawHeight = scaledAmp;
+
+  Serial.print("scaledAmp = ");
+  Serial.println(scaledAmp);
+
+
+float angle = atan(sawHeight/sawX);
+
+
+
+float heightFirstPeak = ((sawX - offset) * tan(angle)) * ((float)amp / 99.0);  //  99 is amp max;
+
+Serial.print("heightFirstPeak = ");
+Serial.println(heightFirstPeak);
+
+
+
+int8_t peak = (heightFirstPeak * 2) - 14; // + (scaledAmp / 2);
+
+uint8_t currentXpos = delay - offset;
+uint8_t nextXpos = currentXpos + sawX;// - offset;
+//uint8_t nextXpos = sawX - offset;
+uint8_t sawTop = centreY - scaledAmp;
+uint8_t sawBottom = centreY + scaledAmp;
+
+if ((delay > 0))
+{
+  //  draw horiz line for delay
+  for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
+  {
+    drawFastHLine(0, i, (delay), 1);  // to make waveform thicker
+  }
+}
+
+  
+  // draw first vertical line
+  
+  
+      Serial.print("delay = ");
+      Serial.println(delay);
+
+      Serial.print("centreY = ");
+      Serial.println(centreY);
+
+
+      Serial.print("heightFirstPeak = ");
+      Serial.println(heightFirstPeak);
+
+  
+  peak = (int8_t)heightFirstPeak;
+
+  writeLine(delay, ((peak * 2)), delay, centreY, 1);
+      
+
+      
+
+
+
+//  draw first phase adjusted cycle
+
+
+
+    //  first line
+
+    writeLine(delay, ((peak * 2)), nextXpos, sawTop, 1);
+
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + sawX;
+
+    drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    
+
+
+
+  
+
+  
+  
+
+
+
+  for (uint8_t i = (currentXpos); i < WIDTH; i = i + sawX)  // draw complete cycle
+  {
+    writeLine(currentXpos, sawBottom, nextXpos, sawTop, 1);
+
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + sawX;
+
+    drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+  }
+
+
+}
+
+
+
 //============================================================================== text
 
 
