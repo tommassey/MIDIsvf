@@ -787,65 +787,65 @@ void oled::smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, ui
 
   uint8_t delayHzLineBottom = centreY + 1;   //  for the delay line
   uint8_t delayHzLineTop = centreY - 1;
-  uint8_t delayVtLineLeft = delay - 1;
-  uint8_t delayVtLineRight = delay + 1;
 
 
   //  amplitude scaled as a number of pixels to fit one side (+ or -) of the waveform.  2 * scaledAmp = peak to peak
   float scaledAmp = ((float)smallLFOhalfHeight ) * ((float)amp / 99.0);  //  99 is amp max
+  
+  Serial.print("scaledAmp = ");
+      Serial.println(scaledAmp);
 
   float sawHeight = scaledAmp;
 
-  Serial.print("scaledAmp = ");
-  Serial.println(scaledAmp);
+
+  float angle = atan(sawHeight/sawX);
+
+  float heightFirstPeak = ((sawX - offset) * tan(angle)); // * ((float)amp / 99.0);  //  99 is amp max;
+  Serial.print("heightFirstPeak = ");
+      Serial.println(heightFirstPeak);
+
+      Serial.print("centrY = ");
+      Serial.println(centreY);
 
 
-float angle = atan(sawHeight/sawX);
+  int8_t peak = heightFirstPeak + centreY;// + scaledAmp;// + (smallLFOhalfHeight); // + (scaledAmp / 2);
+
+  //peak = peak;
+
+  uint8_t currentXpos = delay - offset;
+  uint8_t nextXpos = currentXpos + sawX;
+  //uint8_t nextXpos = sawX - offset;
+  int8_t sawTop = centreY - scaledAmp;
+  int8_t sawBottom = centreY + scaledAmp;
 
 
-
-float heightFirstPeak = ((sawX - offset) * tan(angle)) * ((float)amp / 99.0);  //  99 is amp max;
-
-Serial.print("heightFirstPeak = ");
-Serial.println(heightFirstPeak);
-
-
-
-int8_t peak = (heightFirstPeak * 2) - 14; // + (scaledAmp / 2);
-
-uint8_t currentXpos = delay - offset;
-uint8_t nextXpos = currentXpos + sawX;// - offset;
-//uint8_t nextXpos = sawX - offset;
-uint8_t sawTop = centreY - scaledAmp;
-uint8_t sawBottom = centreY + scaledAmp;
 
 if ((delay > 0))
 {
   //  draw horiz line for delay
-  for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
-  {
-    drawFastHLine(0, i, (delay), 1);  // to make waveform thicker
-  }
+  //for (int i = delayHzLineTop; i < delayHzLineBottom; i++)
+  //{
+    drawFastHLine(0, centreY, (delay), 1);  // to make waveform thicker
+  //}
 }
 
-  
+ 
   // draw first vertical line
+
+      Serial.print("peak = ");
+      Serial.println(peak);
+ 
+
+  //if (amp >= 0)
+  //{
+    //peak = heightFirstPeak;
+
+  writeLine(delay, centreY, delay, peak, 1);
+
+  //}
+
   
   
-      Serial.print("delay = ");
-      Serial.println(delay);
-
-      Serial.print("centreY = ");
-      Serial.println(centreY);
-
-
-      Serial.print("heightFirstPeak = ");
-      Serial.println(heightFirstPeak);
-
-  
-  peak = (int8_t)heightFirstPeak;
-
-  writeLine(delay, ((peak * 2)), delay, centreY, 1);
       
 
       
@@ -858,7 +858,7 @@ if ((delay > 0))
 
     //  first line
 
-    writeLine(delay, ((peak * 2)), nextXpos, sawTop, 1);
+    writeLine(delay, ((peak * 1)), nextXpos, sawTop, 1);
 
     currentXpos = nextXpos;
     nextXpos = nextXpos + sawX;
