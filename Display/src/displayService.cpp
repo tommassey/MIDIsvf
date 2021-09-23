@@ -14,8 +14,8 @@ displayService::~displayService()
 
 void displayService::actOnInputs(int8_t inputNumber)
 { 
-    Serial.print("display serv input number = ");
-    Serial.println(inputNumber);
+    //Serial.print("display serv input number = ");
+    //Serial.println(inputNumber);
 
     switch (inputNumber)
     {
@@ -119,8 +119,8 @@ void displayService::advanceMenu(void)
         currentMenuOption = 1;
     }
 
-    Serial.print("Advance menu = ");
-    Serial.println(currentMenuOption);
+    //Serial.print("Advance menu = ");
+    //Serial.println(currentMenuOption);
 
     selectedOption = &menu[currentLFOselected][currentMenuOption];
 }
@@ -279,11 +279,11 @@ uint8_t valueX = 64;
 
 void displayService::drawMenu(void)
 {
-    Serial.print(" lfo  =  ");
-    Serial.println(currentLFOselected);
+    //Serial.print(" lfo  =  ");
+    //Serial.println(currentLFOselected);
     
-    Serial.print(" option  =  ");
-    Serial.println(menu[currentLFOselected][currentMenuOption].name);
+    //Serial.print(" option  =  ");
+    //Serial.println(menu[currentLFOselected][currentMenuOption].name);
 
     if (currentMenuOption == menu_option_none)
     {
@@ -388,8 +388,8 @@ void displayService::updateLFO()
 
 void displayService::setLFOwave(byte waveForm)
 {
-    Serial.print("set wave: ");
-    Serial.println(waveForm);
+    //Serial.print("set wave: ");
+    //Serial.println(waveForm);
 
     LFOshape = waveForm;
 
@@ -400,8 +400,8 @@ void displayService::setLFOwave(byte waveForm)
 
 void displayService::setLFOrate(byte rate)
 {
-    Serial.print("new rate: ");
-    Serial.println(rate);
+    //Serial.print("new rate: ");
+    //Serial.println(rate);
 
     LFOrate = rate;
 
@@ -436,8 +436,8 @@ void displayService::setLFOrate(byte rate)
 
 void displayService::setLFOamp(byte amp)
 {
-    Serial.print("set amp: ");
-    Serial.println(amp);
+    //Serial.print("set amp: ");
+    //Serial.println(amp);
 
     LFOamp = amp;
 
@@ -447,8 +447,8 @@ void displayService::setLFOamp(byte amp)
 
 void displayService::setLFOphase(byte phase)
 {
-    Serial.print("set phase: ");
-    Serial.println(phase);
+    //Serial.print("set phase: ");
+    //Serial.println(phase);
 
     LFOphase = phase;
 

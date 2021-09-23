@@ -782,33 +782,71 @@ void oled::smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, ui
   float sawX = (float)WIDTH / ((float)rate);  // length in pixels of a whole cylce
 
   float scaledPhase = (float)phase / 255.0;
-  uint8_t offset = sawX * scaledPhase;       //  percentage of a cycle we skip due to phase shift
+  uint8_t offset = sawX * scaledPhase;       //  number of pixels in first cycle we skip due to phase shift
 
-
-  uint8_t delayHzLineBottom = centreY + 1;   //  for the delay line
-  uint8_t delayHzLineTop = centreY - 1;
 
 
   //  amplitude scaled as a number of pixels to fit one side (+ or -) of the waveform.  2 * scaledAmp = peak to peak
   float scaledAmp = ((float)smallLFOhalfHeight ) * ((float)amp / 99.0);  //  99 is amp max
   
-  Serial.print("scaledAmp = ");
-      Serial.println(scaledAmp);
+  
 
-  float sawHeight = scaledAmp;
+  //float sawHeight = ((float)smallLFOhalfHeight*2) * ((float)amp / 99.0);
+
+  //Serial.print("sawHeight = ");
+  //Serial.println(sawHeight);
 
 
-  float angle = atan(sawHeight/sawX);
+  //float angle = atan(sawHeight/sawX);
+  float angle = atan(smallLFOmaxHeight/sawX);
 
-  float heightFirstPeak = ((sawX - offset) * tan(angle)); // * ((float)amp / 99.0);  //  99 is amp max;
+  Serial.print("phase = ");
+  Serial.print(phase);
+  Serial.print("        angle = ");
+  Serial.println(angle);
+
+  float heightFirstPeak;
+  int16_t triX;
+  float triangleHeight;
+
+  
+  if (phase < 128)
+  {
+    Serial.println("phase under 128");
+    triX = (sawX/2) - offset;
+    triangleHeight = triX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
+    heightFirstPeak = triangleHeight + centreY;
+  }
+  else // if (phase >= 128)
+  {
+    Serial.println("phase over 128");
+    triX = offset;
+    triangleHeight = triX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
+    heightFirstPeak = smallLFOhalfHeight - triangleHeight + centreY;
+    
+  }
+
+  Serial.print("triangle  x = ");
+  Serial.print(triX);
+  Serial.print("     height = ");
+  Serial.println(triangleHeight);
+
+
+
+  
+
+  
+
+ //heightFirstPeak = ((sawX - offset) * tan(angle)) / 2; // * ((float)amp / 99.0);  //  99 is amp max;
+  
   Serial.print("heightFirstPeak = ");
-      Serial.println(heightFirstPeak);
-
-      Serial.print("centrY = ");
-      Serial.println(centreY);
+  Serial.println(heightFirstPeak);
 
 
-  int8_t peak = heightFirstPeak + centreY;// + scaledAmp;// + (smallLFOhalfHeight); // + (scaledAmp / 2);
+  int8_t peak = heightFirstPeak;// + centreY; //* ((float)amp / 99.0);// / 2) + smallLFOhalfHeight;// + scaledAmp;// + (smallLFOhalfHeight); // + (scaledAmp / 2);
+
+  Serial.print("peak = ");
+  Serial.println(peak);
 
   //peak = peak;
 
@@ -831,30 +869,10 @@ if ((delay > 0))
 
  
   // draw first vertical line
-
-      Serial.print("peak = ");
-      Serial.println(peak);
- 
-
-  //if (amp >= 0)
-  //{
-    //peak = heightFirstPeak;
-
   writeLine(delay, centreY, delay, peak, 1);
-
-  //}
-
-  
-  
-      
-
-      
-
 
 
 //  draw first phase adjusted cycle
-
-
 
     //  first line
 
@@ -865,15 +883,6 @@ if ((delay > 0))
 
     drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
     
-
-
-
-  
-
-  
-  
-
-
 
   for (uint8_t i = (currentXpos); i < WIDTH; i = i + sawX)  // draw complete cycle
   {
