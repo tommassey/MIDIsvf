@@ -815,14 +815,32 @@ void oled::smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, ui
     Serial.println("phase under 128");
     triX = (sawX/2) - offset;
     triangleHeight = triX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
-    heightFirstPeak = triangleHeight + centreY;
+
+    if (amp > 0)
+    {
+      heightFirstPeak = triangleHeight * ((float)amp / 99.0);
+    }
+    else // (amp <= 0)
+    {
+      heightFirstPeak = triangleHeight * ((float)amp / 99.0);
+    }
+    
   }
   else // if (phase >= 128)
   {
     Serial.println("phase over 128");
     triX = offset;
     triangleHeight = triX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
-    heightFirstPeak = smallLFOhalfHeight - triangleHeight + centreY;
+    
+    if (amp > 0)
+    {
+      heightFirstPeak = (smallLFOhalfHeight - triangleHeight)  * ((float)amp / 99.0);
+    }
+    else // (amp <= 0)
+    {
+      //heightFirstPeak = (triangleHeight  * ((float)amp / 99.0)) + smallLFOhalfHeight;
+      heightFirstPeak = (smallLFOhalfHeight - triangleHeight)  * ((float)amp / 99.0);
+    }
     
   }
 
@@ -843,7 +861,7 @@ void oled::smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, ui
   Serial.println(heightFirstPeak);
 
 
-  int8_t peak = heightFirstPeak;// + centreY; //* ((float)amp / 99.0);// / 2) + smallLFOhalfHeight;// + scaledAmp;// + (smallLFOhalfHeight); // + (scaledAmp / 2);
+  int8_t peak = heightFirstPeak + centreY; //* ((float)amp / 99.0);// / 2) + smallLFOhalfHeight;// + scaledAmp;// + (smallLFOhalfHeight); // + (scaledAmp / 2);
 
   Serial.print("peak = ");
   Serial.println(peak);
