@@ -9,6 +9,15 @@
 
 #define TOTAL_LFOS 2
 
+
+enum screenModes
+{
+    screenMode_fullScreen,
+    screenMode_splitScreen,
+    screenMode_settings,
+    screenMode_calibrate
+};
+
 enum splitScreenModes
 {
     ss_mode_home,
@@ -16,16 +25,25 @@ enum splitScreenModes
 
 };
 
-enum menuOptions
+enum LFOmenuOptions
 {
-    menu_option_none,
-    menu_option_wave,
-    menu_option_amp,
-    menu_option_phase,
-    menu_option_delay,
-    menu_option_rate,
-    total_menu_options
+    lfo_menu_option_none,
+    lfo_menu_option_wave,
+    lfo_menu_option_amp,
+    lfo_menu_option_phase,
+    lfo_menu_option_delay,
+    lfo_menu_option_rate,
+    lfo_menu_options_total
 
+};
+
+enum settingsMenuOptions
+{
+    settings_menu_option_noteOn,
+    settings_menu_option_invert,
+    settings_menu_option_save,
+    settings_menu_option_midi_config,
+    settings_menu_options_total
 };
 
 struct menuOption
@@ -33,7 +51,7 @@ struct menuOption
     int16_t value;
     int16_t min;
     int16_t max;
-    char name[6];
+    char name[13];
 
 } ;
 
@@ -42,9 +60,12 @@ class displayService
     private:
         oled* screen;
 
+
         bool needsRedraw = false;   //  set this high after doing anything that requires screen to be refreshed
+        bool displayIsInverted = false;
 
         byte currentScreen = 0;
+        byte currentScreenMode = screenMode_fullScreen;
         
         byte LFOshape = sine;
         byte LFOrate = 0;
@@ -59,29 +80,46 @@ class displayService
 
         uint8_t currentLFOselected = LFO_1;
         uint8_t splitScreenMode = ss_mode_home;
-        uint8_t currentMenuOption = menu_option_none;
+        uint8_t currentLFOmenuOption = lfo_menu_option_none;
 
-        menuOption* selectedOption = &menu[currentLFOselected][menu_option_none];
+        menuOption* selectedLFOmenuOption = &LFOmenu[currentLFOselected][lfo_menu_option_none];
 
-        menuOption menu[LFO_total][total_menu_options];
+        menuOption LFOmenu[LFO_total][lfo_menu_options_total];
 
         //  for notifications
         bool noteOn[LFO_total] = { true, true };
         
-        
+        void drawCurrentScreenMode(void);
 
-        void initMenuOptions(void);
+        void initLFOmenuOptions(void);
 
-        void advanceMenu();
-        void resetMenu();
-        void clearMenu(void);
+        void advanceLFOmenu();
+        void resetLFOmenu();
+        void clearLFOmenu(void);
 
 
         void drawBorders(void);
         void drawLFOs(void);
         void drawCurrentWaveform(uint8_t whichLFO);
-        void drawMenu(void);
+        void drawLFOmenu(void);
         void drawNotifications(void);
+
+
+        //============================  settings menu
+        
+        menuOption settingsMenu[settings_menu_options_total];
+        menuOption* selectedSettingsMenuOption = &settingsMenu[settings_menu_option_noteOn];
+
+        uint8_t currentSettingsMenuOption = settings_menu_option_noteOn;
+        
+        void settingsScreen(void);
+        void initSettingsMenuOptions(void);
+
+        void checkForInvertedDisplay(void);  // return true if inverted
+
+
+
+
 
 
 
@@ -100,7 +138,7 @@ class displayService
         void noteOnEvent(uint8_t whichLFO);
         void noteOffEvent(uint8_t whichLFO);
 
-        void showScreen(byte screenNumber);
+        void showFullScreen(byte screenNumber);
         void splitScreen(void);
 
         

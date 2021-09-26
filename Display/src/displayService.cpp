@@ -5,7 +5,8 @@ displayService::displayService(oled* screenPtr)
 {
     screen = screenPtr;
 
-    initMenuOptions();
+    initLFOmenuOptions();
+    initSettingsMenuOptions();
 }
 
 displayService::~displayService()
@@ -26,66 +27,246 @@ void displayService::actOnInputs(int8_t inputNumber)
     //Serial.print("display serv input number = ");
     //Serial.println(inputNumber);
 
-    switch (inputNumber)
+    switch (currentScreenMode)
     {
-        case no_input:  break;
-
-        case encoder_button:
+        case screenMode_fullScreen:  //==============================================  Fullscreen Mode
         {
-            currentLFOselected = LFO_none;
-            clearMenu();
+            switch (inputNumber)
+            {
+                case no_input:  break;
 
-            splitScreenMode = ss_mode_home;
+                case encoder_button:
+                {
+                    currentScreenMode = screenMode_splitScreen;
+                    currentLFOselected = LFO_none;
+                    splitScreenMode = ss_mode_home;
+                    clearLFOmenu();
 
-            break;
-        }
+                    break;
+                }
 
-        case lfo1_button:
-        {
-            splitScreenMode = ss_mode_menu;
+                case encoder_button_long_press:
+                {
+                    Serial.println("Encoder Button Long Press");
+                    break;
+                }
 
-            if (currentLFOselected == LFO_2) resetMenu();
+                case lfo1_button:
+                {
+                    currentScreenMode = screenMode_splitScreen;
+                    splitScreenMode = ss_mode_menu;
+                    resetLFOmenu();            
+                    
+                    break;
+                }
 
-            currentLFOselected = LFO_1;
-            advanceMenu();
+                case lfo2_button:
+                {
+                    currentScreenMode = screenMode_splitScreen;
+                    splitScreenMode = ss_mode_menu;
+                    resetLFOmenu();
+                    
+                    break;
+                }
+                
+                case menu_encoder:
+                {
+                    // nothing here, handled by newEncoderMovement() called in main()
+                    break;
+                }
             
+                default:
+                    break;
+            }
+
+
             break;
         }
 
-        case lfo2_button:
+        case screenMode_splitScreen:  //==============================================  Splitscreen Mode
         {
-            splitScreenMode = ss_mode_menu;
+            switch (inputNumber)
+            {
+                case no_input:  break;
 
-            if (currentLFOselected == LFO_1) resetMenu();
+                case encoder_button:
+                {
+                    currentLFOselected = LFO_none;
+                    clearLFOmenu();
 
-            currentLFOselected = LFO_2;
-            advanceMenu();
+                    splitScreenMode = ss_mode_home;
+
+                    break;
+                }
+
+                case encoder_button_long_press:
+                {
+                    currentScreenMode = screenMode_settings;
+                    Serial.println("Encoder Button Long Press");
+                    break;
+                }
+
+                case lfo1_button:
+                {
+                    splitScreenMode = ss_mode_menu;
+
+                    if (currentLFOselected == LFO_2) resetLFOmenu();
+
+                    currentLFOselected = LFO_1;
+                    advanceLFOmenu();
+                    
+                    break;
+                }
+
+                case lfo2_button:
+                {
+                    splitScreenMode = ss_mode_menu;
+
+                    if (currentLFOselected == LFO_1) resetLFOmenu();
+
+                    currentLFOselected = LFO_2;
+                    advanceLFOmenu();
+                    
+                    break;
+                }
+                
+                case menu_encoder:
+                {
+                    // nothing here, handled by newEncoderMovement() called in main()
+                    break;
+                }
             
+                default:
+                    break;
+            }
+
+
             break;
         }
+
+        case screenMode_settings:  //==============================================  Settings Mode
+        {
+            switch (inputNumber)
+            {
+                case no_input:  break;
+
+                case encoder_button:
+                {
+                    currentScreenMode = screenMode_splitScreen;
+                    splitScreenMode = ss_mode_home;
+
+                    break;
+                }
+
+                case encoder_button_long_press:
+                {
+                    
+                    currentScreenMode = screenMode_settings;
+                    Serial.println("Encoder Button Long Press");
+                    break;
+                }
+
+                case lfo1_button:
+                {
+                    if (currentSettingsMenuOption == settings_menu_option_noteOn) currentSettingsMenuOption = settings_menu_option_midi_config;
+                    else
+                    {
+                        currentSettingsMenuOption--;
+                    }
+                    selectedSettingsMenuOption = &settingsMenu[currentSettingsMenuOption];
+                    
+                    
+                    Serial.print("settings decrement   currentSettingsMenuOption value =");
+                    Serial.println(currentSettingsMenuOption);
+                                
+                    break;
+                }
+
+                case lfo2_button:
+                {
+                    currentSettingsMenuOption++;
+                    if (currentSettingsMenuOption >= settings_menu_options_total) currentSettingsMenuOption = settings_menu_option_noteOn;
+                    selectedSettingsMenuOption = &settingsMenu[currentSettingsMenuOption];
+                    Serial.print("settings increment   currentSettingsMenuOption value =");
+                    Serial.println(currentSettingsMenuOption);
+  
+                    break;
+                }
+                
+                case menu_encoder:
+                {
+                    // nothing here, handled by newEncoderMovement() called in main()
+                    break;
+                }
+            
+                default:
+                    break;
+            }
+
+
+            break;
+        }
+
+        case screenMode_calibrate:  //==============================================  Calibration Mode
+        {
+
+            break;
+        }
+ 
         
-        case menu_encoder:
-        {
-            // nothing here, handled by newEncoderMovement() called in main()
-            break;
-        }
-    
         default:
-            break;
+        break;
     }
 
-    splitScreen();
+
+    
+
+    drawCurrentScreenMode();
 
 }
 
 void displayService::newEncoderMovement(int32_t movement)
 {
-    selectedOption->value += movement;
+    if (currentScreenMode == screenMode_fullScreen)
+    {
 
-    if (selectedOption->value > selectedOption->max) selectedOption->value = selectedOption->max;
-    if (selectedOption->value < selectedOption->min) selectedOption->value = selectedOption->min;
+    }
+    else if (currentScreenMode == screenMode_splitScreen)
+    {
+        selectedLFOmenuOption->value += movement;
+
+        if (selectedLFOmenuOption->value > selectedLFOmenuOption->max) selectedLFOmenuOption->value = selectedLFOmenuOption->max;
+        if (selectedLFOmenuOption->value < selectedLFOmenuOption->min) selectedLFOmenuOption->value = selectedLFOmenuOption->min;
+        
+        needsRedraw = true;
+    }
+    else if (currentScreenMode == screenMode_settings)
+    {
+        selectedSettingsMenuOption->value += movement;
+
+        if (selectedSettingsMenuOption->value > selectedSettingsMenuOption->max) selectedSettingsMenuOption->value = selectedSettingsMenuOption->max;
+        if (selectedSettingsMenuOption->value < selectedSettingsMenuOption->min) selectedSettingsMenuOption->value = selectedSettingsMenuOption->min;
+        
+        needsRedraw = true;
+    }
+    else if (currentScreenMode == screenMode_calibrate)
+    {
+        //selectedSettingsMenuOption->value += movement;
+
+        // if (selectedSettingsMenuOption->value > selectedSettingsMenuOption->max) selectedSettingsMenuOption->value = selectedSettingsMenuOption->max;
+        //if (selectedSettingsMenuOption->value < selectedSettingsMenuOption->min) selectedSettingsMenuOption->value = selectedSettingsMenuOption->min;
+        
+        needsRedraw = true;
+    }
+    else
+    {
+
+    }
     
-    needsRedraw = true;
+
+    
+    
+    
 }
 
 void displayService::noteOnEvent(uint8_t whichLFO)
@@ -95,7 +276,7 @@ void displayService::noteOnEvent(uint8_t whichLFO)
     else
     {
         noteOn[whichLFO] = true;
-        splitScreen();
+        drawCurrentScreenMode();
     }
 }
 
@@ -106,12 +287,12 @@ void displayService::noteOffEvent(uint8_t whichLFO)
     else
     {
         noteOn[whichLFO] = false;
-        splitScreen();
+        drawCurrentScreenMode();
     }
 }
 
 
-void displayService::initMenuOptions(void)
+void displayService::initLFOmenuOptions(void)
 {   
 
     menuOption moNone  = {0,            0,           0,          "NONE"};
@@ -122,58 +303,115 @@ void displayService::initMenuOptions(void)
     menuOption moDelay = {0,            0,         254,          "DELAY"};
   
 
-    menu[LFO_1][menu_option_none]  = moNone;
-    menu[LFO_1][menu_option_wave]  = moWave;
-    menu[LFO_1][menu_option_rate]  = moRate;
-    menu[LFO_1][menu_option_amp]   = moAmp;
-    menu[LFO_1][menu_option_phase] = moPhase;
-    menu[LFO_1][menu_option_delay] = moDelay;
+    LFOmenu[LFO_1][lfo_menu_option_none]  = moNone;
+    LFOmenu[LFO_1][lfo_menu_option_wave]  = moWave;
+    LFOmenu[LFO_1][lfo_menu_option_rate]  = moRate;
+    LFOmenu[LFO_1][lfo_menu_option_amp]   = moAmp;
+    LFOmenu[LFO_1][lfo_menu_option_phase] = moPhase;
+    LFOmenu[LFO_1][lfo_menu_option_delay] = moDelay;
 
-    menu[LFO_2][menu_option_none]  = moNone;
-    menu[LFO_2][menu_option_wave]  = moWave;
-    menu[LFO_2][menu_option_rate]  = moRate;
-    menu[LFO_2][menu_option_amp]   = moAmp;
-    menu[LFO_2][menu_option_phase] = moPhase;
-    menu[LFO_2][menu_option_delay] = moDelay;
-
-    
-
+    LFOmenu[LFO_2][lfo_menu_option_none]  = moNone;
+    LFOmenu[LFO_2][lfo_menu_option_wave]  = moWave;
+    LFOmenu[LFO_2][lfo_menu_option_rate]  = moRate;
+    LFOmenu[LFO_2][lfo_menu_option_amp]   = moAmp;
+    LFOmenu[LFO_2][lfo_menu_option_phase] = moPhase;
+    LFOmenu[LFO_2][lfo_menu_option_delay] = moDelay;
 }
 
 
 
-void displayService::advanceMenu(void)
+void displayService::advanceLFOmenu(void)
 {
-    currentMenuOption++;
+    currentLFOmenuOption++;
 
-    if (currentMenuOption >= total_menu_options)
+    if (currentLFOmenuOption >= lfo_menu_options_total)
     {
-        currentMenuOption = 1;
+        currentLFOmenuOption = 1;
     }
 
     //Serial.print("Advance menu = ");
     //Serial.println(currentMenuOption);
 
-    selectedOption = &menu[currentLFOselected][currentMenuOption];
+    selectedLFOmenuOption = &LFOmenu[currentLFOselected][currentLFOmenuOption];
     needsRedraw = true;
 }
 
-void displayService::clearMenu(void)
+void displayService::clearLFOmenu(void)
 {
-    currentMenuOption = menu_option_none;
-    selectedOption = &menu[currentLFOselected][menu_option_none];
+    currentLFOmenuOption = lfo_menu_option_none;
+    selectedLFOmenuOption = &LFOmenu[currentLFOselected][lfo_menu_option_none];
     needsRedraw = true;
 }
 
-void displayService::resetMenu(void)
+void displayService::resetLFOmenu(void)
 {
-    currentMenuOption = 1;
-    selectedOption = &menu[currentLFOselected][1];
+    currentLFOmenuOption = 1;
+    selectedLFOmenuOption = &LFOmenu[currentLFOselected][1];
     needsRedraw = true;
 }
 
 
-void displayService::showScreen(byte screenNumber)
+
+
+void displayService::initSettingsMenuOptions(void)
+{   
+                            //value          min          max           name
+    menuOption moNoteOn     = {0,            0,           1,     "Note On Flag"};
+    menuOption moInvert     = {0,            0,           1,     "Invert"};
+    //menuOption mo1          = {1,            1,         255,          " "};
+    //menuOption mo2          = {99,         -99,          99,          " "};
+    menuOption moSave       = {0,            0,         254,          "SAVE"};
+    menuOption moMIDIconfig = {0,            0,         254,          "MIDI confg"};
+  
+
+    settingsMenu[settings_menu_option_noteOn]      = moNoteOn;
+    settingsMenu[settings_menu_option_invert]      = moInvert;
+    settingsMenu[settings_menu_option_save]        = moSave;
+    settingsMenu[settings_menu_option_midi_config] = moMIDIconfig;
+
+}
+
+
+void displayService::drawCurrentScreenMode(void)
+{
+    //screen->stopScroll();
+    checkForInvertedDisplay();
+
+    switch (currentScreenMode)
+    {
+        case screenMode_fullScreen:
+        {
+            showFullScreen(currentScreen);
+            break;
+        }
+
+        case screenMode_splitScreen:
+        {
+            splitScreen();
+            break;
+        }
+
+        case screenMode_settings:
+        {
+            settingsScreen();
+            break;
+        }
+
+        case screenMode_calibrate:
+        {
+            //calibrationScreen();
+            break;
+        }
+    
+    
+    default:
+        break;
+    }
+
+
+}
+
+void displayService::showFullScreen(byte screenNumber)
 {
     Serial.print("show screen: ");
     Serial.println(screenNumber);
@@ -203,15 +441,15 @@ void displayService::splitScreen(void)
         case ss_mode_home:
             {
                 drawLFOs();
-                //screen->startScroll();
+                screen->startScroll();
                 break;
             }
         
         case ss_mode_menu:
             {
                 drawLFOs();
-                drawMenu();
-                //screen->stopScroll();
+                drawLFOmenu();
+                
                 break;
             }
             
@@ -295,12 +533,12 @@ void displayService::drawLFOs(void)
 
 void displayService::drawCurrentWaveform(uint8_t whichLFO)
 {
-    uint8_t currentWaveform = menu[whichLFO][menu_option_wave].value;
+    uint8_t currentWaveform = LFOmenu[whichLFO][lfo_menu_option_wave].value;
 
-    uint8_t rate  = menu[whichLFO][menu_option_rate].value;
-    uint8_t amp   = menu[whichLFO][menu_option_amp].value;
-    uint8_t phase = menu[whichLFO][menu_option_phase].value;
-    uint8_t delay = menu[whichLFO][menu_option_delay].value;
+    uint8_t rate  = LFOmenu[whichLFO][lfo_menu_option_rate].value;
+    uint8_t amp   = LFOmenu[whichLFO][lfo_menu_option_amp].value;
+    uint8_t phase = LFOmenu[whichLFO][lfo_menu_option_phase].value;
+    uint8_t delay = LFOmenu[whichLFO][lfo_menu_option_delay].value;
 
     
     switch (currentWaveform)
@@ -342,7 +580,7 @@ uint8_t Y2 = 8;
 uint8_t optionX = 12;
 uint8_t valueX = 64;
 
-void displayService::drawMenu(void)
+void displayService::drawLFOmenu(void)
 {
     //Serial.print(" lfo  =  ");
     //Serial.println(currentLFOselected);
@@ -350,14 +588,14 @@ void displayService::drawMenu(void)
     //Serial.print(" option  =  ");
     //Serial.println(menu[currentLFOselected][currentMenuOption].name);
 
-    if (currentMenuOption == menu_option_none)
+    if (currentLFOmenuOption == lfo_menu_option_none)
     {
         return;
     }
 
     
     //  get value
-    int16_t value = menu[currentLFOselected][currentMenuOption].value;
+    int16_t value = LFOmenu[currentLFOselected][currentLFOmenuOption].value;
     char str[5];
     itoa(value, str, 10);   //  int to a string
 
@@ -376,7 +614,7 @@ void displayService::drawMenu(void)
     if (currentLFOselected == LFO_1)
     {
         //  print option name
-        screen->string(optionX, Y1, menu[currentLFOselected][currentMenuOption].name, 16, 1);
+        screen->string(optionX, Y1, LFOmenu[currentLFOselected][currentLFOmenuOption].name, 16, 1);
         // print value  
         screen->string16pix(valueX, Y1, str);
 
@@ -384,7 +622,7 @@ void displayService::drawMenu(void)
 
     if (currentLFOselected == LFO_2)
     {
-        screen->string(optionX, Y2, menu[currentLFOselected][currentMenuOption].name, 16, 1);
+        screen->string(optionX, Y2, LFOmenu[currentLFOselected][currentLFOmenuOption].name, 16, 1);
         // print value  
         screen->string16pix(valueX, Y2, str);
         
@@ -399,6 +637,8 @@ void displayService::drawMenu(void)
 void displayService::drawNotifications(void)
 {
     static const char* noteOnText = " NOTE ON ";
+
+    if (settingsMenu[settings_menu_option_noteOn].value == false) return;
     
     if (noteOn[LFO_1] == true)
     {
@@ -426,6 +666,90 @@ void displayService::drawNotifications(void)
         }
     }
 }
+
+
+void displayService::checkForInvertedDisplay(void)  // return true if inverted
+{
+    if (displayIsInverted == settingsMenu[settings_menu_option_invert].value) return;
+    else
+    {
+        if (settingsMenu[settings_menu_option_invert].value == true)
+        {
+            screen->invert();
+            displayIsInverted = true;
+        }
+        if (settingsMenu[settings_menu_option_invert].value == false)
+        {
+            screen->uninvert();
+            displayIsInverted = false;
+        }
+
+    }
+}
+
+static const char* settingsText = "SETTINGS";
+static const char* onText =  " ON  ";
+static const char* offText = " OFF ";
+static const char* longPressText = "LONG PRESS";
+
+
+
+void displayService::settingsScreen(void)
+{
+    
+
+    screen->clear();
+
+    screen->string(40, 0, settingsText, 12, 1);
+
+    screen->string(4, 15, settingsMenu[settings_menu_option_noteOn].name, 12, 1);
+    screen->string(4, 27, settingsMenu[settings_menu_option_invert].name, 12, 1);
+    screen->string(4, 39, settingsMenu[settings_menu_option_save].name, 12, 1);
+    screen->string(4, 51, settingsMenu[settings_menu_option_midi_config].name, 12, 1);
+
+
+
+
+    const char* msg;
+
+    if      (settingsMenu[settings_menu_option_noteOn].value == true)   msg = onText;
+    else if (settingsMenu[settings_menu_option_noteOn].value == false)  msg = offText;
+
+    screen->string(96, 15, msg, 12, 1);
+
+
+    if      (settingsMenu[settings_menu_option_invert].value == true)   msg = onText;
+    else if (settingsMenu[settings_menu_option_invert].value == false)  msg = offText;
+
+    screen->string(96, 27, msg, 12, 1);
+
+
+
+    if (settingsMenu[currentSettingsMenuOption].value == true)
+    {
+        msg = onText;
+    }
+    else if (settingsMenu[currentSettingsMenuOption].value == false)
+    {
+        msg = offText;
+    }
+
+
+
+    screen->string(96, ((currentSettingsMenuOption * 12) + 15), msg, 12, 0);
+
+    if (currentSettingsMenuOption == settings_menu_option_save)  screen->string(64, 39, longPressText, 12, 0);
+    if (currentSettingsMenuOption == settings_menu_option_midi_config)  screen->string(64, 51, longPressText, 12, 0);
+    
+
+    
+
+    
+
+    needsRedraw = true;
+
+}
+
 
 
 

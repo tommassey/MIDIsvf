@@ -36,11 +36,19 @@ int8_t ButtonService::checkAllButtons(void)   //  returns a value from InputName
   {
       ButtonEvent newPress = checkButton(i);
 
+      
+
       if (newPress.pressType != 0)
       {
           status[i] = newPress.pressType;
           presses[i]++;
           changeFlag = i;
+
+          if (newPress.pressType == longPress)
+          {
+            Serial.println("LONG PRESS");
+            changeFlag = encoder_button_long_press;
+          }
       }
   }
   

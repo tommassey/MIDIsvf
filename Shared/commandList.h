@@ -10,7 +10,10 @@ enum commandTypes
     setWaveform,
     setRate,
     setAmp,
-    setPhase
+    setPhase,
+    command_enter_setup_mode,
+    command_recieve_midi_channel,
+    command_recieve_midi_value
 };
 
 

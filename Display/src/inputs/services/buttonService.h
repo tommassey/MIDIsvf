@@ -3,8 +3,9 @@
 
 #include <Arduino.h>
 #include "drivers/buttonDriver.h"
+#include "../inputNames.h"
 
-#define MAX_BUTTONS 4
+#define MAX_BUTTONS 5
 
 
 

@@ -1,8 +1,5 @@
 #include "inputManager.h"
 
-
-
-
 //  Buttons
 //===========
 Bounce deBounce0; 
@@ -12,7 +9,6 @@ Bounce deBounce2;
 ButtonDriver button0 = ButtonDriver(&deBounce0, BUTTON_3_PIN, INPUT_PULLUP, DEBOUNCE_TIME_MILLIS);   //  Encoder button)
 ButtonDriver button1 = ButtonDriver(&deBounce1, BUTTON_1_PIN, INPUT_PULLUP, DEBOUNCE_TIME_MILLIS);   //  LFO1 button
 ButtonDriver button2 = ButtonDriver(&deBounce2, BUTTON_2_PIN, INPUT_PULLUP, DEBOUNCE_TIME_MILLIS);   //  LFO2 button)
-
 
 ButtonService buttonService;
 
@@ -27,10 +23,9 @@ int32_t previousEncoderValue = 0;
 int32_t currentEncoderValue = 0;
 
 
+
 void setupButtons(void);
 void setupEncoders(void);
-
-
 
 
 void inputManager_init(void)

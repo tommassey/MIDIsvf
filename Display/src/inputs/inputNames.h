@@ -15,9 +15,11 @@ enum InputNames
     encoder_button = 0,
     lfo1_button = 1,
     lfo2_button = 2,
-    max_buttons = 3,
+    encoder_button_long_press = 3,
+    max_buttons = 4,
 
-    menu_encoder = 5
+    menu_encoder = 5,
+    
 };
 
 

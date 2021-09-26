@@ -31,16 +31,16 @@ void checkEncodersTimerISR(void)
 
 void noteOnISR(void)
 {
-  display.noteOnEvent(LFO_1);
-  display.noteOffEvent(LFO_2);
-  Serial.println("on");
+  //display.noteOnEvent(LFO_1);
+  //display.noteOffEvent(LFO_2);
+  //Serial.println("on");
 }
 
 void noteOffISR(void)
 {
-  display.noteOnEvent(LFO_2);
-  display.noteOffEvent(LFO_1);
-  Serial.println("off ...");
+  //display.noteOnEvent(LFO_2);
+  //display.noteOffEvent(LFO_1);
+  //Serial.println("off ...");
 }
 
 
@@ -56,7 +56,7 @@ void checkSerial(void)
 
     case changeScreen:
     {
-      display.showScreen(newMessage.data);
+      display.showFullScreen(newMessage.data);
       break;
     }
 
