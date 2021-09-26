@@ -109,8 +109,8 @@ void loop()
 
   if (input != no_input)
   {
-    Serial.print("input == ");
-    Serial.println(input);
+    //Serial.print("input == ");
+    //Serial.println(input);
     
     if (input == menu_encoder)
     {
@@ -120,5 +120,4 @@ void loop()
     display.actOnInputs(input);
     resetInputFlag();
   }
-  //display.actOnInputs();
 }

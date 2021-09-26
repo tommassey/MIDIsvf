@@ -9,8 +9,9 @@ enum waveForms
     noWaveform = 0,
     sine,
     triangle,
-    rampUp,
-    rampDown,
+    saw,
+    //rampUp,
+    //rampDown,
     squaree,
     nonMusicLFO
 };

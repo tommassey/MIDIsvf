@@ -55,13 +55,13 @@ class displayService
 
         // splitScreen
 
-        uint8_t currentLFOselected = 1;
+        uint8_t currentLFOselected = LFO_1;
         uint8_t splitScreenMode = ss_mode_home;
         uint8_t currentMenuOption = menu_option_none;
 
         menuOption* selectedOption = &menu[currentLFOselected][menu_option_none];
 
-        menuOption menu[3][total_menu_options];
+        menuOption menu[LFO_total][total_menu_options];
         
 
         void initMenuOptions(void);
@@ -73,6 +73,7 @@ class displayService
 
         void drawBorders(void);
         void drawLFOs(void);
+        void drawCurrentWaveform(uint8_t whichLFO);
         void drawMenu(void);
 
 

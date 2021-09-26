@@ -25,6 +25,7 @@ class oled
 
         int16_t centreX = ((WIDTH / 2) - 1);
         int16_t centreY = ((HEIGHT / 2) - 1);
+        uint8_t LFOcentre[2] = { 16, 48 };
 
         uint8_t sinCyclesPrevious = 0;
         uint16_t sawY = HEIGHT;
@@ -77,15 +78,18 @@ class oled
         
         void bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint8_t chHeight);
         
+
+        uint8_t getLFOcentre(uint8_t whichLFO);
+        
         void sine(uint8_t rate, uint8_t amp);
         void triangle(uint8_t rate, uint8_t amp);
         void saw(uint8_t rate, float amp);
         void square(uint8_t rate, float amp);
 
-        void smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
-        void smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase);
-        void smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
-        void smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
+        void smallSine(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
+        void smallTriangle(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
+        void smallSquare(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
+        void smallSaw(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay);
         
         void splashScreen(void);
 

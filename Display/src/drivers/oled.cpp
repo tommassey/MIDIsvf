@@ -220,62 +220,18 @@ void oled::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
   
 
 
-
-
-
-
-void oled::sine(uint8_t rate, uint8_t amp)
+uint8_t oled::getLFOcentre(uint8_t whichLFO)
 {
-  
-  // //  rate comes in at a max of 255, higher is a slower LFO
-  // //  we need it to range between 0 and 14, higher is more cycles onscreen (so faster LFO)
-
-  // uint8_t invRate = 255 - rate;   // invert rate so higher is faster
-
-  // uint8_t cycles = invRate / 18;   // 255 / 18 = 14.16666
-
-  // if (cycles > 14) cycles = 14;
-  // if (cycles < 1) cycles = 1;
-
-  // if (cycles == sinCyclesPrevious) return;
-  // sinCyclesPrevious = cycles;
-
-
-
-  //  amp comes in at a max of 255, higher is a louder LFO
-  //  we need it to range between 0 and 35, higher is higher
-
-  uint8_t scaledAmp = amp / 8;
-
-  if (scaledAmp > 35) scaledAmp = 35;
-  if (scaledAmp < 1) scaledAmp = 1;
-
-  uint8_t thickness = (rate + 1) * (1 / (scaledAmp/35));
-
-  if (thickness > 8) thickness = 8;
-  if (thickness < 4) thickness = 4;
-  //uint16_t lineStart = (thickness / 2) - 1;
-
-  clear();
-
-  float y;
-  float z;
-
-  for (uint16_t i=0; i<(WIDTH); i++)  
-  {   
-    y = i * 0.049;   // 0.049 magic number to fit sine to screen
-    z = (sin(y * rate) * scaledAmp) + centreY;
-    uint16_t lineStartY = (z - (thickness / 2)); // draw vertical line instead of pixel
-    drawFastVLine(i, lineStartY, thickness, 1);  // to make waveform thicker
-  }
-
-  display();
-
+  return LFOcentre[whichLFO];
 }
 
 
-void oled::smallSine(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
+
+
+
+void oled::smallSine(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
 {
+  uint8_t centreY = getLFOcentre(whichLFO);
   uint8_t offset = phase / 2;
   
   // //  rate comes in at a max of 255, higher is a slower LFO
@@ -432,68 +388,68 @@ void oled::triangle(uint8_t rate, uint8_t amp)
     display();
 }
 
+// void oled::smallTriangle(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
+// {
+//   uint8_t centreY = getLFOcentre(whichLFO);
+//   float halfLFO = smallLFOmaxHeight / 2;
+//   float scaledAmp = ((float)amp / 99);
+//   Serial.print("scaled amp = ");
+//   Serial.println(scaledAmp);
+//   float triTop = centreY + (halfLFO * scaledAmp);//) * scaledAmp;
+//   float triBottom = centreY - (halfLFO * scaledAmp);  //) * scaledAmp;
 
-void oled::smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase)
-{
-  float halfLFO = smallLFOmaxHeight / 2;
-  float scaledAmp = ((float)amp / 99);
-  Serial.print("scaled amp = ");
-  Serial.println(scaledAmp);
-  float triTop = centreY + (halfLFO * scaledAmp);//) * scaledAmp;
-  float triBottom = centreY - (halfLFO * scaledAmp);  //) * scaledAmp;
-
-  Serial.print("top = ");
-  Serial.println(triTop);
-  Serial.print("bottom = ");
-  Serial.println(triBottom);
-
-
-  uint8_t y = (centreY - (smallLFOmaxHeight / 2) * scaledAmp);
+//   Serial.print("top = ");
+//   Serial.println(triTop);
+//   Serial.print("bottom = ");
+//   Serial.println(triBottom);
 
 
-  if (scaledAmp < 0)
-  {
-    triangleDirectionisUp = true;
-  }
+//   uint8_t y = (centreY - (smallLFOmaxHeight / 2) * scaledAmp);
 
-  if (scaledAmp >= 0)
-  {
-    triangleDirectionisUp = false;
-  }
 
-  for (uint8_t x = 0; x < WIDTH; x = x + rate)
-  {
-    drawFastHLine(x, y, rate, 1);
+//   if (scaledAmp < 0)
+//   {
+//     triangleDirectionisUp = true;
+//   }
+
+//   if (scaledAmp >= 0)
+//   {
+//     triangleDirectionisUp = false;
+//   }
+
+//   for (uint8_t x = 0; x < WIDTH; x = x + rate)
+//   {
+//     drawFastHLine(x, y, rate, 1);
     
 
 
     
-    if (triangleDirectionisUp && (y < triTop))
-    {
-      y++;
-    }
+//     if (triangleDirectionisUp && (y < triTop))
+//     {
+//       y++;
+//     }
 
-    if (!triangleDirectionisUp && (y > triBottom))
-    {
-      y--;
-    }
-
-
-      if (y >= triTop)
-      {
-        triangleDirectionisUp = false;
-        //Serial.println("tri down");
-      }
-      if (y <= triBottom)
-      {
-        triangleDirectionisUp = true;
-        //Serial.println("tri up");
-      }
-
-  }
+//     if (!triangleDirectionisUp && (y > triBottom))
+//     {
+//       y--;
+//     }
 
 
-}
+//       if (y >= triTop)
+//       {
+//         triangleDirectionisUp = false;
+//         //Serial.println("tri down");
+//       }
+//       if (y <= triBottom)
+//       {
+//         triangleDirectionisUp = true;
+//         //Serial.println("tri up");
+//       }
+
+//   }
+
+
+// }
 
 
 //void oled::smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase)
@@ -558,95 +514,13 @@ void oled::smallTriangle(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phas
 
 
 
-void oled::saw(uint8_t rate, float amp)
+
+
+
+
+void oled::smallSquare(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
 {
-  if (rate > 14) rate = 14;
-  if (rate < 1) rate = 1;
-
-  if (amp > 1) amp = 1;
-  if (amp < 0.001) amp = 0.001;  // ensure amp is never 0
-
-  uint8_t thickness = ((rate / 2) + 1);
-
-  if (thickness > 6) thickness = 6;
-  if (thickness < 4) thickness = 4;
-
-  clear();
-
-  float stepY = rate; 
-  
-  for (uint16_t i=0; i<=(WIDTH); i++)  
-  {
-    uint16_t lineStartY = (sawY - (thickness / 2)); // draw vertical line instead of pixel
-    drawFastVLine(i, lineStartY, thickness, 1);  // to make waveform thicker
-    
-    sawY = (sawY - stepY);
-
-    if (sawY <= 0)  // when we get to the bottom of the ramp
-    {
-      sawY = HEIGHT;
-
-      for (uint8_t j = 1; j <= (thickness/2); j++)  // draw the vertical line at start of ramp
-      {
-        drawFastVLine((i+(j - 1)), 0, HEIGHT, 1);
-      }
-    }
-  }
-
-  display();
-}
-
-
-void oled::square(uint8_t rate, float amp)
-{
-  float squareX = (float)WIDTH / (float)rate;  // length of the tops and bottoms
-  uint16_t squareHalfX = squareX / 2;  // halfway point where we change from hi to lo
-  uint16_t squareXpos = 0;  //  how far along the cycle
-
-  uint16_t squareTopY = 0;   //  top of square in pixels
-  uint16_t squareBotY = 63;   //  top of square in pixels
-
-
-  clear();
-  
-
-  if ((WIDTH % rate) != 0)
-  {
-    drawFastVLine(0, 0, 64, 1);  // draw upright
-  }
-  
-
-  for (uint16_t i = 0; i <= (WIDTH); i++)
-  {    
-    if(squareIsAtTop && (squareXpos <= squareHalfX))
-    {
-      pixel((i), squareTopY, 1);
-      squareXpos++;
-      if (squareXpos >= squareHalfX)
-      {
-        drawFastVLine(i, 0, 64, 1);  // draw upright
-        squareIsAtTop = false;
-      }
-    }
-    else if(!squareIsAtTop && (squareXpos <= squareX))
-    {
-      pixel((i), squareBotY, 1);
-      squareXpos++;
-      if (squareXpos >= squareX)
-      {
-        drawFastVLine(i, 0, 64, 1);  // draw upright
-        squareIsAtTop = true;
-        squareXpos = 0;
-      }
-    }
-  }
-    display();
-}
-
-
-
-void oled::smallSquare(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
-{
+  uint8_t centreY = getLFOcentre(whichLFO);
 
   float squareX = (float)WIDTH / ((float)rate);  // length in pixels of a whole cylce
   uint16_t squareHalfX = squareX / 2;            // halfway point where we change from hi to lo
@@ -774,8 +648,10 @@ uint8_t currentXpos = delay;
 
 
 
-void oled::smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
+void oled::smallSaw(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
 {
+  uint8_t centreY = getLFOcentre(whichLFO);
+
   delay = delay / 2;
 
   float sawX = (float)WIDTH / ((float)rate);  // length in pixels of a whole cylce
@@ -845,101 +721,233 @@ void oled::smallSaw(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, ui
 }
 
 
-// void oled::smallSaw2(uint8_t centreY, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
-// {
-
-//   delay = delay / 2;
-
-//   float sawX = (float)WIDTH / ((float)rate);  // length in pixels of a whole cylce
-
-//   float scaledPhase = (float)phase / 255.0;
-//   uint8_t offset = sawX * scaledPhase;       //  number of pixels in first cycle we skip due to phase shift
 
 
 
-//   //  amplitude scaled as a number of pixels to fit one side (+ or -) of the waveform.  2 * scaledAmp = peak to peak
-//   float scaledAmp = ((float)smallLFOhalfHeight ) * ((float)amp / 99.0);  //  99 is amp max
+void oled::smallTriangle(uint8_t whichLFO, uint8_t rate, int8_t amp, uint8_t phase, uint8_t delay)
+{
+  uint8_t centreY = getLFOcentre(whichLFO);
+
+  delay = delay / 2;
+
+  float triangleTotalX = (float)WIDTH / ((float)rate);  // length in pixels of a whole cylce
+  float triHalfX = triangleTotalX / 2;
+  float triQuarterX = triHalfX / 2;
+
+  float scaledPhase = (float)phase / 255.0;
+  uint8_t offset = triangleTotalX * scaledPhase;       //  number of pixels in first cycle we skip due to phase shift
+
+  //  amplitude scaled as a number of pixels to fit one side (+ or -) of the waveform.  2 * scaledAmp = peak to peak
+  float scaledAmp = ((float)smallLFOhalfHeight ) * ((float)amp / 99.0);  //  99 is amp max
   
-//   float angle = atan(smallLFOmaxHeight/sawX);
+  float angle = atan(smallLFOmaxHeight/triHalfX);
 
-//   Serial.print("phase = ");
-//   Serial.print(phase);
-//   Serial.print("        angle = ");
-//   Serial.println(angle);
 
-//   float heightFirstPeak;
-//   int16_t triX;
-//   float triangleHeight;
+  float heightFirstPeak = 0;
+  int16_t firstTriX = 0;
+  float firstTriangleHeight = 0;
+  int8_t peak = 0;
+
+  int16_t currentXpos = delay - offset;
+  int16_t nextXpos = currentXpos + triQuarterX;
+  int8_t triTop = centreY - scaledAmp;
+  int8_t triBottom = centreY + scaledAmp;
+
+  if (phase < 64)
+  {
+    Serial.println("phase under 64");
+    firstTriX = offset;
+    firstTriangleHeight = firstTriX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
+    heightFirstPeak = firstTriangleHeight * ((float)amp / 99.0);
+    peak = centreY - heightFirstPeak;
+  }
+
+
+
+  if ((phase >= 64) && (phase < 128))
+  {
+    Serial.println("phase between 64 and 127");
+    firstTriX = triHalfX - offset;
+    firstTriangleHeight = firstTriX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
+    heightFirstPeak = firstTriangleHeight * ((float)amp / 99.0); 
+    peak = centreY - heightFirstPeak;  
+  }
+
+  if ((phase >= 128) && (phase < 192))
+  {
+    Serial.println("phase between 128 and 191");
+    firstTriX = triHalfX - offset;
+    firstTriangleHeight = firstTriX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
+    heightFirstPeak = firstTriangleHeight * ((float)amp / 99.0); 
+    peak = centreY - heightFirstPeak;  
+  }
+
+
+  if (phase >= 192)
+  {
+    Serial.println("phase over 191");
+    firstTriX = triangleTotalX - offset;
+    firstTriangleHeight = firstTriX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
+    heightFirstPeak = firstTriangleHeight * ((float)amp / 99.0); 
+    peak = centreY + heightFirstPeak;
+  }
+
+
 
   
-//   if (phase < 128)
-//   {
-//     Serial.println("phase under 128");
-//     triX = (sawX/2) - offset;
-//     triangleHeight = triX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
-//     heightFirstPeak = triangleHeight * ((float)amp / 99.0);  
-//   }
-//   else // if (phase >= 128)
-//   {
-//     Serial.println("phase over 128");
-//     triX = offset;
-//     triangleHeight = triX * tan(angle); // * ((float)amp / 99.0);  //  99 is amp max;
-//     heightFirstPeak = (smallLFOhalfHeight - triangleHeight)  * ((float)amp / 99.0);
-//   }
+  
 
-//   Serial.print("triangle  x = ");
-//   Serial.print(triX);
-//   Serial.print("     height = ");
-//   Serial.println(triangleHeight);  
-//   Serial.print("heightFirstPeak = ");
-//   Serial.println(heightFirstPeak);
+  Serial.print("offset = ");
+  Serial.print(offset);
+  
+  Serial.print("   firstTriY = ");
+  Serial.print(firstTriangleHeight);
 
 
-//   int8_t peak = heightFirstPeak + centreY; //* ((float)amp / 99.0);// / 2) + smallLFOhalfHeight;// + scaledAmp;// + (smallLFOhalfHeight); // + (scaledAmp / 2);
+  Serial.print("     firstTriX = ");
+  Serial.print(firstTriX);
 
-//   Serial.print("peak = ");
-//   Serial.println(peak);
+  Serial.print("     peak = ");
+  Serial.println(peak);
 
-//   uint8_t currentXpos = delay - offset;
-//   uint8_t nextXpos = currentXpos + sawX;
-//   int8_t sawTop = centreY - scaledAmp;
-//   int8_t sawBottom = centreY + scaledAmp;
+  // draw horizontal line for delay
+  if ((delay > 0))
+  {
+      drawFastHLine(0, centreY, (delay), 1);
+  }
+
+  // draw first vertical line
+  if (phase < 128)
+  {
+    writeLine(delay, centreY, delay, peak, 1);
+  }
+  else
+  {
+    writeLine(delay, centreY, delay, peak, 1);
+  }
+  
 
 
-//   // draw horizontal line for delay
-//   if ((delay > 0))
-//   {
-//       drawFastHLine(0, centreY, (delay), 1);
-//   }
+//  draw first phase adjusted cycle
 
-//   // draw first vertical line
-//   writeLine(delay, centreY, delay, peak, 1);
+    //  first line
 
+    if (phase < 64)
+    {
+      Serial.println("phase is less than 64");
+      writeLine(delay, peak, nextXpos, triTop, 1);
+    }
+    
+    Serial.print("currentX = ");
+    Serial.print(currentXpos);
+    Serial.print("  nextX = ");
+    Serial.println(nextXpos);
 
-// //  draw first phase adjusted cycle
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
 
-//     //  first line
+    Serial.print("currentX = ");
+    Serial.print(currentXpos);
+    Serial.print("  nextX = ");
+    Serial.println(nextXpos);
 
-//     writeLine(delay, ((peak * 1)), nextXpos, sawTop, 1);
+    if (phase < 128)
+    {
+      Serial.println("phase is less than 128");
+      
+      if (phase > 64)
+      {
+        writeLine(delay, peak, nextXpos, centreY, 1);
+      }
+      else
+      {
+        writeLine(currentXpos, triTop, nextXpos, centreY, 1);
+      }
 
-//     currentXpos = nextXpos;
-//     nextXpos = nextXpos + sawX;
+      
 
-//     drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    }
+
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
+
+    Serial.print("currentX = ");
+    Serial.print(currentXpos);
+    Serial.print("  nextX = ");
+    Serial.println(nextXpos);
+
+    if (phase < 192)
+    {
+      Serial.println("phase is less than 192");
+      
+
+      if (phase > 128)
+      {
+        writeLine(delay, peak, nextXpos, triBottom, 1);
+      }
+      else
+      {
+        writeLine(currentXpos, centreY, nextXpos, triBottom, 1);
+      }
+    }
+
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
+
+    Serial.print("currentX = ");
+    Serial.print(currentXpos);
+    Serial.print("  nextX = ");
+    Serial.println(nextXpos);
+
+    if (phase < 255)
+    {
+      Serial.println("phase is less than 255");
+      //writeLine(currentXpos, triBottom, nextXpos, centreY, 1);
+      
+      if (phase > 192)
+      {
+        writeLine(delay, peak, nextXpos, centreY, 1);
+      }
+      else
+      {
+        writeLine(currentXpos, triBottom, nextXpos, centreY, 1);
+      }
+      
+    }
+
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
     
 
-//   for (uint8_t i = (currentXpos); i < WIDTH; i = i + sawX)  // draw complete cycle
-//   {
-//     writeLine(currentXpos, sawBottom, nextXpos, sawTop, 1);
 
-//     currentXpos = nextXpos;
-//     nextXpos = nextXpos + sawX;
+    //drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
+    
+  for (uint8_t i = (currentXpos); i < WIDTH; i = i + triangleTotalX)  // draw complete cycle
+  {
+    
+    writeLine(currentXpos, centreY, nextXpos, triTop, 1);
 
-//     drawFastVLine(currentXpos, (centreY + scaledAmp), -((scaledAmp * 2) - 1),  1);
-//   }
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
 
+    writeLine(currentXpos, triTop, nextXpos, centreY, 1);
 
-// }
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
+
+    writeLine(currentXpos, centreY, nextXpos, triBottom, 1);
+
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
+
+    writeLine(currentXpos, triBottom, nextXpos, centreY, 1);
+
+    currentXpos = nextXpos;
+    nextXpos = nextXpos + triQuarterX;
+  }
+  
+
+}
 
 
 //============================================================================== text

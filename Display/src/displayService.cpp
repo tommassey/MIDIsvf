@@ -23,7 +23,7 @@ void displayService::actOnInputs(int8_t inputNumber)
 
         case encoder_button:
         {
-            currentLFOselected = 0;
+            currentLFOselected = LFO_1;
             clearMenu();
 
             splitScreenMode = ss_mode_home;
@@ -35,9 +35,9 @@ void displayService::actOnInputs(int8_t inputNumber)
         {
             splitScreenMode = ss_mode_menu;
 
-            if (currentLFOselected == 2) resetMenu();
+            if (currentLFOselected == LFO_2) resetMenu();
 
-            currentLFOselected = 1;
+            currentLFOselected = LFO_1;
             advanceMenu();
             
             break;
@@ -47,9 +47,9 @@ void displayService::actOnInputs(int8_t inputNumber)
         {
             splitScreenMode = ss_mode_menu;
 
-            if (currentLFOselected == 1) resetMenu();
+            if (currentLFOselected == LFO_1) resetMenu();
 
-            currentLFOselected = 2;
+            currentLFOselected = LFO_2;
             advanceMenu();
             
             break;
@@ -57,7 +57,7 @@ void displayService::actOnInputs(int8_t inputNumber)
         
         case menu_encoder:
         {
-
+            // nothing here, handled by newEncoderMovement() called in main()
             break;
         }
     
@@ -90,19 +90,19 @@ void displayService::initMenuOptions(void)
     menuOption moDelay = {0,            0,         254,          "DELAY"};
   
 
-    menu[1][menu_option_none]  = moNone;
-    menu[1][menu_option_wave]  = moWave;
-    menu[1][menu_option_rate]  = moRate;
-    menu[1][menu_option_amp]   = moAmp;
-    menu[1][menu_option_phase] = moPhase;
-    menu[1][menu_option_delay] = moDelay;
+    menu[LFO_1][menu_option_none]  = moNone;
+    menu[LFO_1][menu_option_wave]  = moWave;
+    menu[LFO_1][menu_option_rate]  = moRate;
+    menu[LFO_1][menu_option_amp]   = moAmp;
+    menu[LFO_1][menu_option_phase] = moPhase;
+    menu[LFO_1][menu_option_delay] = moDelay;
 
-    menu[2][menu_option_none]  = moNone;
-    menu[2][menu_option_wave]  = moWave;
-    menu[2][menu_option_rate]  = moRate;
-    menu[2][menu_option_amp]   = moAmp;
-    menu[2][menu_option_phase] = moPhase;
-    menu[2][menu_option_delay] = moDelay;
+    menu[LFO_2][menu_option_none]  = moNone;
+    menu[LFO_2][menu_option_wave]  = moWave;
+    menu[LFO_2][menu_option_rate]  = moRate;
+    menu[LFO_2][menu_option_amp]   = moAmp;
+    menu[LFO_2][menu_option_phase] = moPhase;
+    menu[LFO_2][menu_option_delay] = moDelay;
 
     
 
@@ -241,8 +241,6 @@ void displayService::drawBorders()
 
 }
 
-uint8_t centreLFO1 = 16;
-uint8_t centreLFO2 = 48;
 
 void displayService::drawLFOs(void)
 {
@@ -250,26 +248,60 @@ void displayService::drawLFOs(void)
 
     if (splitScreenMode == ss_mode_home)
     {
-        screen->smallSaw(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value, menu[1][menu_option_phase].value, menu[1][menu_option_delay].value); // LFO1
-        screen->smallSaw(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value, menu[2][menu_option_delay].value); // LFO2
-       // screen->startScroll();
-        
+        drawCurrentWaveform(LFO_1);
+        drawCurrentWaveform(LFO_2);
     }
 
     if (splitScreenMode == ss_mode_menu)
     {
-        if (currentLFOselected == 1)
-        {
-            screen->smallSaw(centreLFO1, menu[1][menu_option_rate].value, menu[1][menu_option_amp].value,  menu[1][menu_option_phase].value, menu[1][menu_option_delay].value); // LFO1
-        }
-
-        if (currentLFOselected == 2)
-        {
-            screen->smallSaw(centreLFO2, menu[2][menu_option_rate].value, menu[2][menu_option_amp].value, menu[2][menu_option_phase].value, menu[2][menu_option_delay].value); // LFO2
-        }
-        //screen->stopScroll();
+        drawCurrentWaveform(currentLFOselected);
     }
 }
+
+
+
+void displayService::drawCurrentWaveform(uint8_t whichLFO)
+{
+    uint8_t currentWaveform = menu[whichLFO][menu_option_wave].value;
+
+    uint8_t rate  = menu[whichLFO][menu_option_rate].value;
+    uint8_t amp   = menu[whichLFO][menu_option_amp].value;
+    uint8_t phase = menu[whichLFO][menu_option_phase].value;
+    uint8_t delay = menu[whichLFO][menu_option_delay].value;
+
+    
+    switch (currentWaveform)
+    {
+        case sine:
+        {
+            screen->smallSine(whichLFO, rate, amp, phase, delay);
+            break;    
+        }
+
+        case triangle:
+        {
+            screen->smallTriangle(whichLFO, rate, amp, phase, delay);
+            break;    
+        }
+
+        case saw:
+        {
+            screen->smallSaw(whichLFO, rate, amp, phase, delay);
+            break;    
+        }
+
+        case squaree:
+        {
+            screen->smallSquare(whichLFO, rate, amp, phase, delay);
+            break;    
+        }
+
+    
+    default:
+        break;
+    }
+ }
+
 
 
 uint8_t Y1 = 40;
@@ -308,7 +340,7 @@ void displayService::drawMenu(void)
     // // print value
     // screen->string16pix(64, 40, str);
 
-    if (currentLFOselected == 1)
+    if (currentLFOselected == LFO_1)
     {
         //  print option name
         screen->string(optionX, Y1, menu[currentLFOselected][currentMenuOption].name, 16, 1);
@@ -317,7 +349,7 @@ void displayService::drawMenu(void)
 
     }
 
-    if (currentLFOselected == 2)
+    if (currentLFOselected == LFO_2)
     {
         screen->string(optionX, Y2, menu[currentLFOselected][currentMenuOption].name, 16, 1);
         // print value  
@@ -339,37 +371,31 @@ void displayService::updateLFO()
     {
         case sine:
         {
-            screen->sine(sinCycles, LFOamp);
+            //screen->sine(sinCycles, LFOamp);
             break;
         }
 
         case triangle:
         {
-            screen->triangle(LFOrate, LFOamp);
+            //screen->triangle(LFOrate, LFOamp);
             break;
         }
 
-        case rampUp:
+        case saw:
         {
-            screen->saw(LFOrate, LFOamp);
-            break;
-        }
-
-        case rampDown:
-        {
-            screen->saw(LFOrate, LFOamp);
+            //screen->saw(LFOrate, LFOamp);
             break;
         }
 
         case squaree:
         {
-            screen->square(LFOrate, LFOamp);
+            //screen->square(LFOrate, LFOamp);
             break;
         }
 
         case nonMusicLFO:
         {
-            screen->square(LFOrate, LFOamp);
+            //screen->square(LFOrate, LFOamp);
             break;
         }
         
@@ -379,10 +405,10 @@ void displayService::updateLFO()
             break;
     }
 
-    screen->stopScroll();
+    //screen->stopScroll();
 
     screen->display();
-    screen->startScroll();
+    //screen->startScroll();
 
 }
 

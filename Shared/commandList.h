@@ -19,11 +19,19 @@ enum waveForms
     noWaveform = 0,
     sine,
     triangle,
-    rampUp,
-    rampDown,
+    saw,
+    //rampUp,
+    //rampDown,
     squaree,
     nonMusicLFO,
     totalWaveforms
+};
+
+enum LFOS
+{
+    LFO_1,
+    LFO_2,
+    LFO_total
 };
 
 
