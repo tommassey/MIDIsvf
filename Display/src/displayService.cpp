@@ -95,7 +95,6 @@ void displayService::noteOnEvent(uint8_t whichLFO)
     else
     {
         noteOn[whichLFO] = true;
-        needsRedraw = true;
         splitScreen();
     }
 }
@@ -107,7 +106,6 @@ void displayService::noteOffEvent(uint8_t whichLFO)
     else
     {
         noteOn[whichLFO] = false;
-        needsRedraw = true;
         splitScreen();
     }
 }
@@ -408,7 +406,11 @@ void displayService::drawNotifications(void)
              (splitScreenMode == ss_mode_menu  && currentLFOselected == LFO_1) )
         {
             screen->string(38, 10, noteOnText, 12, 0);   
-        }     
+        }
+        else
+        {
+            screen->drawRect(4, 28, 120, 24, 1);
+        }  
     }
     
     if (noteOn[LFO_2] == true)
@@ -417,7 +419,11 @@ void displayService::drawNotifications(void)
              (splitScreenMode == ss_mode_menu  && currentLFOselected == LFO_2) )
         {
             screen->string(38, 42, noteOnText, 12, 0);   
-        }     
+        }
+        else
+        {
+            screen->drawRect(4, 60, 120, 24, 1);
+        }
     }
 }
 
