@@ -42,6 +42,8 @@ class displayService
     private:
         oled* screen;
 
+        bool needsRedraw = false;   //  set this high after doing anything that requires screen to be refreshed
+
         byte currentScreen = 0;
         
         byte LFOshape = sine;
@@ -62,6 +64,10 @@ class displayService
         menuOption* selectedOption = &menu[currentLFOselected][menu_option_none];
 
         menuOption menu[LFO_total][total_menu_options];
+
+        //  for notifications
+        bool noteOn[LFO_total] = { true, true };
+        
         
 
         void initMenuOptions(void);
@@ -75,6 +81,7 @@ class displayService
         void drawLFOs(void);
         void drawCurrentWaveform(uint8_t whichLFO);
         void drawMenu(void);
+        void drawNotifications(void);
 
 
 
@@ -86,8 +93,12 @@ class displayService
         displayService(oled* screenPtr);
         ~displayService();
 
+        void checkForRedraw(void);
+
         void actOnInputs(int8_t inputNumber);
         void newEncoderMovement(int32_t movement);
+        void noteOnEvent(uint8_t whichLFO);
+        void noteOffEvent(uint8_t whichLFO);
 
         void showScreen(byte screenNumber);
         void splitScreen(void);

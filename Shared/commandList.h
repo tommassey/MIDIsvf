@@ -31,7 +31,8 @@ enum LFOS
 {
     LFO_1,
     LFO_2,
-    LFO_total
+    LFO_total,
+    LFO_none
 };
 
 

@@ -12,6 +12,15 @@ displayService::~displayService()
 {
 }
 
+void displayService::checkForRedraw(void)
+{
+    if (needsRedraw == true)
+    {
+        screen->display();
+        needsRedraw = false;
+    }
+}
+
 void displayService::actOnInputs(int8_t inputNumber)
 { 
     //Serial.print("display serv input number = ");
@@ -23,7 +32,7 @@ void displayService::actOnInputs(int8_t inputNumber)
 
         case encoder_button:
         {
-            currentLFOselected = LFO_1;
+            currentLFOselected = LFO_none;
             clearMenu();
 
             splitScreenMode = ss_mode_home;
@@ -76,6 +85,31 @@ void displayService::newEncoderMovement(int32_t movement)
     if (selectedOption->value > selectedOption->max) selectedOption->value = selectedOption->max;
     if (selectedOption->value < selectedOption->min) selectedOption->value = selectedOption->min;
     
+    needsRedraw = true;
+}
+
+void displayService::noteOnEvent(uint8_t whichLFO)
+{
+    if (noteOn[whichLFO] == true) return;
+    
+    else
+    {
+        noteOn[whichLFO] = true;
+        needsRedraw = true;
+        splitScreen();
+    }
+}
+
+void displayService::noteOffEvent(uint8_t whichLFO)
+{
+    if (noteOn[whichLFO] == false) return;
+
+    else
+    {
+        noteOn[whichLFO] = false;
+        needsRedraw = true;
+        splitScreen();
+    }
 }
 
 
@@ -123,18 +157,21 @@ void displayService::advanceMenu(void)
     //Serial.println(currentMenuOption);
 
     selectedOption = &menu[currentLFOselected][currentMenuOption];
+    needsRedraw = true;
 }
 
 void displayService::clearMenu(void)
 {
     currentMenuOption = menu_option_none;
     selectedOption = &menu[currentLFOselected][menu_option_none];
+    needsRedraw = true;
 }
 
 void displayService::resetMenu(void)
 {
     currentMenuOption = 1;
     selectedOption = &menu[currentLFOselected][1];
+    needsRedraw = true;
 }
 
 
@@ -153,7 +190,7 @@ void displayService::showScreen(byte screenNumber)
         break;
     }
 
-    screen->display();
+    needsRedraw = true;
 
 }
 
@@ -186,9 +223,9 @@ void displayService::splitScreen(void)
     }
 
     drawBorders();
+    drawNotifications();
 
-    screen->display();
-
+    needsRedraw = true;
 }
 
 //  0,0                         127,0
@@ -213,15 +250,13 @@ void displayService::drawBorders()
 
     switch (currentLFOselected)
     {
-        case 0:  break;
-
-        case 1:
+        case LFO_1:
         {
             screen->drawRect(2, 29, 123, 27, 1);  // selected frame LFO1
             break;
         }
 
-        case 2:
+        case LFO_2:
         {
             screen->drawRect(2, 61, 123, 27, 1);  // selected frame LFO2
             break;
@@ -359,6 +394,31 @@ void displayService::drawMenu(void)
     
 
     
+}
+
+
+
+void displayService::drawNotifications(void)
+{
+    static const char* noteOnText = " NOTE ON ";
+    
+    if (noteOn[LFO_1] == true)
+    {
+        if ( (splitScreenMode == ss_mode_home) ||
+             (splitScreenMode == ss_mode_menu  && currentLFOselected == LFO_1) )
+        {
+            screen->string(38, 10, noteOnText, 12, 0);   
+        }     
+    }
+    
+    if (noteOn[LFO_2] == true)
+    {
+        if ( (splitScreenMode == ss_mode_home) ||
+             (splitScreenMode == ss_mode_menu  && currentLFOselected == LFO_2) )
+        {
+            screen->string(38, 42, noteOnText, 12, 0);   
+        }     
+    }
 }
 
 
