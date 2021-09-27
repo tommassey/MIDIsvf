@@ -3,6 +3,13 @@
 
 #include <Arduino.h>
 
+enum MIDIchannels
+{
+    MIDIchannel_1 = 0,
+    MIDIchannel_2,
+    MIDIchannel_total
+};
+
 enum commandTypes
 {
     noCommand = 0,   

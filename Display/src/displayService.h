@@ -10,11 +10,13 @@
 #define TOTAL_LFOS 2
 
 
+
 enum screenModes
 {
     screenMode_fullScreen,
     screenMode_splitScreen,
     screenMode_settings,
+    screenMode_calbration_warning,
     screenMode_calibrate
 };
 
@@ -54,6 +56,16 @@ struct menuOption
     char name[13];
 
 } ;
+
+struct MIDIprofile
+{
+    byte channel = 0;
+    bool is14bit = false;
+    uint16_t value = 0;
+    uint16_t min = 0;
+    uint16_t max = 0;
+
+};
 
 class displayService
 {
@@ -116,6 +128,13 @@ class displayService
         void initSettingsMenuOptions(void);
 
         void checkForInvertedDisplay(void);  // return true if inverted
+
+        //============================ MIDI config menu
+
+        MIDIprofile MIDIdata[MIDIchannel_total];
+
+        void calibrationWarningScreen(void);
+        void MIDIconfigMenu(void);
 
 
 

@@ -160,8 +160,16 @@ void displayService::actOnInputs(int8_t inputNumber)
 
                 case encoder_button_long_press:
                 {
-                    
-                    currentScreenMode = screenMode_settings;
+                    if(currentSettingsMenuOption == settings_menu_option_save)
+                    {
+
+                    }
+
+                    if (currentSettingsMenuOption == settings_menu_option_midi_config)
+                    {
+                        currentScreenMode = screenMode_calbration_warning;
+                    }
+                    //currentScreenMode = screenMode_settings;
                     Serial.println("Encoder Button Long Press");
                     break;
                 }
@@ -207,10 +215,97 @@ void displayService::actOnInputs(int8_t inputNumber)
             break;
         }
 
+
+        case screenMode_calbration_warning:  //==============================================  Calibration Mode
+        {
+
+            switch (inputNumber)
+            {
+                case no_input:  break;
+
+                case encoder_button_long_press:
+                {
+                    currentScreenMode = screenMode_calibrate;
+                    break;
+                }
+
+                default:
+                {
+                    currentScreenMode = screenMode_settings;
+                    break;
+                }
+
+            }
+        }
+
         case screenMode_calibrate:  //==============================================  Calibration Mode
         {
 
-            break;
+            switch (inputNumber)
+            {
+                case no_input:  break;
+
+                case encoder_button:
+                {
+                    currentScreenMode = screenMode_splitScreen;
+                    splitScreenMode = ss_mode_home;
+
+                    break;
+                }
+
+                case encoder_button_long_press:
+                {
+                    // if(currentSettingsMenuOption == settings_menu_option_save)
+                    // {
+
+                    // }
+
+                    // if (currentSettingsMenuOption == settings_menu_option_midi_config)
+                    // {
+                    //     currentScreenMode = screenMode_calibrate;
+                    // }
+                    //currentScreenMode = screenMode_settings;
+                    Serial.println("Encoder Button Long Press");
+                    break;
+                }
+
+                case lfo1_button:
+                {
+                    if (currentSettingsMenuOption == settings_menu_option_noteOn) currentSettingsMenuOption = settings_menu_option_midi_config;
+                    else
+                    {
+                        currentSettingsMenuOption--;
+                    }
+                    selectedSettingsMenuOption = &settingsMenu[currentSettingsMenuOption];
+                    
+                    
+                    Serial.print("settings decrement   currentSettingsMenuOption value =");
+                    Serial.println(currentSettingsMenuOption);
+                                
+                    break;
+                }
+
+                case lfo2_button:
+                {
+                    currentSettingsMenuOption++;
+                    if (currentSettingsMenuOption >= settings_menu_options_total) currentSettingsMenuOption = settings_menu_option_noteOn;
+                    selectedSettingsMenuOption = &settingsMenu[currentSettingsMenuOption];
+                    Serial.print("settings increment   currentSettingsMenuOption value =");
+                    Serial.println(currentSettingsMenuOption);
+  
+                    break;
+                }
+                
+                case menu_encoder:
+                {
+                    // nothing here, handled by newEncoderMovement() called in main()
+                    break;
+                }
+            
+                default:
+                    break;
+            }
+
         }
  
         
@@ -397,8 +492,18 @@ void displayService::drawCurrentScreenMode(void)
             break;
         }
 
+        case screenMode_calbration_warning:
+        {
+            
+            calibrationWarningScreen();
+            break;
+        }
+        
+        
         case screenMode_calibrate:
         {
+            
+            MIDIconfigMenu();
             //calibrationScreen();
             break;
         }
@@ -441,7 +546,7 @@ void displayService::splitScreen(void)
         case ss_mode_home:
             {
                 drawLFOs();
-                screen->startScroll();
+                //screen->startScroll();
                 break;
             }
         
@@ -633,6 +738,111 @@ void displayService::drawLFOmenu(void)
 }
 
 
+static const char* MIDIconfigText = "    MIDI SETUP     ";
+static const char* warningLine1 =   "input MIDI data per";
+static const char* warningLine2 =   "channel. full sweep.";
+static const char* warningLine3 =   "long press=continue";
+
+
+
+void displayService::calibrationWarningScreen(void)
+{
+    screen->clear();
+
+    screen->string(9, 0, MIDIconfigText, 12, 1);
+    screen->string(3, 15, warningLine1, 12, 1);
+    screen->string(1, 28, warningLine2, 12, 1);
+    screen->string(3, 50, warningLine3, 12, 1);
+
+
+
+
+    needsRedraw = true;
+
+
+}
+
+static const char* oneText =   "1";
+static const char* twoText =   "2";
+
+
+static const char* LFOtext =  "LFO";
+static const char* minmaxText =   "min         max ";
+static const char* ccText =   "ch    cc";
+static const char* noteText =   "note on";
+static const char* resText =   "res";
+static const char* fourteenText =   "14";
+static const char* sevenText =   "7";
+static const char* bitText =   "bit";
+
+
+void displayService::MIDIconfigMenu(void)
+{
+    screen->clear();
+
+    //  LFO: ?
+    screen->string16pix(27, 2, twoText);   // print value
+    screen->string(4, 2, LFOtext, 12, 1);  // print LFO:
+    //screen->drawRect(0, 18, 51, 18, 1);    // border
+
+    screen->string(50, 0, ccText, 12, 1); // print cc ch
+    
+    static const char* ch =   "16";
+    screen->string(64, 0, ch, 16, 1); // print cc ch
+
+    static const char* cc =   "127";
+    screen->string(100, 0, cc, 16, 1); // print cc ch
+
+    
+
+
+    screen->string(2, 18, resText, 12, 1); // print cc ch
+    screen->string(22, 19, fourteenText, 16, 1); // print cc ch
+    screen->string(40, 24, bitText, 12, 1); // print cc ch
+
+
+
+    screen->string(74, 20, noteText, 12, 1); // print cc ch
+    screen->drawRect(64, 33, 62, 12, 1); // note on box
+
+
+
+    
+    screen->string(2, 50, minmaxText, 12, 1);  //  print min max
+
+    static const char* longvalueText =   "16535";
+    static const char* shortvalueText =   "127";
+
+    screen->string(27, 54, longvalueText, 12, 1); // print min val
+    //screen->string(98, 42, longvalueText, 12, 1); // print max val
+
+    //screen->string(26, 38, shortvalueText, 16, 1); // print min val
+    
+    screen->string(98, 50, shortvalueText, 16, 1); // print max val
+    //screen->string(98, 38, shortvalueText, 16, 1); // print max val
+
+
+
+    screen->writeLine(0, 17, 127, 17, 1); // first horiz line
+    screen->drawRect(2, 49, 124, 12, 1); // bar
+
+
+    //screen->string(0, 10, oneText, 12, 1);
+    //screen->string(0, 22, one1Text, 12, 1);
+    //screen->string(0, 40, twoText, 12, 1);
+    //screen->string(0, 52, one1Text, 12, 1);
+
+    
+
+
+
+
+    needsRedraw = true;
+
+
+}
+
+
 
 void displayService::drawNotifications(void)
 {
@@ -710,7 +920,7 @@ void displayService::settingsScreen(void)
 
 
 
-    const char* msg;
+    const char* msg = "0";
 
     if      (settingsMenu[settings_menu_option_noteOn].value == true)   msg = onText;
     else if (settingsMenu[settings_menu_option_noteOn].value == false)  msg = offText;
