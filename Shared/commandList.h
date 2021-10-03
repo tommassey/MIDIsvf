@@ -12,16 +12,46 @@ enum MIDIchannels
 
 enum commandTypes
 {
-    noCommand = 0,   
-    changeScreen,
-    setWaveform,
-    setRate,
-    setAmp,
-    setPhase,
+    command_none = 0,
+
     command_enter_setup_mode,
-    command_recieve_midi_channel,
-    command_recieve_midi_value
+    command_changeScreen,
+    
+    //====================================  LFO1
+    
+    command_LFO1_setWaveform,
+    command_LFO1_setRate,
+    command_LFO1_setAmp,
+    command_LFO1_setPhase,
+    command_LFO1_setDelay,
+    command_LFO1_noteOn,
+    command_LFO1_noteOff,
+    
+    command_LFO1_recieve_midi_channel,
+    command_LFO1_recieve_midi_cc,
+    command_LFO1_recieve_midi_value,
+    command_LFO1_recieve_midi_is_14bit,
+    command_LFO1_recieve_midi_is_7bit,
+
+    //====================================  LFO2
+    command_LFO2_setWaveform,
+    command_LFO2_setRate,
+    command_LFO2_setAmp,
+    command_LFO2_setPhase,
+    command_LFO2_setDelay,
+    command_LFO2_noteOn,
+    command_LFO2_noteOff,
+    
+    command_LFO2_recieve_midi_channel,
+    command_LFO2_recieve_midi_cc,
+    command_LFO2_recieve_midi_value,
+    command_LFO2_recieve_midi_is_14bit,
+    command_LFO2_recieve_midi_is_7bit,
+
+
+    command_total
 };
+
 
 
 enum waveForms

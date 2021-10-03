@@ -148,6 +148,7 @@ void oled::pixel(int x, int y, char color)
 }
 
 
+
 void oled::writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {
   int16_t steep = abs(y1 - y0) > abs(x1 - x0);

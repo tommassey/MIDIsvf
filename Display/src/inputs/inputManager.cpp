@@ -70,7 +70,7 @@ int8_t checkInputs()
 
     if ((newInput > no_input) && (newInput < max_buttons))   //  if a button changed
     {
-        printButtonChanges();
+        //printButtonChanges();
         menuEncoder.reset();
         return newInput;        
     }
@@ -79,7 +79,7 @@ int8_t checkInputs()
     if (menuEncoder.changeFlag == true)   //  if encoder changed
     {
         currentEncoderValue = menuEncoder.getValue();
-        printEncoderValue();
+        //printEncoderValue();
 
         menuEncoder.reset();       
 

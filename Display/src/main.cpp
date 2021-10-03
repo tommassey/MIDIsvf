@@ -1,11 +1,12 @@
 #include <Arduino.h>
-#include "displayService.h"
+#include "display/displayService.h"
 #include <Wire.h>
 #include "TeensyTimerTool.h"
 #include "inputs/inputManager.h"
+#include "menu/menu.h"
 
 
-#include "comms/reciever.h"
+
 
 using namespace TeensyTimerTool;
 
@@ -13,6 +14,8 @@ using namespace TeensyTimerTool;
 oled screen(128, 64);
 displayService display(&screen);
 
+
+#include "comms/receiverService.h"
 
 PeriodicTimer noteOnTimer(TCK);
 PeriodicTimer noteOffTimer(TCK);
@@ -48,67 +51,74 @@ void noteOffISR(void)
 
 void checkSerial(void)
 {
-  serialMessage newMessage = getSerialMessage();
+  // serialMessage newMessage = getSerialMessage();
   
-  switch (newMessage.messageType)
-  {
-    case noCommand:  break;
+  // switch (newMessage.messageType)
+  // {
+  //   case noCommand:  break;
 
-    case changeScreen:
-    {
-      display.showFullScreen(newMessage.data);
-      break;
-    }
+  //   case changeScreen:
+  //   {
+  //     display.showFullScreen(newMessage.data);
+  //     break;
+  //   }
 
-    case setWaveform:
-    {
-      display.setLFOwave(newMessage.data);
-      break;
-    }
+  //   case setWaveform:
+  //   {
+  //     display.setLFOwave(newMessage.data);
+  //     break;
+  //   }
 
-    case setRate:
-    {
-      display.setLFOrate(newMessage.data);
-      break;
-    }
+  //   case setRate:
+  //   {
+  //     display.setLFOrate(newMessage.data);
+  //     break;
+  //   }
 
-    case setAmp:
-    {
-      display.setLFOamp(newMessage.data);
-      break;
-    }
+  //   case setAmp:
+  //   {
+  //     display.setLFOamp(newMessage.data);
+  //     break;
+  //   }
 
-    case setPhase:
-    {
-      display.setLFOphase(newMessage.data);
-      break;
-    }
+  //   case setPhase:
+  //   {
+  //     display.setLFOphase(newMessage.data);
+  //     break;
+  //   }
     
-    default: break;
-    }
+  //   default: break;
+  //   }
     
 }
 
 
 void setup()
 {
+  Serial.println("setup ...");
   Serial.begin(115200);
   Serial2.begin(115200);
+  
+  receiverServiceInit(&display);
 
-  Serial.println("setup ...");
+  
 
   inputManager_init();
+  
+  initMenu(&display);
 
-  noteOnTimer.begin(noteOnISR, 0.3_Hz);  // setup timers
-  noteOffTimer.begin(noteOffISR, 0.4_Hz);  // setup timers
+  //noteOnTimer.begin(noteOnISR, 0.3_Hz);  // setup timers
+  //noteOffTimer.begin(noteOffISR, 0.4_Hz);  // setup timers
   checkEncodersTimer.begin(checkEncodersTimerISR, 50_Hz);  // setup timers
 
     
   screen.clear();
 
   //display.showScreen(1);
-  display.splitScreen();
+  //display.splitScreen();
   //delay(5000);
+
+  Serial.println("setup complete...");
 
 }
 
@@ -119,7 +129,7 @@ void setup()
 void loop()
 {
   //Serial.println("loop");
-  checkSerial();
+  receiverServiceTask();
   
   int8_t input = checkInputs();
 
@@ -130,10 +140,10 @@ void loop()
     
     if (input == menu_encoder)
     {
-      display.newEncoderMovement(getEncoderChange());
+      newEncoderMovement(getEncoderChange());
     }
 
-    display.actOnInputs(input);
+    actOnInputs(input);
     resetInputFlag();
   }
 
