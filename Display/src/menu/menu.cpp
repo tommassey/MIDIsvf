@@ -3,32 +3,28 @@
 displayService* displayServPtr;
 
 
-
 byte currentScreenMode = screenMode_ss_mode_home;
 
-// splitScreen
+//============================  LFO menu
+uint8_t currentLFOselected = LFO_none;
+uint8_t currentLFOmenuOption[LFO_total] = { lfo_menu_option_none };
 
-        uint8_t currentLFOselected = LFO_1;
-        //uint8_t splitScreenMode = ss_mode_home;
-        uint8_t currentLFOmenuOption[LFO_total] = { lfo_menu_option_none };
+menuOption LFOmenu[LFO_total][lfo_menu_options_total];
+menuOption* selectedLFOmenuOption = &LFOmenu[currentLFOselected][lfo_menu_option_none];
 
-        menuOption LFOmenu[LFO_total][lfo_menu_options_total];
-        menuOption* selectedLFOmenuOption = &LFOmenu[currentLFOselected][lfo_menu_option_none];
-
-        
 
 //============================  settings menu
-        
-        menuOption settingsMenu[settings_menu_options_total];
-        menuOption* selectedSettingsMenuOption = &settingsMenu[settings_menu_option_noteOn];
+uint8_t currentSettingsMenuOption = settings_menu_option_noteOn;
 
-        uint8_t currentSettingsMenuOption = settings_menu_option_noteOn;
-
+menuOption settingsMenu[settings_menu_options_total];
+menuOption* selectedSettingsMenuOption = &settingsMenu[settings_menu_option_noteOn];
 
 
 
 
 void drawCurrentScreenMode(void);
+
+
 
 
 
@@ -84,6 +80,7 @@ void newEncoderMovement(int32_t movement)
 
             if (selectedSettingsMenuOption->value > selectedSettingsMenuOption->max) selectedSettingsMenuOption->value = selectedSettingsMenuOption->max;
             if (selectedSettingsMenuOption->value < selectedSettingsMenuOption->min) selectedSettingsMenuOption->value = selectedSettingsMenuOption->min;
+            displayServPtr->updateSetting(selectedSettingsMenuOption->enumValue, selectedSettingsMenuOption->value);
         
             drawCurrentScreenMode();
             break;
@@ -99,14 +96,9 @@ void newEncoderMovement(int32_t movement)
             break;
         }
    
-        
-        default:
-            break;
+        default:  break;
     }
-   
 }
-
-
 
 
 void actOnInputs(int8_t inputNumber)
@@ -248,7 +240,8 @@ void actOnInputs(int8_t inputNumber)
                 case lfo2_button:
                 {
                     currentLFOselected = LFO_2;
-                    currentScreenMode = screenMode_ss_mode_menu_lfo2;                   
+                    currentScreenMode = screenMode_ss_mode_menu_lfo2;
+                    resetLFOmenu(LFO_2);                  
                     break;
                 }
                 
@@ -289,6 +282,7 @@ void actOnInputs(int8_t inputNumber)
                 {
                     currentLFOselected = LFO_1;
                     currentScreenMode = screenMode_ss_mode_menu_lfo1;
+                    resetLFOmenu(LFO_1);
                     break;
                 }
 
@@ -530,8 +524,8 @@ void actOnInputs(int8_t inputNumber)
 
 
 
-
 //==================================================================================   MENUS
+
 
 void initMenu(displayService* disp)
 {
@@ -547,7 +541,7 @@ void initLFOmenuOptions(void)
 {   
 
     menuOption moNone  = {0,            0,           0,          lfo_menu_option_none };
-    menuOption moWave  = {sine,         1,   totalWaveforms,     lfo_menu_option_wave };
+    menuOption moWave  = {sine,         1,     squaree,          lfo_menu_option_wave };
     menuOption moRate  = {1,            1,         255,          lfo_menu_option_rate};
     menuOption moAmp   = {99,         -99,          99,          lfo_menu_option_amp};
     menuOption moPhase = {0,            0,         254,          lfo_menu_option_phase};
@@ -567,6 +561,19 @@ void initLFOmenuOptions(void)
     LFOmenu[LFO_2][lfo_menu_option_amp]   = moAmp;
     LFOmenu[LFO_2][lfo_menu_option_phase] = moPhase;
     LFOmenu[LFO_2][lfo_menu_option_delay] = moDelay;
+
+
+    displayServPtr->setLFOwave (LFO_1, LFOmenu[LFO_1][lfo_menu_option_wave].value);
+    displayServPtr->setLFOrate (LFO_1, LFOmenu[LFO_1][lfo_menu_option_rate].value);
+    displayServPtr->setLFOamp  (LFO_1, LFOmenu[LFO_1][lfo_menu_option_amp].value);
+    displayServPtr->setLFOphase(LFO_1, LFOmenu[LFO_1][lfo_menu_option_phase].value);
+    displayServPtr->setLFOdelay(LFO_1, LFOmenu[LFO_1][lfo_menu_option_delay].value);
+
+    displayServPtr->setLFOwave (LFO_2, LFOmenu[LFO_2][lfo_menu_option_wave].value);
+    displayServPtr->setLFOrate (LFO_2, LFOmenu[LFO_2][lfo_menu_option_rate].value);
+    displayServPtr->setLFOamp  (LFO_2, LFOmenu[LFO_2][lfo_menu_option_amp].value);
+    displayServPtr->setLFOphase(LFO_2, LFOmenu[LFO_2][lfo_menu_option_phase].value);
+    displayServPtr->setLFOdelay(LFO_2, LFOmenu[LFO_2][lfo_menu_option_delay].value);
 }
 
 
@@ -625,6 +632,11 @@ void initSettingsMenuOptions(void)
     settingsMenu[settings_menu_option_invert]      = moInvert;
     settingsMenu[settings_menu_option_save]        = moSave;
     settingsMenu[settings_menu_option_midi_config] = moMIDIconfig;
+
+
+    displayServPtr->updateSetting(settings_menu_option_noteOn, settingsMenu[settings_menu_option_noteOn].value);
+    displayServPtr->updateSetting(settings_menu_option_invert, settingsMenu[settings_menu_option_invert].value);
+
 
 }
 
