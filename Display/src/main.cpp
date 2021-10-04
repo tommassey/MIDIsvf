@@ -4,6 +4,7 @@
 #include "TeensyTimerTool.h"
 #include "inputs/inputManager.h"
 #include "menu/menu.h"
+#include "comms/receiver.h"
 
 
 
@@ -15,7 +16,7 @@ oled screen(128, 64);
 displayService display(&screen);
 
 
-#include "comms/receiverService.h"
+
 
 PeriodicTimer noteOnTimer(TCK);
 PeriodicTimer noteOffTimer(TCK);
@@ -34,16 +35,12 @@ void checkEncodersTimerISR(void)
 
 void noteOnISR(void)
 {
-  //display.noteOnEvent(LFO_1);
-  //display.noteOffEvent(LFO_2);
-  //Serial.println("on");
+  recieveCommand(command_LFO1_setRate, 2);
 }
 
 void noteOffISR(void)
 {
-  //display.noteOnEvent(LFO_2);
-  //display.noteOffEvent(LFO_1);
-  //Serial.println("off ...");
+  recieveCommand(command_LFO1_setRate, 1);
 }
 
 
@@ -99,7 +96,7 @@ void setup()
   Serial.begin(115200);
   Serial2.begin(115200);
   
-  receiverServiceInit(&display);
+  receiverInit();
 
   
 
@@ -107,8 +104,8 @@ void setup()
   
   initMenu(&display);
 
-  //noteOnTimer.begin(noteOnISR, 0.3_Hz);  // setup timers
-  //noteOffTimer.begin(noteOffISR, 0.4_Hz);  // setup timers
+  noteOnTimer.begin(noteOnISR, 0.3_Hz);  // setup timers
+  noteOffTimer.begin(noteOffISR, 0.4_Hz);  // setup timers
   checkEncodersTimer.begin(checkEncodersTimerISR, 50_Hz);  // setup timers
 
     
@@ -128,8 +125,7 @@ void setup()
 
 void loop()
 {
-  //Serial.println("loop");
-  receiverServiceTask();
+  receiverTask();
   
   int8_t input = checkInputs();
 

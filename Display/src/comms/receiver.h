@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "../../Shared/commandList.h"
+#include "menu/menu.h"
 
 
 
@@ -19,10 +20,12 @@ struct serialMessage
 };
 
 void receiverInit(void);
-bool getSerialMessage(void);
-byte getCommandCount(void);
+void receiverTask(void);
 
-serialMessage passCommand(void);
+// bool getSerialMessage(void);
+// byte getCommandCount(void);
+
+// serialMessage passCommand(void);
 //void checkSerial(oled);
 
 

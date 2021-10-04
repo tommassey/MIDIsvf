@@ -1,5 +1,5 @@
 #include "receiver.h"
-
+#define MESSAGE_LENGTH 4
 
 
 enum messageByteNames
@@ -8,15 +8,7 @@ enum messageByteNames
     DATA_BYTE_1 = 1,
     DATA_BYTE_2 = 2,
     TERMINATOR = '\n'
-
 };
-
-
-
-
-
-#define MESSAGE_LENGTH 4
-
 
 
 
@@ -26,9 +18,10 @@ void receiverInit(void)
 }
 
 
-
+const byte commandMax = 32;   //  size of command buffer
 byte commandCount = 0;
-serialMessage commandList[255];
+byte currentCommand = 0;
+serialMessage commandList[commandMax];
 // Sample input: 255,255,255\n
 char inputBuffer[6];
 
@@ -65,7 +58,9 @@ bool getSerialMessage(void)  //  return true if new message added to commandList
       newMessage.data[DATA_BYTE_2] = inputBuffer[DATA_BYTE_2];
 
       commandList[commandCount] = newMessage;
+
       commandCount++;
+      if (commandCount >= commandMax) commandCount = 0;
 
       Serial.print ("New serial message,   type = ");
       Serial.print (newMessage.messageType);
@@ -88,17 +83,45 @@ bool getSerialMessage(void)  //  return true if new message added to commandList
   return false;
 }
 
-serialMessage passCommand(void)
-{
-  serialMessage newMessage = commandList[commandCount];
-  commandCount--;
-  return newMessage;
-}
+// serialMessage passCommand(void)
+// {
+//   serialMessage newMessage = commandList[commandCount];
+//   commandCount--;
+//   return newMessage;
+// }
 
 byte getCommandCount(void)
 {
   return commandCount;
 }
+
+
+void commandListWorker(void)
+{
+  byte command = commandList[currentCommand].messageType;
+  byte data1 = commandList[currentCommand].data[0];
+  byte data2 = commandList[currentCommand].data[1];
+
+  uint16_t val = ((uint16_t)data2 << 8) | data1;   // combine two bytes to make uint16
+
+  recieveCommand(command, val);  // send command to menu
+
+  commandCount--;
+  currentCommand++;
+
+  if (currentCommand >= commandMax) currentCommand = 0;
+}
+
+void receiverTask(void)
+{
+    getSerialMessage();
+
+    if (commandCount > 0)
+    {
+      commandListWorker();
+    }
+}
+
 
 
 

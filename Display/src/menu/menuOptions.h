@@ -32,10 +32,11 @@ struct menuOption
 struct MIDIprofile
 {
     byte channel = 0;
+    byte cc = 0;
     bool is14bit = false;
     uint16_t value = 0;
     uint16_t min = 0;
-    uint16_t max = 0;
+    uint16_t max = 16384;
 
 };
 

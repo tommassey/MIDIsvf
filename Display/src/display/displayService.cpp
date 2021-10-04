@@ -4,6 +4,8 @@
 displayService::displayService(oled* screenPtr)
 {
     screen = screenPtr;
+
+    
 }
 
 displayService::~displayService()
@@ -81,7 +83,7 @@ void displayService::noteOnEvent(uint8_t whichLFO)
     else
     {
         noteOn[whichLFO] = true;
-        drawCurrentScreenMode();
+        needsRedraw = true;
     }
 }
 
@@ -92,7 +94,7 @@ void displayService::noteOffEvent(uint8_t whichLFO)
     else
     {
         noteOn[whichLFO] = false;
-        drawCurrentScreenMode();
+        needsRedraw = true;
     }
 }
 
@@ -647,4 +649,30 @@ void displayService::setLFOdelay(uint8_t whichLFO, byte delay)
     needsRedraw = true;
 }
 
+
+
+void displayService::receiveMIDIchannel(uint8_t whichLFO, uint16_t val)
+{
+    MIDIdata[whichLFO].channel = val;
+}
+
+void displayService::receiveMIDIcc(uint8_t whichLFO, uint16_t val)
+{
+    MIDIdata[whichLFO].cc = val;
+}
+
+void displayService::receiveMIDIvalue(uint8_t whichLFO, uint16_t val)
+{
+    MIDIdata[whichLFO].value = val;
+}
+
+void displayService::receiveMIDIis14bit(uint8_t whichLFO, uint16_t val)
+{
+    MIDIdata[whichLFO].is14bit = true;
+}
+
+void displayService::receiveMIDIis7bit(uint8_t whichLFO, uint16_t val)
+{
+    MIDIdata[whichLFO].is14bit = false;
+}
 

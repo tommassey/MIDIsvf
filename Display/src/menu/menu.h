@@ -26,5 +26,9 @@ void resetLFOmenu(uint8_t whichLFO);
 void initSettingsMenuOptions(void);
 
 
+void recieveCommand(uint8_t command, int16_t value);
+
+
+
 
 #endif //  MENU_H

@@ -521,7 +521,54 @@ void actOnInputs(int8_t inputNumber)
 }
 
 
+//====================================================================================================================  RECEIVE COMMAND
 
+void recieveCommand(uint8_t command, int16_t value)
+{
+    switch (command)
+    {
+        case command_LFO1_setRate:
+        {
+            LFOmenu[LFO_1][lfo_menu_option_rate].value = value;
+            displayServPtr->setLFOrate(LFO_1, value);
+            break;
+        }
+        case command_LFO2_setRate:
+        {
+            LFOmenu[LFO_2][lfo_menu_option_rate].value = value;
+            displayServPtr->setLFOrate(LFO_2, value);
+            break;
+        } 
+
+        case command_LFO1_noteOn: displayServPtr->noteOnEvent(LFO_1); break;
+        case command_LFO2_noteOn: displayServPtr->noteOnEvent(LFO_2); break;
+
+        case command_LFO1_noteOff: displayServPtr->noteOffEvent(LFO_1); break;
+        case command_LFO2_noteOff: displayServPtr->noteOffEvent(LFO_2); break;
+
+        case command_LFO1_recieve_midi_channel: displayServPtr->receiveMIDIchannel(LFO_1, value); break;
+        case command_LFO2_recieve_midi_channel: displayServPtr->receiveMIDIchannel(LFO_2, value); break;
+
+        case command_LFO1_recieve_midi_cc: displayServPtr->receiveMIDIcc(LFO_1, value); break;
+        case command_LFO2_recieve_midi_cc: displayServPtr->receiveMIDIcc(LFO_2, value); break;
+
+        case command_LFO1_recieve_midi_value: displayServPtr->receiveMIDIvalue(LFO_1, value); break;
+        case command_LFO2_recieve_midi_value: displayServPtr->receiveMIDIvalue(LFO_2, value); break;
+
+        case command_LFO1_recieve_midi_is_14bit: displayServPtr->receiveMIDIis14bit(LFO_1, value); break;
+        case command_LFO2_recieve_midi_is_14bit: displayServPtr->receiveMIDIis14bit(LFO_2, value); break;
+
+        case command_LFO1_recieve_midi_is_7bit: displayServPtr->receiveMIDIis7bit(LFO_1, value); break;
+        case command_LFO2_recieve_midi_is_7bit: displayServPtr->receiveMIDIis7bit(LFO_2, value); break;
+
+    
+        default: return;
+    }
+
+    drawCurrentScreenMode();
+}
+
+    
 
 
 //==================================================================================   MENUS
