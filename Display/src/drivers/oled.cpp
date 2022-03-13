@@ -736,18 +736,18 @@ void oled::printChar(unsigned char x, unsigned char y, char acsii, char size, ch
     for(i = 0;i<size;i++) {
         if(size == 8)
         {
-            if(mode)temp = pgm_read_byte(&font[ch][i]);
-            else temp = ~pgm_read_byte(&font[ch][i]);
+            if(mode)temp = font[ch][i];
+            else temp = ~font[ch][i];
         }
         if(size == 12)
         {
-            if(mode)temp = pgm_read_byte(&Font1206[ch][i]);
-            else temp = ~pgm_read_byte(&Font1206[ch][i]);
+            if(mode)temp = Font1206[ch][i];
+            else temp = ~Font1206[ch][i];
         }
         else 
         {            
-            if(mode)temp = pgm_read_byte(&Font1608[ch][i]);
-            else temp = ~pgm_read_byte(&Font1608[ch][i]);
+            if(mode)temp = Font1608[ch][i];
+            else temp = ~Font1608[ch][i];
         }
         for(j =0;j<8;j++)
         {
@@ -826,7 +826,7 @@ void oled::char1616(uint8_t x, uint8_t y, uint8_t chChar)
 	uint8_t chTemp = 0, y0 = y, chMode = 0;
 
 	for (i = 0; i < 32; i++) {
-		chTemp = pgm_read_byte(&Font1612[chChar - 0x30][i]);
+		chTemp = Font1612[chChar - 0x30][i];
 		for (j = 0; j < 8; j++) {
 			chMode = chTemp & 0x80? 1 : 0; 
 			pixel(x, y, chMode);
@@ -852,7 +852,7 @@ void oled::char3216(uint8_t x, uint8_t y, uint8_t chChar)
     uint8_t chTemp = 0, y0 = y, chMode = 0;
 
     for (i = 0; i < 64; i++) {
-        chTemp = pgm_read_byte(&Font3216[chChar - 0x30][i]);
+        chTemp = Font3216[chChar - 0x30][i];
         for (j = 0; j < 8; j++) {
             chMode = chTemp & 0x80? 1 : 0; 
             pixel(x, y, chMode);
@@ -876,7 +876,7 @@ void oled::text(uint8_t x, uint8_t y, uint8_t chChar)
     uint8_t chTemp = 0, y0 = y, chMode = 0;
 
     for (i = 0; i < 64; i++) {
-        chTemp = pgm_read_byte(&Font3216[chChar - 0x30][i]);
+        chTemp = Font3216[chChar - 0x30][i];
         for (j = 0; j < 8; j++) {
             chMode = chTemp & 0x80? 1 : 0; 
             pixel(x, y, chMode);
@@ -897,6 +897,18 @@ void oled::text(uint8_t x, uint8_t y, uint8_t chChar)
 //===================================================================   bitmaps
 
 void oled::bitmap(uint8_t x,uint8_t y,const uint8_t *pBmp, uint8_t chWidth, uint8_t chHeight)
+// {
+// 	uint8_t i, j, byteWidth = (chWidth + 7)/8;
+// 	for(j = 0;j < chHeight;j++){
+// 		for(i = 0;i <chWidth;i++){
+// 			//if((pBmp + j * byteWidth + i / 8) & ( 128 >> (i & 7) ) )]
+//       if((pBmp + j * byteWidth + i / 8) & ( 128 >> (i & 7) ) )
+//       {
+// 				pixel(x + i,y + j, 1);
+// 			}
+// 		}
+// 	}		
+// }
 {
 	uint8_t i, j, byteWidth = (chWidth + 7)/8;
 	for(j = 0;j < chHeight;j++){

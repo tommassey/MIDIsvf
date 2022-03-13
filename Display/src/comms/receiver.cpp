@@ -49,7 +49,7 @@ bool getSerialMessage(void)  //  return true if new message added to commandList
       return false;
     }
 
-    else if (count == MESSAGE_LENGTH)
+    else if (count == MESSAGE_LENGTH)  // valid message length
     {
       serialMessage newMessage;
 
